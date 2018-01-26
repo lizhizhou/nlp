@@ -3,8 +3,6 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 import com.databricks.spark.corenlp.functions._
 
-import sqlContext.implicits._
-
 object NLP {
   def main(args: Array[String]) {
     val spark = SparkSession.builder.appName("Simple Application").getOrCreate()
@@ -13,6 +11,10 @@ object NLP {
     val distData = sc.parallelize(data)
     distData.collect.foreach(println)
 
+    
+    val sqlContext = new org.apache.spark.sql.SQLContext(sc)  
+    import sqlContext.implicits._
+    
     val input = Seq(
       (1, "<xml>Stanford University is located in California. It is a great university.</xml>")).toDF("id", "text")
 
@@ -33,7 +35,7 @@ object NLP {
 //    .set("arangodb.password", "lab123")
 //    ...
 //val sc = new SparkContext(conf)
-    1
+    
 //val rdd = ArangoSpark.load[MyBean](sc, "myCollection")
 //ArangoSpark.save(rdd, "myCollection")
 

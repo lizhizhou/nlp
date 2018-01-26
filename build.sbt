@@ -2,9 +2,9 @@ name := "NLP Project"
 
 version := "1.0"
 
-crossScalaVersions := Seq("2.11.8", "2.10.6")
+scalaVersion := "2.11.8"
 
-sparkVersion := "2.2.0"
+sparkVersion := "2.2.1"
 
 sparkComponents ++= Seq("streaming", "sql")
 
