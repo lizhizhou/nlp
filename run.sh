@@ -1,2 +1,3 @@
 ~/Downloads/spark-2.1.0-bin-hadoop2.7/bin/spark-submit ~/nlp/target/scala-2.11/NLP\ Project-assembly-1.0.jar --jars ~/Downloads/stanford-corenlp-full-2017-06-09/stanford-corenlp-3.8.0-models.jar
 
+#spark-shell --master yarn --deploy-mode client --queue multivac --driver-cores 5 --driver-memory 8g --executor-cores 5 --executor-memory 4g --num-executors 30 --jars /home/jars/stanford-corenlp-3.7.0/ejml-0.23.jar,/home/jars/stanford-corenlp-3.7.0/stanford-corenlp-3.7.0.jar,/home/jars/stanford-corenlp-3.7.0/stanford-corenlp-3.7.0-models.jar,/home/jars/stanford-corenlp-3.7.0/protobuf.jar,/home/jars/stanford-corenlp-3.7.0/jollyday.jar

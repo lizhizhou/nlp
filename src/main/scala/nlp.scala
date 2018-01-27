@@ -28,13 +28,13 @@ object NLP {
 
     val input = Seq(
       (1, "<xml>Stanford University is located in California. It is a great university.</xml>")).toDF("id", "text")
-    //
-    //    val output = input
-    //      .select(cleanxml('text).as('doc))
-    //      .select(explode(ssplit('doc)).as('sen))
-    //      .select('sen, tokenize('sen).as('words), ner('sen).as('nerTags), sentiment('sen).as('sentiment))
-    //
-    //    output.show(truncate = false)
+    
+        val output = input
+          .select(cleanxml('text).as('doc))
+          .select(explode(ssplit('doc)).as('sen))
+          .select('sen, tokenize('sen).as('words), ner('sen).as('nerTags), sentiment('sen).as('sentiment))
+    
+        output.show(truncate = false)
 
     val triple = sqlContext.read.json("/home/bigdata/microeco.json")
 
@@ -53,7 +53,7 @@ object NLP {
     triple.saveToEs("spark/docs")
     val es = sc.esRDD("spark/docs")
     es.take(100).foreach(println)
+    while(true)
     sc.stop()
-
   }
 }
