@@ -32,8 +32,8 @@ object NLP {
     //triple.show(200)
     vertex.show(200)
     // val rdd = ArangoSpark.load[MyBean](sc, "myCollection")
-    ArangoSpark.save(triple.rdd, "edge")
-    ArangoSpark.save(vertex, "vertex")
+    ArangoSpark.saveDF(triple, "edge")
+    ArangoSpark.saveDF(vertex, "vertex")
 
     sc.stop()
     
