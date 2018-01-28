@@ -8,6 +8,7 @@ import org.apache.spark.sql.functions._
 import com.databricks.spark.corenlp.functions._
 import org.elasticsearch.spark._
 import org.elasticsearch.spark.sql._
+import org.elasticsearch.spark.rdd.Metadata._
 import com.arangodb.spark.ArangoSpark
 
 case class Concept(name: String)
@@ -30,14 +31,14 @@ object NLP {
     val input = Seq(
       (1, "<xml>Stanford University is located in California. It is a great university.</xml>")).toDF("id", "text")
 
-//    val output = input
-//      .select(cleanxml('text).as('doc))
-//      .select(explode(ssplit('doc)).as('sen))
-//      .select('sen, tokenize('sen).as('words), ner('sen).as('nerTags), coref('sen).as('coref), openie('sen).as('openie), sentiment('sen).as('sentiment))
-//    output.show(truncate = false)
+    //    val output = input
+    //      .select(cleanxml('text).as('doc))
+    //      .select(explode(ssplit('doc)).as('sen))
+    //      .select('sen, tokenize('sen).as('words), ner('sen).as('nerTags), coref('sen).as('coref), openie('sen).as('openie), sentiment('sen).as('sentiment))
+    //    output.show(truncate = false)
 
     val triple = sqlContext.read.json("/home/bigdata/microeco.json")
-    triple.show(10)    
+    triple.show(10)
 
     // Generate the schema based on the string of schema
     val schema = StructType(Array(StructField("Concept", StringType, nullable = true)))
@@ -47,17 +48,17 @@ object NLP {
 
     // Create an RDD for vertex
     val concept: RDD[(VertexId, String)] = vertex.rdd.map(x => (x.hashCode(), x.getAs("Concept")))
-      
+
     // Create an RDD for edges
-    val relationships: RDD[Edge[String]] = triple.rdd.map { x => Edge(x.getAs("object").hashCode(), x.getAs("subject").hashCode(), x.getAs("relation")) } 
-    
+    val relationships: RDD[Edge[String]] = triple.rdd.map { x => Edge(x.getAs("object").hashCode(), x.getAs("subject").hashCode(), x.getAs("relation")) }
+
     // Define a default user in case there are relationship with missing user
     val defaultconcept = ""
     // Build the initial Graph
     val graph = Graph(concept, relationships, defaultconcept)
     graph.vertices.collect().take(10).foreach(println)
     graph.edges.collect().take(10).foreach(println)
-    
+
     // val rdd = ArangoSpark.load[MyBean](sc, "myCollection")
     // ArangoSpark.saveDF(triple, "edge")
     // ArangoSpark.saveDF(vertex, "vertex")
@@ -65,8 +66,20 @@ object NLP {
     triple.saveToEs("spark/vertex")
     val es = sc.esRDD("spark/vertex")
     es.take(10).foreach(println)
-    
-    
+
+    val otp = Map("iata" -> "OTP", "name" -> "Otopeni")
+    val muc = Map("iata" -> "MUC", "name" -> "Munich")
+    val sfo = Map("iata" -> "SFO", "name" -> "San Fran")
+
+    // metadata for each document
+    // note it's not required for them to have the same structure
+    val otpMeta = Map(ID -> 1)
+    val mucMeta = Map(ID -> 2, VERSION -> "23")
+    val sfoMeta = Map(ID -> 3)
+
+    val airportsRDD = sc.makeRDD(Seq((otpMeta, otp), (mucMeta, muc), (sfoMeta, sfo)))
+    airportsRDD.saveToEsWithMeta("airports/2015")
+
     sc.stop()
   }
 }
