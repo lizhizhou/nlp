@@ -9,7 +9,8 @@ import com.databricks.spark.corenlp.functions._
 import org.elasticsearch.spark._
 import org.elasticsearch.spark.sql._
 import org.elasticsearch.spark.rdd.Metadata._
-import com.arangodb.spark.ArangoSpark
+import com.arangodb.spark.{ArangoSpark, ReadOptions, WriteOptions}
+import scala.beans.BeanProperty
 
 case class Concept(name: String)
 case class Triple(obj: String, rel: String, subject: String)
@@ -56,29 +57,42 @@ object NLP {
     val defaultconcept = ""
     // Build the initial Graph
     val graph = Graph(concept, relationships, defaultconcept)
-    graph.vertices.collect().take(10).foreach(println)
-    graph.edges.collect().take(10).foreach(println)
+//    graph.vertices.collect().take(10).foreach(println)
+//    graph.edges.collect().take(10).foreach(println)
 
-    // val rdd = ArangoSpark.load[MyBean](sc, "myCollection")
-    // ArangoSpark.saveDF(triple, "edge")
-    // ArangoSpark.saveDF(vertex, "vertex")
+    case class link(var _from: String, var _to:String, var relation:String) {
+      def this() = this("","","")
+    }
 
-    triple.saveToEs("spark/vertex")
-    val es = sc.esRDD("spark/vertex")
-    es.take(10).foreach(println)
+    case class point(var Concept: String) {
+      def this() = this("")
+    }
+    println("Write link data")
+//    ArangoSpark.save(vertex.rdd.map { x => point( x.getAs("Concept"))}, "vertex", WriteOptions("test"))
+//    ArangoSpark.save(triple.rdd.map { x => link("vertex/" + x.getAs("object"), "vertex/"+x.getAs("subject"), x.getAs("relation")) }, "link",WriteOptions("test"))
+//    val rdd = ArangoSpark.load[link](sc, "link", ReadOptions("test"))
+//    println("Read link data")
+//    rdd.collect().foreach(println)
+    
+    //ArangoSpark.saveDF(triple, "edge")
+    ArangoSpark.save(sc.makeRDD(Seq(link("persons/alice", "persons/dave", "test"))), "knows", WriteOptions("test"))
 
-    val otp = Map("iata" -> "OTP", "name" -> "Otopeni")
-    val muc = Map("iata" -> "MUC", "name" -> "Munich")
-    val sfo = Map("iata" -> "SFO", "name" -> "San Fran")
-
-    // metadata for each document
-    // note it's not required for them to have the same structure
-    val otpMeta = Map(ID -> 1)
-    val mucMeta = Map(ID -> 2, VERSION -> "23")
-    val sfoMeta = Map(ID -> 3)
-
-    val airportsRDD = sc.makeRDD(Seq((otpMeta, otp), (mucMeta, muc), (sfoMeta, sfo)))
-    airportsRDD.saveToEsWithMeta("airports/2015")
+//    triple.saveToEs("spark/vertex")
+//    val es = sc.esRDD("spark/vertex")
+//    es.take(10).foreach(println)
+//
+//    val otp = Map("iata" -> "OTP", "name" -> "Otopeni")
+//    val muc = Map("iata" -> "MUC", "name" -> "Munich")
+//    val sfo = Map("iata" -> "SFO", "name" -> "San Fran")
+//
+//    // metadata for each document
+//    // note it's not required for them to have the same structure
+//    val otpMeta = Map(ID -> 1)
+//    val mucMeta = Map(ID -> 2)//, VERSION -> "23")
+//    val sfoMeta = Map(ID -> 3)
+//
+//    val airportsRDD = sc.makeRDD(Seq((otpMeta, otp), (mucMeta, muc), (sfoMeta, sfo)))
+//    airportsRDD.saveToEsWithMeta("airports/2015")
 
     sc.stop()
   }
