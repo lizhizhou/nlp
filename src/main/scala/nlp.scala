@@ -40,7 +40,7 @@ object NLP {
 
     // The schema is encoded in a string
     val schemaString = ""
-
+    
     // Generate the schema based on the string of schema
     val schema = StructType(Array(StructField("Concept", StringType, nullable = true)))
     val vertex = spark.createDataFrame(triple.select("object").rdd.union(triple.select("subject").rdd).distinct(), schema)
@@ -53,7 +53,6 @@ object NLP {
     triple.saveToEs("spark/docs")
     val es = sc.esRDD("spark/docs")
     es.take(100).foreach(println)
-    while(true)
     sc.stop()
   }
 }
