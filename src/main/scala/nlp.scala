@@ -10,6 +10,7 @@ import org.elasticsearch.spark._
 import org.elasticsearch.spark.sql._
 import org.elasticsearch.spark.rdd.Metadata._
 import com.arangodb.spark.{ArangoSpark, ReadOptions, WriteOptions}
+import com.arangodb.ArangoDB
 import scala.beans.BeanProperty
 
 case class Concept(name: String)
@@ -68,15 +69,27 @@ object NLP {
       def this() = this("")
     }
     println("Write link data")
-//    ArangoSpark.save(vertex.rdd.map { x => point( x.getAs("Concept"))}, "vertex", WriteOptions("test"))
+    ArangoSpark.save(vertex.rdd.map { x => point( x.getAs("Concept"))}, "vertex", WriteOptions("test"))
 //    ArangoSpark.save(triple.rdd.map { x => link("vertex/" + x.getAs("object"), "vertex/"+x.getAs("subject"), x.getAs("relation")) }, "link",WriteOptions("test"))
 //    val rdd = ArangoSpark.load[link](sc, "link", ReadOptions("test"))
 //    println("Read link data")
 //    rdd.collect().foreach(println)
     
     //ArangoSpark.saveDF(triple, "edge")
-    ArangoSpark.save(sc.makeRDD(Seq(link("persons/alice", "persons/dave", "test"))), "knows", WriteOptions("test"))
+    //ArangoSpark.save(sc.makeRDD(Seq(link("persons/alice", "persons/dave", "test"))), "knows", WriteOptions("test"))
 
+//    import com.arangodb.entity.DocumentField
+//    import com.arangodb.entity.DocumentField.Type
+    
+    
+    
+    val arangoDB: ArangoDB = new ArangoDB.Builder().user("root").password("lab123").build();
+    //arangoDB.createDatabase("test");
+    val db = arangoDB.db("test");
+    val g = db.graph("myGraph")
+    val lizhizhou = g.vertexCollection("concept").insertVertex(point("lizhizhou"), null);
+    val lzz = g.vertexCollection("concept").insertVertex(point("lzz"), null);
+    g.edgeCollection("link").insertEdge(link(lizhizhou.getId,lzz.getId,"short"));
 //    triple.saveToEs("spark/vertex")
 //    val es = sc.esRDD("spark/vertex")
 //    es.take(10).foreach(println)
