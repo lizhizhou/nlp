@@ -87,9 +87,9 @@ object NLP {
     //arangoDB.createDatabase("test");
     val db = arangoDB.db("test");
     val g = db.graph("myGraph")
-    val lizhizhou = g.vertexCollection("concept").insertVertex(point("lizhizhou"), null);
-    val lzz = g.vertexCollection("concept").insertVertex(point("lzz"), null);
-    g.edgeCollection("link").insertEdge(link(lizhizhou.getId,lzz.getId,"short"));
+    val vid = graph.vertices.collect().map(x => (x._2,g.vertexCollection("concept").insertVertex(point(x._2), null).getId)).toMap;
+    triple.collect().map(x =>  g.edgeCollection("link").insertEdge(link(vid(x.getAs("object")),vid(x.getAs("subject")),x.getAs("relation"))))
+   
 //    triple.saveToEs("spark/vertex")
 //    val es = sc.esRDD("spark/vertex")
 //    es.take(10).foreach(println)
