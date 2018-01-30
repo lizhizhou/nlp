@@ -2,7 +2,7 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
 import org.apache.spark._
-import org.apache.spark.graphx._
+import org.apache.spark.graphx.{Edge,VertexId,Graph}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions._
 import com.databricks.spark.corenlp.functions._
@@ -89,7 +89,8 @@ object NLP {
     val g = db.graph("myGraph")
     val vid = graph.vertices.collect().map(x => (x._2,g.vertexCollection("concept").insertVertex(point(x._2), null).getId)).toMap;
     triple.collect().map(x =>  g.edgeCollection("link").insertEdge(link(vid(x.getAs("object")),vid(x.getAs("subject")),x.getAs("relation"))))
-   
+    //graph.edges.collect().map(x =>  g.edgeCollection("link").insertEdge(link(vid(x.srcId.),vid(x.getAs("subject")),x.getAs("relation"))))
+    
 //    triple.saveToEs("spark/vertex")
 //    val es = sc.esRDD("spark/vertex")
 //    es.take(10).foreach(println)
