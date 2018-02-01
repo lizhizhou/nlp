@@ -13,10 +13,27 @@ import com.arangodb.spark.{ArangoSpark, ReadOptions, WriteOptions}
 import com.arangodb.ArangoDB
 import scala.beans.BeanProperty
 
-case class Concept(name: String)
-case class Triple(obj: String, rel: String, subject: String)
-
 object NLP {
+  
+//  def TripleGraphX() = {
+//      // Generate the schema based on the string of schema
+//    val schema = StructType(Array(StructField("Concept", StringType, nullable = true)))
+//    val vertex = spark.createDataFrame(triple.select("object").rdd.union(triple.select("subject").rdd).distinct(), schema)
+//
+//    vertex.show(10)
+//
+//    // Create an RDD for vertex
+//    val concept: RDD[(VertexId, String)] = vertex.rdd.map(x => (x.hashCode(), x.getAs("Concept")))
+//
+//    // Create an RDD for edges
+//    val relationships: RDD[Edge[String]] = triple.rdd.map { x => Edge(x.getAs("object").hashCode(), x.getAs("subject").hashCode(), x.getAs("relation")) }
+//
+//    // Define a default user in case there are relationship with missing user
+//    val defaultconcept = ""
+//    // Build the initial Graph
+//    val graph = Graph(concept, relationships, defaultconcept)
+//}
+  
   def main(args: Array[String]) {
 
     val conf = new SparkConf()
@@ -42,55 +59,11 @@ object NLP {
     val triple = sqlContext.read.json("/home/bigdata/microeco.json")
     triple.show(10)
 
-    // Generate the schema based on the string of schema
-    val schema = StructType(Array(StructField("Concept", StringType, nullable = true)))
-    val vertex = spark.createDataFrame(triple.select("object").rdd.union(triple.select("subject").rdd).distinct(), schema)
 
-    vertex.show(10)
-
-    // Create an RDD for vertex
-    val concept: RDD[(VertexId, String)] = vertex.rdd.map(x => (x.hashCode(), x.getAs("Concept")))
-
-    // Create an RDD for edges
-    val relationships: RDD[Edge[String]] = triple.rdd.map { x => Edge(x.getAs("object").hashCode(), x.getAs("subject").hashCode(), x.getAs("relation")) }
-
-    // Define a default user in case there are relationship with missing user
-    val defaultconcept = ""
-    // Build the initial Graph
-    val graph = Graph(concept, relationships, defaultconcept)
 //    graph.vertices.collect().take(10).foreach(println)
 //    graph.edges.collect().take(10).foreach(println)
 
-    case class link(var _from: String, var _to:String, var relation:String) {
-      def this() = this("","","")
-    }
 
-    case class point(var Concept: String) {
-      def this() = this("")
-    }
-    println("Write link data")
-    ArangoSpark.save(vertex.rdd.map { x => point( x.getAs("Concept"))}, "vertex", WriteOptions("test"))
-//    ArangoSpark.save(triple.rdd.map { x => link("vertex/" + x.getAs("object"), "vertex/"+x.getAs("subject"), x.getAs("relation")) }, "link",WriteOptions("test"))
-//    val rdd = ArangoSpark.load[link](sc, "link", ReadOptions("test"))
-//    println("Read link data")
-//    rdd.collect().foreach(println)
-    
-    //ArangoSpark.saveDF(triple, "edge")
-    //ArangoSpark.save(sc.makeRDD(Seq(link("persons/alice", "persons/dave", "test"))), "knows", WriteOptions("test"))
-
-//    import com.arangodb.entity.DocumentField
-//    import com.arangodb.entity.DocumentField.Type
-    
-    
-    
-    val arangoDB: ArangoDB = new ArangoDB.Builder().user("root").password("lab123").build();
-    //arangoDB.createDatabase("test");
-    val db = arangoDB.db("test");
-    val g = db.graph("myGraph")
-    val vid = graph.vertices.collect().map(x => (x._2,g.vertexCollection("concept").insertVertex(point(x._2), null).getId)).toMap;
-    triple.collect().map(x =>  g.edgeCollection("link").insertEdge(link(vid(x.getAs("object")),vid(x.getAs("subject")),x.getAs("relation"))))
-    //graph.edges.collect().map(x =>  g.edgeCollection("link").insertEdge(link(vid(x.srcId.),vid(x.getAs("subject")),x.getAs("relation"))))
-    
 //    triple.saveToEs("spark/vertex")
 //    val es = sc.esRDD("spark/vertex")
 //    es.take(10).foreach(println)
