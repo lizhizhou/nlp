@@ -12,25 +12,7 @@ import com.arangodb.ArangoDB
 import scala.beans.BeanProperty
 
 object NLP {
-  
-//  def TripleGraphX() = {
-//      // Generate the schema based on the string of schema
-//    val schema = StructType(Array(StructField("Concept", StringType, nullable = true)))
-//    val vertex = spark.createDataFrame(triple.select("object").rdd.union(triple.select("subject").rdd).distinct(), schema)
-//
-//    vertex.show(10)
-//
-//    // Create an RDD for vertex
-//    val concept: RDD[(VertexId, String)] = vertex.rdd.map(x => (x.hashCode(), x.getAs("Concept")))
-//
-//    // Create an RDD for edges
-//    val relationships: RDD[Edge[String]] = triple.rdd.map { x => Edge(x.getAs("object").hashCode(), x.getAs("subject").hashCode(), x.getAs("relation")) }
-//
-//    // Define a default user in case there are relationship with missing user
-//    val defaultconcept = ""
-//    // Build the initial Graph
-//    val graph = Graph(concept, relationships, defaultconcept)
-//}
+ 
   
   def main(args: Array[String]) {
 

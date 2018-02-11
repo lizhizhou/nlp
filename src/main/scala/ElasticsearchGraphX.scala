@@ -1,9 +1,20 @@
+import org.apache.spark._
 import org.elasticsearch.spark._
 import org.elasticsearch.spark.sql._
 import org.elasticsearch.spark.rdd.Metadata._
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.graphx.{ Edge, VertexId, Graph }
 
-class ElasticsearchGraphX {
-  //    triple.saveToEs("spark/vertex")
+class ElasticsearchGraphX(val sc: SparkContext) {
+  def save(graph: Graph[String, String], index:String) = {
+    
+  }
+  
+  
+  def save(triple: DataFrame, index:String) = { 
+    triple.saveToEs(index)//("spark/vertex")
+  }
+  //    
 //    val es = sc.esRDD("spark/vertex")
 //    es.take(10).foreach(println)
 //
