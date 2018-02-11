@@ -19,6 +19,16 @@ libraryDependencies ++= Seq(
    "org.apache.jena" % "jena-elephas-io" % "0.9.0"
 )
 
+mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
+  {
+    case PathList("org", "slf4j", xs @ _*)         => MergeStrategy.first
+    case PathList(ps @ _*) if ps.last endsWith "axiom.xml" => MergeStrategy.filterDistinctLines
+    case PathList(ps @ _*) if ps.last endsWith "Log$Logger.class" => MergeStrategy.first
+    case PathList(ps @ _*) if ps.last endsWith "ILoggerFactory.class" => MergeStrategy.first
+    case x => old(x)
+  }
+}
+
 // sbt-assembly 0.14.0 adds shading support.
 //assemblyShadeRules in assembly := Seq(
 //  ShadeRule.rename("org.apache.commons.io.**" -> "shadeio.@1").inAll
