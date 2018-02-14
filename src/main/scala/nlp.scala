@@ -37,7 +37,9 @@ object NLP {
     //    output.show(truncate = false)
 
     val triple = sqlContext.read.json("/home/bigdata/microeco.json")
-    triple.show(10)
+    val tg = new TripleGraphX(spark)
+    tg.toTriple(tg.toGraphX(triple)).show(10)
+    //triple.show(10)
 
 
 //    graph.vertices.collect().take(10).foreach(println)

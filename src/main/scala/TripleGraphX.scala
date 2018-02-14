@@ -2,6 +2,7 @@ import org.apache.spark._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{ DataFrame, SparkSession }
 import org.apache.spark.graphx.{ Edge, VertexId, Graph }
+import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions._
 
@@ -24,6 +25,11 @@ class TripleGraphX(spark: SparkSession) {
     graph
   }
   def toTriple(graph: Graph[String, String]) =  {
-    graph.edges
+    val schema = StructType(Array(StructField("object", StringType, nullable = true),
+        StructField("relation", StringType, nullable = true),
+        StructField("subject", StringType, nullable = true)))
+    val triple = graph.triplets.map(triplet =>
+      Row(triplet.srcAttr, triplet.attr, triplet.dstAttr))
+    spark.createDataFrame(triple.distinct(), schema)
   }
 }
