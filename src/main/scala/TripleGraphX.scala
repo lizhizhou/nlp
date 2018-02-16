@@ -8,18 +8,18 @@ import org.apache.spark.sql.functions._
 
 class TripleGraphX(spark: SparkSession) {
   def toGraphX(triple: DataFrame) = {
-    // Generate the schema based on the string of schema
-    val schema = StructType(Array(StructField("Concept", StringType, nullable = true)))
-    val vertex = spark.createDataFrame(triple.select("object").rdd.union(triple.select("subject").rdd).distinct(), schema)
-
+    val edges = triple.rdd.map { x =>  (x.getAs[String]("object"), x.getAs[String]("subject"), x.getAs[String]("relation"))}
+    
+    val vertex = edges.map(x => x._1).union(edges.map(x => x._2))
+    
     // Create an RDD for vertex
-    val concept: RDD[(VertexId, String)] = vertex.rdd.map(x => (x.hashCode(), x.getAs("Concept")))
-    concept.take(10).foreach(println)
+    val concept: RDD[(VertexId, String)] = vertex.map(x => (x.hashCode(), x))
+
     // Create an RDD for edges
-    val relationships: RDD[Edge[String]] = triple.rdd.map { x => Edge(x.getAs("object").hashCode(), x.getAs("subject").hashCode(), x.getAs("relation")) }
+    val relationships: RDD[Edge[String]] = edges.map { x => Edge(x._1.hashCode(), x._2.hashCode(), x._3) }
 
     // Define a default user in case there are relationship with missing user
-    val defaultconcept = "default"
+    val defaultconcept = ""
     // Build the initial Graph
     val graph = Graph(concept, relationships, defaultconcept)
     graph
