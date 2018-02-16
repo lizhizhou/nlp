@@ -14,12 +14,12 @@ class TripleGraphX(spark: SparkSession) {
 
     // Create an RDD for vertex
     val concept: RDD[(VertexId, String)] = vertex.rdd.map(x => (x.hashCode(), x.getAs("Concept")))
-
+    concept.take(10).foreach(println)
     // Create an RDD for edges
     val relationships: RDD[Edge[String]] = triple.rdd.map { x => Edge(x.getAs("object").hashCode(), x.getAs("subject").hashCode(), x.getAs("relation")) }
 
     // Define a default user in case there are relationship with missing user
-    val defaultconcept = ""
+    val defaultconcept = "default"
     // Build the initial Graph
     val graph = Graph(concept, relationships, defaultconcept)
     graph
