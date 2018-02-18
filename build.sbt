@@ -11,13 +11,15 @@ sparkComponents ++= Seq("streaming", "sql", "graphx", "mllib")
 spAppendScalaVersion := true
 
 libraryDependencies ++= Seq(
-   "com.databricks" %% "spark-xml" % "0.4.1",
    "databricks" %% "spark-corenlp" % "0.3.0-SNAPSHOT",
    "org.elasticsearch" % "elasticsearch-spark-20_2.11" % "6.1.2",
    "neo4j-contrib" % "neo4j-spark-connector" % "2.1.0-M4",
    "com.arangodb" % "arangodb-spark-connector" % "1.0.2",
    "com.arangodb" % "arangodb-java-driver" % "4.3.0",
-   "org.apache.jena" % "jena-elephas-io" % "0.9.0"
+   "org.apache.jena" % "jena-elephas-io" % "0.9.0",
+   "com.databricks" %% "spark-xml" % "0.4.1",
+   "org.apache.poi" % "poi" % "3.17",
+   "com.crealytics" % "spark-excel" % "0.9.12"
 )
 
 mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
