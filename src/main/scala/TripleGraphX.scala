@@ -33,3 +33,8 @@ class TripleGraphX(spark: SparkSession) {
     spark.createDataFrame(triple.distinct(), schema)
   }
 }
+
+object TripleGraphX 
+{
+   def apply(spark: SparkSession) = new TripleGraphX(spark)
+}
