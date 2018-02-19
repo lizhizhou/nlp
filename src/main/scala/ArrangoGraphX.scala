@@ -19,6 +19,8 @@ object ArrangoGraphX{
       def this() = this("")
     }
     println("Write link data")
+    def toArrango(graph: Graph[String, String]) = {
+
 //    ArangoSpark.save(vertex.rdd.map { x => point( x.getAs("Concept"))}, "vertex", WriteOptions("test"))
 //    ArangoSpark.save(triple.rdd.map { x => link("vertex/" + x.getAs("object"), "vertex/"+x.getAs("subject"), x.getAs("relation")) }, "link",WriteOptions("test"))
 //    val rdd = ArangoSpark.load[link](sc, "link", ReadOptions("test"))
@@ -40,6 +42,7 @@ object ArrangoGraphX{
 //    val vid = graph.vertices.collect().map(x => (x._2,g.vertexCollection("concept").insertVertex(point(x._2), null).getId)).toMap;
 //    triple.collect().map(x =>  g.edgeCollection("link").insertEdge(link(vid(x.getAs("object")),vid(x.getAs("subject")),x.getAs("relation"))))
     //graph.edges.collect().map(x =>  g.edgeCollection("link").insertEdge(link(vid(x.srcId.),vid(x.getAs("subject")),x.getAs("relation"))))
+    }
     }
   
 }
