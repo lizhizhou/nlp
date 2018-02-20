@@ -18,14 +18,16 @@ libraryDependencies ++= Seq(
    "com.arangodb" % "arangodb-java-driver" % "4.3.0",
    "org.apache.jena" % "jena-elephas-io" % "0.9.0",
    "com.databricks" %% "spark-xml" % "0.4.1",
-   "org.apache.poi" % "poi" % "3.17",
-   "com.crealytics" % "spark-excel_2.11" % "0.9.12"
+   "com.crealytics" % "spark-excel_2.11" % "0.9.14",
+   "org.apache.poi" % "poi" % "3.17"
 )
 
 mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
   {
+    case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
     case PathList("org", "slf4j", xs @ _*)         => MergeStrategy.first
     case PathList("org", "apache", xs @ _*)         => MergeStrategy.first
+    case PathList(ps @ _*)         => MergeStrategy.first
     case PathList(ps @ _*) if ps.last endsWith "axiom.xml" => MergeStrategy.filterDistinctLines
     case PathList(ps @ _*) if ps.last endsWith "Log$Logger.class" => MergeStrategy.first
     case PathList(ps @ _*) if ps.last endsWith "ILoggerFactory.class" => MergeStrategy.first
