@@ -42,7 +42,7 @@ object NLP {
     //triple.show(10)
     val ag = ArrangoGraphX(spark)
     ag.toArrango(tg.toGraphX(triple), "test", "myGraph", "concept", "link")
-
+    tg.toTriple(ag.toGraphX("test", "concept", "link")).show(10)
 //    graph.vertices.collect().take(10).foreach(println)
 //    graph.edges.collect().take(10).foreach(println)
 
