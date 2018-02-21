@@ -1,48 +1,107 @@
-
-import com.arangodb.spark.{ArangoSpark, ReadOptions, WriteOptions}
+import org.apache.spark.graphx.{ Edge, VertexId, Graph }
+import com.arangodb.spark.{ ArangoSpark, ReadOptions, WriteOptions }
+import org.apache.spark.rdd.RDD
 import com.arangodb.ArangoDB
+import com.arangodb.entity.EdgeDefinition
+import com.arangodb.entity.GraphEntity
+import com.arangodb.model.GraphCreateOptions
+import org.apache.spark.sql.SparkSession
+import collection.JavaConverters._
+import scala.collection.mutable._
 
-class ArrangoGraphX {
+class ArrangoGraphX(spark: SparkSession) {
+  case class link(var _from: String, var _to: String, var relation: String) {
+    def this() = this("", "", "")
+  }
+  case class point(var Concept: String) {
+    def this() = this("")
+  }
   
+  val sc = spark.sparkContext
+  val conf = sc.getConf
+  val propertyHost = "arangodb.host"
+  val propertyPort = "arangodb.port"
+  val propertyUser = "arangodb.user"
+  val propertyPassword = "arangodb.password"
+  val host = Some(conf.get(propertyHost, null))
+  val port = Some(conf.get(propertyPort, null))
+  val user = Some(conf.get(propertyUser, null))
+  val password = Some(conf.get(propertyPassword, null))
+
+  val builder = new ArangoDB.Builder()
+  host.foreach { builder.host(_, port.getOrElse("8529").toInt) }
+  user.foreach { builder.user(_) }
+  password.foreach { builder.password(_) }
+  val arangoDB: ArangoDB = builder.build();
+
+  def toGraphX(database: String, vertex: String, edge: String) = {
+    val edges = ArangoSpark.load[link](sc, edge, ReadOptions(database))
+    
+    val vertexs = ArangoSpark.load[point](sc, vertex, ReadOptions(database))
+    
+    // Create an RDD for vertex
+    val concept: RDD[(VertexId, String)] = vertexs.map(x => (x.Concept.hashCode(), x.Concept))
+
+    // Create an RDD for edges
+    val relationships: RDD[Edge[String]] = edges.map { x => (x._from, x._to, x.relation) }
+    .mapPartitions { iter => { 
+      val db = arangoDB.db(database);
+      for (e <- iter) yield Edge( db.getDocument(e._1, point.getClass ).hashCode(),
+          db.getDocument(e._2, point.getClass ).hashCode(), e._3)
+      }
+    }
+
+    // Define a default user in case there are relationship with missing user
+    val defaultconcept = ""
+    // Build the initial Graph
+    val graph = Graph(concept, relationships, defaultconcept)
+    graph
+  }
+  def toArrango(graph: Graph[String, String], database: String, graphdb: String, vertex: String, edge: String) = {
+    val db = arangoDB.db(database);
+    
+    db.graph(graphdb).drop();
+    db.collection(vertex).drop();
+    db.collection(edge).drop();
+
+    // Create vertex collection
+    db.createCollection(vertex, null);
+    // Create edge collection
+    val edgeDefinitions = new ArrayBuffer[EdgeDefinition]();
+    val edgeDefinition = new EdgeDefinition();
+
+    edgeDefinition.collection(edge);
+    edgeDefinition.from(vertex, vertex)
+    edgeDefinition.to(vertex, vertex)
+    edgeDefinitions += edgeDefinition
+
+    // Create graph
+    val options = new GraphCreateOptions();
+    db.createGraph(graphdb, edgeDefinitions.asJava, options);
+    
+    // Add vertex and edge element 
+    val g = db.graph(graphdb)
+    val vid = graph.vertices.collect().map(x => (x._2, g.vertexCollection(vertex).insertVertex(point(x._2), null).getId)).toMap;
+    graph.triplets.collect().map(x => g.edgeCollection(edge).insertEdge(link(vid(x.srcAttr), vid(x.dstAttr), x.attr)))
+    
+  }
+
 }
 
-object ArrangoGraphX{ 
-    def apply() = {
-      
-    case class Concept(name: String)
-    case class Triple(obj: String, rel: String, subject: String)
-    case class link(var _from: String, var _to:String, var relation:String) {
-      def this() = this("","","")
-    }
+object ArrangoGraphX {
+  def apply(spark: SparkSession) = new ArrangoGraphX(spark)
 
-    case class point(var Concept: String) {
-      def this() = this("")
-    }
-    println("Write link data")
-    def toArrango(graph: Graph[String, String]) = {
+  //    case class Concept(name: String)
+  //    case class Triple(obj: String, rel: String, subject: String)
+  //
+  //    println("Write link data")
 
-//    ArangoSpark.save(vertex.rdd.map { x => point( x.getAs("Concept"))}, "vertex", WriteOptions("test"))
-//    ArangoSpark.save(triple.rdd.map { x => link("vertex/" + x.getAs("object"), "vertex/"+x.getAs("subject"), x.getAs("relation")) }, "link",WriteOptions("test"))
-//    val rdd = ArangoSpark.load[link](sc, "link", ReadOptions("test"))
-//    println("Read link data")
-//    rdd.collect().foreach(println)
-    
-    //ArangoSpark.saveDF(triple, "edge")
-//    ArangoSpark.save(sc.makeRDD(Seq(link("persons/alice", "persons/dave", "test"))), "knows", WriteOptions("test"))
+  //    ArangoSpark.save(graph.vertices.map { x => point( x._2)}, "vertex", WriteOptions("test"))
+  //    ArangoSpark.save(graph.triplets.map { x => link("vertex/" + x.srcAttr, "vertex/"+x.dstAttr, x.attr) }, "link",WriteOptions("test"))
 
-//    import com.arangodb.entity.DocumentField
-//    import com.arangodb.entity.DocumentField.Type
-    
-    
-    
-//    val arangoDB: ArangoDB = new ArangoDB.Builder().user("root").password("lab123").build();
-    //arangoDB.createDatabase("test");
-//    val db = arangoDB.db("test");
-//    val g = db.graph("myGraph")
-//    val vid = graph.vertices.collect().map(x => (x._2,g.vertexCollection("concept").insertVertex(point(x._2), null).getId)).toMap;
-//    triple.collect().map(x =>  g.edgeCollection("link").insertEdge(link(vid(x.getAs("object")),vid(x.getAs("subject")),x.getAs("relation"))))
-    //graph.edges.collect().map(x =>  g.edgeCollection("link").insertEdge(link(vid(x.srcId.),vid(x.getAs("subject")),x.getAs("relation"))))
-    }
-    }
-  
+  //    ArangoSpark.save(sc.makeRDD(Seq(link("persons/alice", "persons/dave", "test"))), "knows", WriteOptions("test"))
+
+  //    import com.arangodb.entity.DocumentField
+  //    import com.arangodb.entity.DocumentField.Type
+
 }
