@@ -2,10 +2,10 @@ import org.apache.spark._
 import org.elasticsearch.spark._
 import org.elasticsearch.spark.sql._
 import org.elasticsearch.spark.rdd.Metadata._
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.{ DataFrame, SparkSession }
 import org.apache.spark.graphx.{ Edge, VertexId, Graph }
 
-class ElasticsearchGraphX(val sc: SparkContext) {
+class ElasticsearchGraphX(spark: SparkSession) {
   def save(graph: Graph[String, String], index:String) = {
     
   }

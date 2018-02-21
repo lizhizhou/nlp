@@ -37,15 +37,55 @@ object NLP {
     //    output.show(truncate = false)
 
     val triple = sqlContext.read.json("/home/bigdata/microeco.json")
-    val tg = new TripleGraphX(spark)
+    val tg = TripleGraphX(spark)
     tg.toTriple(tg.toGraphX(triple)).show(10)
     //triple.show(10)
-
+    val ag = ArrangoGraphX(spark)
+    ag.toArrango(tg.toGraphX(triple), "test", "myGraph", "concept", "link")
 
 //    graph.vertices.collect().take(10).foreach(println)
 //    graph.edges.collect().take(10).foreach(println)
 
+//import org.apache.spark.sql.SQLContext
 
+//val sqlContext = new SQLContext(sc)
+//val df = sqlContext.read
+//    .format("com.crealytics.spark.excel")
+//    .option("sheetName", "Daily") // Required
+//    .option("useHeader", "true") // Required
+//    .option("treatEmptyValuesAsNulls", "false") // Optional, default: true
+//    .option("inferSchema", "false") // Optional, default: false
+//    .option("addColorColumns", "true") // Optional, default: false
+//    .option("startColumn", 0) // Optional, default: 0
+//    .option("endColumn", 99) // Optional, default: Int.MaxValue
+//    .option("timestampFormat", "MM-dd-yyyy HH:mm:ss") // Optional, default: yyyy-mm-dd hh:mm:ss[.fffffffff]
+//    .option("maxRowsInMemory", 20) // Optional, default None. If set, uses a streaming reader which can help with big files
+//    .option("excerptSize", 10) // Optional, default: 10. If set and if schema inferred, number of rows to infer schema from
+//    .schema(myCustomSchema) // Optional, default: Either inferred schema, or all columns are Strings
+//    .load("Worktime.xlsx")
+//
+//df.write
+//  .format("com.crealytics.spark.excel")
+//  .option("sheetName", "Daily")
+//  .option("useHeader", "true")
+//  .option("dateFormat", "yy-mmm-d") // Optional, default: yy-m-d h:mm
+//  .option("timestampFormat", "mm-dd-yyyy hh:mm:ss") // Optional, default: yyyy-mm-dd hh:mm:ss.000
+//  .mode("overwrite")
+//  .save("Worktime2.xlsx")
+//
+//import org.apache.spark.sql.SQLContext
+//import com.databricks.spark.xml._
+//
+//val sqlContext = new SQLContext(sc)
+//val df = sqlContext.read
+//  .option("rowTag", "book")
+//  .xml("books.xml")
+//
+//val selectedData = df.select("author", "_id")
+//selectedData.write
+//  .option("rootTag", "books")
+//  .option("rowTag", "book")
+//  .xml("newbooks.xml")
 
 
     sc.stop()
