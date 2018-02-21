@@ -7,11 +7,12 @@ import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions._
 
 class TripleGraphX(spark: SparkSession) {
+
   def toGraphX(triple: DataFrame) = {
-    val edges = triple.rdd.map { x =>  (x.getAs[String]("object"), x.getAs[String]("subject"), x.getAs[String]("relation"))}
-    
+    val edges = triple.rdd.map { x => (x.getAs[String]("object"), x.getAs[String]("subject"), x.getAs[String]("relation")) }
+
     val vertex = edges.map(x => x._1).union(edges.map(x => x._2)).distinct()
-    
+
     // Create an RDD for vertex
     val concept: RDD[(VertexId, String)] = vertex.map(x => (x.hashCode(), x))
 
@@ -24,17 +25,17 @@ class TripleGraphX(spark: SparkSession) {
     val graph = Graph(concept, relationships, defaultconcept)
     graph
   }
-  def toTriple(graph: Graph[String, String]) =  {
-    val schema = StructType(Array(StructField("object", StringType, nullable = true),
-        StructField("relation", StringType, nullable = true),
-        StructField("subject", StringType, nullable = true)))
+  def toTriple(graph: Graph[String, String]) = {
+
     val triple = graph.triplets.map(triplet =>
       Row(triplet.srcAttr, triplet.attr, triplet.dstAttr))
-    spark.createDataFrame(triple.distinct(), schema)
+    spark.createDataFrame(triple.distinct(), TripleGraphX.schema)
   }
 }
 
-object TripleGraphX 
-{
-   def apply(spark: SparkSession) = new TripleGraphX(spark)
+object TripleGraphX {
+  val schema = StructType(Array(StructField("object", StringType, nullable = true),
+    StructField("relation", StringType, nullable = true),
+    StructField("subject", StringType, nullable = true)))
+  def apply(spark: SparkSession) = new TripleGraphX(spark)
 }
