@@ -10,7 +10,7 @@ class TripleGraphX(spark: SparkSession) {
   def toGraphX(triple: DataFrame) = {
     val edges = triple.rdd.map { x =>  (x.getAs[String]("object"), x.getAs[String]("subject"), x.getAs[String]("relation"))}
     
-    val vertex = edges.map(x => x._1).union(edges.map(x => x._2))
+    val vertex = edges.map(x => x._1).union(edges.map(x => x._2)).distinct()
     
     // Create an RDD for vertex
     val concept: RDD[(VertexId, String)] = vertex.map(x => (x.hashCode(), x))
