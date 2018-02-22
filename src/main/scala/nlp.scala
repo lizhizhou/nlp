@@ -31,6 +31,8 @@ object NLP {
       .set("arangodb.user", "root")
       .set("arangodb.password", "lab123")
       .set("es.index.auto.create", "true")
+      .set("spark.neo4j.bolt.user", "neo4j")
+      .set("spark.neo4j.bolt.password", "lab123")
     val spark = SparkSession.builder.appName("Simple Application").config(conf).getOrCreate()
     val sc = spark.sparkContext
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
@@ -45,31 +47,35 @@ object NLP {
 
     System.out.println(text);
 
-    val output = input
-      .select(cleanxml('text).as('doc))
-      .select(explode(ssplit('doc)).as('sen))
-      .select('sen, tokenize('sen).as('words), ner('sen).as('nerTags), coref('sen).as('coref), openie('sen).as('openie), sentiment('sen).as('sentiment))
-    output.show(truncate = false)
+    //val output = input
+    //  .select(cleanxml('text).as('doc))
+    //  .select(explode(ssplit('doc)).as('sen))
+    //  .select('sen, tokenize('sen).as('words), ner('sen).as('nerTags), coref('sen).as('coref), openie('sen).as('openie), sentiment('sen).as('sentiment))
+    //output.show(truncate = false)
     
-    val triplet =  input.select(cleanxml('text).as('doc))
-      .select(explode(ssplit('doc)).as('sen))
-       .select(openie('sen).as('openie))
-    val tripleRow = triplet.rdd.map(x => (x.getAs[WrappedArray[GenericRowWithSchema]]("openie")))
-    .flatMap { iter => 
-      for (x <- iter) yield  Row(x(0), x(1), x(2))
-    }
-    tripleRow.foreach { println }
-    val triple = spark.createDataFrame(tripleRow.distinct(), TripleGraphX.schema)
+    //val triplet =  input.select(cleanxml('text).as('doc))
+    //  .select(explode(ssplit('doc)).as('sen))
+    //   .select(openie('sen).as('openie))
+    //val tripleRow = triplet.rdd.map(x => (x.getAs[WrappedArray[GenericRowWithSchema]]("openie")))
+    //.flatMap { iter => 
+    //  for (x <- iter) yield  Row(x(0), x(1), x(2))
+    //}
+    //tripleRow.foreach { println }
+    //val triple = spark.createDataFrame(tripleRow.distinct(), TripleGraphX.schema)
   
-    //val triple = sqlContext.read.json("/home/bigdata/microeco.json")
+    val triple = sqlContext.read.json("/home/bigdata/microeco.json")
     val tg = TripleGraphX(spark)
     val tf = tg.toTriple(tg.toGraphX(triple))
     tf.show(10)
     //triple.show(10)
     val ag = ArrangoGraphX(spark)
-    ag.toArrango(tg.toGraphX(triple), "test", "myGraph", "concept", "link")
+    //ag.toArrango(tg.toGraphX(triple), "test", "myGraph", "concept", "link")
     //tg.toTriple(ag.toGraphX("test", "concept", "link")).show(10)
 
+    val ng = Neo4jGraphX(spark)
+    Neo4jGraphX.toGraphX()
+    //ng.toNeo4j(tg.toGraphX(triple),"test")
+     
     //val sqlContext = new SQLContext(sc)
     //val df = sqlContext.read
     //    .format("com.crealytics.spark.excel")
