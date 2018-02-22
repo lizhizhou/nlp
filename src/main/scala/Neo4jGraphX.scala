@@ -10,9 +10,9 @@ class Neo4jGraphX(spark: SparkSession) {
     neo.saveGraph(graph, database)
   }
   def toGraphX(database: String) {
-val graphQuery = "MATCH (n) RETURN n"
+val graphQuery = "MATCH (n:Person)-[r:KNOWS]->(m:Person) RETURN id(n) as source, id(m) as target, type(r) as value SKIP {_skip} LIMIT {_limit}"
 val graph: Graph[Long, String] = neo.rels(graphQuery).partitions(7).batch(200).loadGraph
-println(graph)
+println(graph.edges.count)
 graph
   }
 
