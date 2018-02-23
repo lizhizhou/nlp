@@ -74,7 +74,7 @@ object NLP {
 
     val ng = Neo4jGraphX(spark)
     val neo = ng.toGraphX("test")
-    //ng.toNeo4j(tg.toGraphX(triple),"test")
+    ng.toNeo4j(neo)
      
     //val sqlContext = new SQLContext(sc)
     //val df = sqlContext.read
