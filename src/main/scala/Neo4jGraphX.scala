@@ -1,5 +1,5 @@
 import org.neo4j.spark._
-import org.neo4j.spark.Neo4j.{Pattern,NameProp}
+import org.neo4j.spark.Neo4j.{ Pattern, NameProp }
 import org.apache.spark.graphx._
 import org.apache.spark.graphx.lib._
 import org.apache.spark.sql.SparkSession
@@ -7,16 +7,14 @@ import org.apache.spark.sql.SparkSession
 class Neo4jGraphX(spark: SparkSession) {
   val sc = spark.sparkContext
   val neo = Neo4j(sc)
-  def toNeo4j(graph: Graph[Long, String]) {
-    neo.saveGraph(graph, "rank",Pattern(NameProp("Person","id"),Array(NameProp("FRIEND","years")),NameProp("Person","id")), merge = true)
+  def toNeo4j(graph: Graph[String, String]) {
+    neo.saveGraph(graph, "concept", Pattern(NameProp("Concept", "id"), Array(NameProp("Relation", "text")), NameProp("Concept", "id")), merge = true)
   }
-  def toGraphX(database: String) = {
-  val graphQuery = "MATCH (n:Person)-[r:KNOWS]->(m:Person) RETURN id(n) as source, id(m) as target, type(r) as value SKIP {_skip} LIMIT {_limit}"
-  val graph: Graph[Long, String] = neo.rels(graphQuery).partitions(7).batch(200).loadGraph
-  println(graph.edges.count)
-  graph
+  def toGraphX() = {
+    val graphQuery = "MATCH (n:Concept)-[r:Relation]->(m:Concept) RETURN id(n) as source, id(m) as target, type(r) as value SKIP {_skip} LIMIT {_limit}"
+    val graph: Graph[String, String] = neo.rels(graphQuery).partitions(7).batch(200).loadGraph
+    graph
   }
-
 }
 
 object Neo4jGraphX {
