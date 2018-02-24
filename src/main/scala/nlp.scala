@@ -41,11 +41,11 @@ object NLP {
     val opcPackage = POIXMLDocument.openPackage("/home/bigdata/test.docx");
     val extractor = new XWPFWordExtractor(opcPackage);
     val text = extractor.getText();
+    println(text)
     //val text = "<xml>Stanford University is located in California. It is a great university.</xml>"
     val input = Seq(
       (1, text)).toDF("id", "text")
-
-    System.out.println(text);
+    println(text);
 
     //val output = input
     //  .select(cleanxml('text).as('doc))
@@ -53,28 +53,30 @@ object NLP {
     //  .select('sen, tokenize('sen).as('words), ner('sen).as('nerTags), coref('sen).as('coref), openie('sen).as('openie), sentiment('sen).as('sentiment))
     //output.show(truncate = false)
     
-    //val triplet =  input.select(cleanxml('text).as('doc))
-    //  .select(explode(ssplit('doc)).as('sen))
-    //   .select(openie('sen).as('openie))
-    //val tripleRow = triplet.rdd.map(x => (x.getAs[WrappedArray[GenericRowWithSchema]]("openie")))
-    //.flatMap { iter => 
-    //  for (x <- iter) yield  Row(x(0), x(1), x(2))
-    //}
-    //tripleRow.foreach { println }
-    //val triple = spark.createDataFrame(tripleRow.distinct(), TripleGraphX.schema)
+//    val triplet =  input.select(cleanxml('text).as('doc))
+//      .select(explode(ssplit('doc)).as('sen))
+//       .select(openie('sen).as('openie))
+//    val tripleRow = triplet.rdd.map(x => (x.getAs[WrappedArray[GenericRowWithSchema]]("openie")))
+//    .flatMap { iter => 
+//      for (x <- iter) yield  Row(x(0), x(1), x(2))
+//    }
+//    tripleRow.foreach { println }
+//    val triple = spark.createDataFrame(tripleRow.distinct(), TripleGraphX.schema)
   
-    val triple = sqlContext.read.json("/home/bigdata/microeco.json")
+    //val triple = sqlContext.read.json("/home/bigdata/microeco.json")
+    val triple = sqlContext.read.json("/home/bigdata/chinese.json")
     val tg = TripleGraphX(spark)
     val tf = tg.toTriple(tg.toGraphX(triple))
     tf.show(10)
     //triple.show(10)
     val ag = ArrangoGraphX(spark)
-    //ag.toArrango(tg.toGraphX(triple), "test", "myGraph", "concept", "link")
+    ag.toArrango(tg.toGraphX(triple), "test", "myGraph", "concept", "link")
     //tg.toTriple(ag.toGraphX("test", "concept", "link")).show(10)
 
     val ng = Neo4jGraphX(spark)
-    val neo = ng.toGraphX("test")
-    ng.toNeo4j(neo)
+    ng.toNeo4j(tg.toGraphX(triple))
+    val neo = ng.toGraphX()
+    println("Count of edge " + neo.edges.count)
      
     //val sqlContext = new SQLContext(sc)
     //val df = sqlContext.read
