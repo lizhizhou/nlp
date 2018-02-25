@@ -11,6 +11,7 @@ sparkComponents ++= Seq("streaming", "sql", "graphx", "mllib")
 spAppendScalaVersion := true
 
 libraryDependencies ++= Seq(
+   "com.intel.analytics.bigdl" % "bigdl-SPARK_2.1" % "0.4.0",
    "databricks" %% "spark-corenlp" % "0.3.0-SNAPSHOT",
    "org.elasticsearch" % "elasticsearch-spark-20_2.11" % "6.1.2",
    "neo4j-contrib" % "neo4j-spark-connector" % "2.1.0-M4",

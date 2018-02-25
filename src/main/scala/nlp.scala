@@ -12,11 +12,6 @@ import com.arangodb.spark.{ ArangoSpark, ReadOptions, WriteOptions }
 import com.arangodb.ArangoDB
 import scala.beans.BeanProperty
 
-import org.apache.poi.POIXMLDocument;
-import org.apache.poi.POIXMLTextExtractor;
-import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
-
 import edu.stanford.nlp.util._
 import scala.collection.mutable.WrappedArray
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -38,21 +33,22 @@ object NLP {
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
     import sqlContext.implicits._
 
-    val opcPackage = POIXMLDocument.openPackage("/home/bigdata/test.docx");
-    val extractor = new XWPFWordExtractor(opcPackage);
-    val text = extractor.getText();
-    println(text)
-    //val text = "<xml>Stanford University is located in California. It is a great university.</xml>"
-    val input = Seq(
-      (1, text)).toDF("id", "text")
-    println(text);
-
-    //val output = input
-    //  .select(cleanxml('text).as('doc))
-    //  .select(explode(ssplit('doc)).as('sen))
-    //  .select('sen, tokenize('sen).as('words), ner('sen).as('nerTags), coref('sen).as('coref), openie('sen).as('openie), sentiment('sen).as('sentiment))
-    //output.show(truncate = false)
+    val office = Office(spark)
+    val textrdd = office.openWord(Seq("/home/bigdata/test.docx"):_ *)
     
+    println(textrdd.foreach { println })
+    //val text = "<xml>Stanford University is located in California. It is a great university.</xml>"
+    //val input = Seq(
+    //  (text.hashCode(), text)).toDF("id", "text")
+    val input = textrdd.map { x => (x.hashCode(),x) }.toDF("id", "text")
+    input.show()
+
+//    val output = input
+//      .select(cleanxml('text).as('doc))
+//      .select(explode(ssplit('doc)).as('sen))
+//      .select('sen, tokenize('sen).as('words), ner('sen).as('nerTags), coref('sen).as('coref), openie('sen).as('openie), sentiment('sen).as('sentiment))
+//    output.show(truncate = false)
+
 //    val triplet =  input.select(cleanxml('text).as('doc))
 //      .select(explode(ssplit('doc)).as('sen))
 //       .select(openie('sen).as('openie))
@@ -63,8 +59,9 @@ object NLP {
 //    tripleRow.foreach { println }
 //    val triple = spark.createDataFrame(tripleRow.distinct(), TripleGraphX.schema)
   
-    //val triple = sqlContext.read.json("/home/bigdata/microeco.json")
-    val triple = sqlContext.read.json("/home/bigdata/chinese.json")
+    val triple = sqlContext.read.json("/home/bigdata/microeco.json")
+    //val triple = sqlContext.read.json("/home/bigdata/chinese.json")
+    
     val tg = TripleGraphX(spark)
     val tf = tg.toTriple(tg.toGraphX(triple))
     tf.show(10)
