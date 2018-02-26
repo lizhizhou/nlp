@@ -68,7 +68,7 @@ object NLP {
     //triple.show(10)
     val ag = ArrangoGraphX(spark)
     ag.toArrango(tg.toGraphX(triple), "test", "myGraph", "concept", "link")
-    //tg.toTriple(ag.toGraphX("test", "concept", "link")).show(10)
+    tg.toTriple(ag.toGraphX("test", "concept", "link")).show(10)
 
     val ng = Neo4jGraphX(spark)
     ng.toNeo4j(tg.toGraphX(triple))

@@ -11,6 +11,7 @@ import scala.collection.mutable.ArrayBuffer
 import com.arangodb.velocypack.module.jdk8.VPackJdk8Module
 import com.arangodb.velocypack.module.scala.VPackScalaModule
 import scala.util.parsing.json.JSON
+import scala.reflect.ClassTag
 
 class ArrangoGraphX(spark: SparkSession) {
   case class link(_from: String, _to: String, relation: String) {
@@ -53,9 +54,13 @@ class ArrangoGraphX(spark: SparkSession) {
     val id = db.collection("test").insertDocument(point("3")).getId 
     
     println("id = " + id)
+         
+    println(JSON.parseFull(db.getDocument(id, classOf[java.lang.String]))) 
+    //    match { case map: Map[String, Any] => map.get("Concept").asInstanceOf[String]}  )
+        
+    val classtag = ClassTag[point](point.getClass)
+    println(db.getDocument(id, classtag.runtimeClass))
     
-    println(JSON.parseFull(db.getDocument(id, classOf[java.lang.String])) 
-        match { case map: Map[String, Any] => map.get("Concept").asInstanceOf[String]}  )
     
     edges.flatMap { x => Array(x._from, x._to) }.distinct().collect()
       .map(x => 
