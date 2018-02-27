@@ -13,13 +13,6 @@ import com.arangodb.velocypack.module.scala.VPackScalaModule
 import scala.util.parsing.json.JSON
 import scala.reflect.ClassTag
 
-  case class link(_from: String, _to: String, relation: String) {
-    def this() = this("", "", "")
-  }
-  case class point(Concept: String) {
-    def this() = this("")
-  }
-
 class ArrangoGraphX(spark: SparkSession) {
 
   val sc = spark.sparkContext
@@ -41,9 +34,9 @@ class ArrangoGraphX(spark: SparkSession) {
   val arangoDB: ArangoDB = builder.build();
 
   def toGraphX(database: String, vertex: String, edge: String) = {
-    val edges = ArangoSpark.load[link](sc, edge, ReadOptions(database))
+    val edges = ArangoSpark.load[ArrangoGraphX.link](sc, edge, ReadOptions(database))
 
-    val vertexs = ArangoSpark.load[point](sc, vertex, ReadOptions(database))
+    val vertexs = ArangoSpark.load[ArrangoGraphX.point](sc, vertex, ReadOptions(database))
 
     // Create an RDD for vertex
     val concept: RDD[(VertexId, String)] = vertexs.map(x => (x.Concept.hashCode(), x.Concept))
@@ -51,25 +44,26 @@ class ArrangoGraphX(spark: SparkSession) {
     val db = arangoDB.db(database)
 
     println("idMap")
-    
-    val id = db.collection("test").insertDocument(point("3")).getId 
-    
+
+    val data = "3"
+    val id = db.collection("test").insertDocument(ArrangoGraphX.point(data.hashCode.toString,data)).getId
+
     println("id = " + id)
-         
-    println(JSON.parseFull(db.getDocument(id, classOf[java.lang.String]))) 
+
+    println(JSON.parseFull(db.getDocument(id, classOf[java.lang.String])))
     //    match { case map: Map[String, Any] => map.get("Concept").asInstanceOf[String]}  )
-        
-    println(db.getDocument(id, classOf[point]))
-    
+
+    println(db.getDocument(id, classOf[ArrangoGraphX.point]))
+
     edges.flatMap { x => Array(x._from, x._to) }.distinct().collect()
-      .map(x => 
-        {println(x)
-        (x, db.getDocument(x, classOf[point]).hashCode())
-        }
-        ).foreach(println) 
-    
+      .map(x =>
+        {
+          println(x)
+          (x, db.getDocument(x, classOf[ArrangoGraphX.point]).hashCode())
+        }).foreach(println)
+
     val idMap = edges.flatMap { x => Array(x._from, x._to) }.distinct().collect()
-      .map(x => (x, db.getDocument(x, classOf[point]).hashCode())).toMap
+      .map(x => (x, db.getDocument(x, classOf[ArrangoGraphX.point]).hashCode())).toMap
 
     // Create an RDD for edges
     val relationships: RDD[Edge[String]] = edges.map { x => (x._from, x._to, x.relation) }
@@ -85,10 +79,10 @@ class ArrangoGraphX(spark: SparkSession) {
     val graph = Graph(concept, relationships, defaultconcept)
     graph
   }
-  
+
   def toArrango(graph: Graph[String, String], database: String, graphdb: String, vertex: String, edge: String) = {
     val db = arangoDB.db(database);
-    
+
     db.graph(graphdb).drop();
     db.collection(vertex).drop();
     db.collection(edge).drop();
@@ -110,14 +104,20 @@ class ArrangoGraphX(spark: SparkSession) {
 
     // Add vertex and edge element 
     val g = db.graph(graphdb)
-    val vid = graph.vertices.collect().map(x => (x._2, g.vertexCollection(vertex).insertVertex(point(x._2), null).getId)).toMap;
-    graph.triplets.collect().map(x => g.edgeCollection(edge).insertEdge(link(vid(x.srcAttr), vid(x.dstAttr), x.attr)))
+    val vid = graph.vertices.collect().map(x => (x._2, g.vertexCollection(vertex).insertVertex(ArrangoGraphX.point(x._2.hashCode.toString, x._2), null).getId)).toMap;
+    graph.triplets.collect().map(x => g.edgeCollection(edge).insertEdge(ArrangoGraphX.link(x.attr.hashCode.toString, vid(x.srcAttr), vid(x.dstAttr), x.attr)))
 
   }
 
 }
 
 object ArrangoGraphX {
+  case class link(_key: String, _from: String, _to: String, relation: String) {
+    def this() = this("", "", "", "")
+  }
+  case class point(_key: String, Concept: String) {
+    def this() = this("", "")
+  }
   def apply(spark: SparkSession) = new ArrangoGraphX(spark)
 
   //    case class Concept(name: String)
