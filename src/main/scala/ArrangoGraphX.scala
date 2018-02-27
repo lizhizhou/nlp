@@ -39,39 +39,10 @@ class ArrangoGraphX(spark: SparkSession) {
     val vertexs = ArangoSpark.load[ArrangoGraphX.point](sc, vertex, ReadOptions(database))
 
     // Create an RDD for vertex
-    val concept: RDD[(VertexId, String)] = vertexs.map(x => (x.Concept.hashCode(), x.Concept))
-
-    val db = arangoDB.db(database)
-
-    println("idMap")
-
-    val data = "3"
-    val id = db.collection("test").insertDocument(ArrangoGraphX.point(data.hashCode.toString,data)).getId
-
-    println("id = " + id)
-
-    println(JSON.parseFull(db.getDocument(id, classOf[java.lang.String])))
-    //    match { case map: Map[String, Any] => map.get("Concept").asInstanceOf[String]}  )
-
-    println(db.getDocument(id, classOf[ArrangoGraphX.point]))
-
-    edges.flatMap { x => Array(x._from, x._to) }.distinct().collect()
-      .map(x =>
-        {
-          println(x)
-          (x, db.getDocument(x, classOf[ArrangoGraphX.point]).hashCode())
-        }).foreach(println)
-
-    val idMap = edges.flatMap { x => Array(x._from, x._to) }.distinct().collect()
-      .map(x => (x, db.getDocument(x, classOf[ArrangoGraphX.point]).hashCode())).toMap
+    val concept: RDD[(VertexId, String)] = vertexs.map(x => (x.concept.hashCode(), x.concept))
 
     // Create an RDD for edges
-    val relationships: RDD[Edge[String]] = edges.map { x => (x._from, x._to, x.relation) }
-      .mapPartitions { iter =>
-        {
-          for (e <- iter) yield Edge(idMap(e._1), idMap(e._2), e._3)
-        }
-      }
+    val relationships: RDD[Edge[String]] = edges.map { x => Edge(x._from.split('/')(1).toLong, x._to.split('/')(1).toLong, x.relation) }
 
     // Define a default user in case there are relationship with missing user
     val defaultconcept = ""
@@ -104,18 +75,22 @@ class ArrangoGraphX(spark: SparkSession) {
 
     // Add vertex and edge element 
     val g = db.graph(graphdb)
-    val vid = graph.vertices.collect().map(x => (x._2, g.vertexCollection(vertex).insertVertex(ArrangoGraphX.point(x._2.hashCode.toString, x._2), null).getId)).toMap;
-    graph.triplets.collect().map(x => g.edgeCollection(edge).insertEdge(ArrangoGraphX.link(x.attr.hashCode.toString, vid(x.srcAttr), vid(x.dstAttr), x.attr)))
+    
+    graph.vertices.map(x => ArrangoGraphX.point(x._2.hashCode.toString, x._2)).take(20).foreach { println }
+    graph.triplets.map(x => ArrangoGraphX.link(x.srcAttr.hashCode().toString, x.dstAttr.hashCode.toString, x.attr)).take(20).foreach { println }
+
+    graph.vertices.collect().map(x => g.vertexCollection(vertex).insertVertex(ArrangoGraphX.point(x._2.hashCode.toString, x._2), null))
+    graph.triplets.collect().map(x => g.edgeCollection(edge).insertEdge(ArrangoGraphX.link(vertex+'/'+x.srcAttr.hashCode.toString, vertex+'/'+x.dstAttr.hashCode.toString, x.attr)))
 
   }
 
 }
 
 object ArrangoGraphX {
-  case class link(_key: String, _from: String, _to: String, relation: String) {
-    def this() = this("", "", "", "")
+  case class link(_from: String, _to: String, relation: String) {
+    def this() = this("", "", "")
   }
-  case class point(_key: String, Concept: String) {
+  case class point(_key: String, concept: String) {
     def this() = this("", "")
   }
   def apply(spark: SparkSession) = new ArrangoGraphX(spark)
@@ -132,5 +107,29 @@ object ArrangoGraphX {
 
   //    import com.arangodb.entity.DocumentField
   //    import com.arangodb.entity.DocumentField.Type
+  
+//      val db = arangoDB.db(database)
+//
+//    println("idMap")
+//
+//    val data = "3"
+//    val id = db.collection("test").insertDocument(ArrangoGraphX.point(data.hashCode.toString,data)).getId
+//
+//    println("id = " + id)
+//
+//    println(JSON.parseFull(db.getDocument(id, classOf[java.lang.String])))
+//    //    match { case map: Map[String, Any] => map.get("Concept").asInstanceOf[String]}  )
+//
+//    println(db.getDocument(id, classOf[ArrangoGraphX.point]))
+//
+//    edges.flatMap { x => Array(x._from, x._to) }.distinct().collect()
+//      .map(x =>
+//        {
+//          println(x)
+//          (x, db.getDocument(x, classOf[ArrangoGraphX.point]).hashCode())
+//        }).foreach(println)
+//
+//    val idMap = edges.flatMap { x => Array(x._from, x._to) }.distinct().collect()
+//      .map(x => (x, db.getDocument(x, classOf[ArrangoGraphX.point]).hashCode())).toMap
 
 }
