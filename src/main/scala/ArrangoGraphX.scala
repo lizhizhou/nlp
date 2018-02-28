@@ -1,3 +1,4 @@
+import org.apache.spark.SparkConf
 import org.apache.spark.graphx.{ Edge, VertexId, Graph }
 import com.arangodb.spark.{ ArangoSpark, ReadOptions, WriteOptions }
 import org.apache.spark.rdd.RDD
@@ -13,27 +14,32 @@ import com.arangodb.velocypack.module.scala.VPackScalaModule
 import scala.util.parsing.json.JSON
 import scala.reflect.ClassTag
 
-class ArrangoGraphX(spark: SparkSession) {
+class ArrangoGraphX(spark: SparkSession) extends Serializable {
 
-  val sc = spark.sparkContext
-  val conf = sc.getConf
-  val propertyHost = "arangodb.host"
-  val propertyPort = "arangodb.port"
-  val propertyUser = "arangodb.user"
-  val propertyPassword = "arangodb.password"
-  val host = Some(conf.get(propertyHost, null))
-  val port = Some(conf.get(propertyPort, null))
-  val user = Some(conf.get(propertyUser, null))
-  val password = Some(conf.get(propertyPassword, null))
-
-  val builder = new ArangoDB.Builder()
-  builder.registerModules(new VPackJdk8Module, new VPackScalaModule)
-  host.foreach { builder.host(_, port.getOrElse("8529").toInt) }
-  user.foreach { builder.user(_) }
-  password.foreach { builder.password(_) }
-  val arangoDB: ArangoDB = builder.build();
+  private def getdb(opt: ArrangoGraphX.ArrangoOption): ArangoDB =
+    {
+      val builder = new ArangoDB.Builder()
+      builder.registerModules(new VPackJdk8Module, new VPackScalaModule)
+      opt.host.foreach { builder.host(_, opt.port.getOrElse("8529").toInt) }
+      opt.user.foreach { builder.user(_) }
+      opt.password.foreach { builder.password(_) }
+      builder.build();
+    }
+  private def getconf(conf: SparkConf): ArrangoGraphX.ArrangoOption = {
+    val propertyHost = "arangodb.host"
+    val propertyPort = "arangodb.port"
+    val propertyUser = "arangodb.user"
+    val propertyPassword = "arangodb.password"
+    val host = Some(conf.get(propertyHost, null))
+    val port = Some(conf.get(propertyPort, null))
+    val user = Some(conf.get(propertyUser, null))
+    val password = Some(conf.get(propertyPassword, null))
+    ArrangoGraphX.ArrangoOption(host, port, user, password)
+  }
 
   def toGraphX(database: String, vertex: String, edge: String) = {
+    val sc = spark.sparkContext
+
     val edges = ArangoSpark.load[ArrangoGraphX.link](sc, edge, ReadOptions(database))
 
     val vertexs = ArangoSpark.load[ArrangoGraphX.point](sc, vertex, ReadOptions(database))
@@ -52,6 +58,8 @@ class ArrangoGraphX(spark: SparkSession) {
   }
 
   def toArrango(graph: Graph[String, String], database: String, graphdb: String, vertex: String, edge: String) = {
+    val conf = graph.edges.sparkContext.getConf
+    val arangoDB = getdb(getconf(conf))
     val db = arangoDB.db(database);
 
     db.graph(graphdb).drop();
@@ -75,13 +83,22 @@ class ArrangoGraphX(spark: SparkSession) {
 
     // Add vertex and edge element 
     val g = db.graph(graphdb)
-    
-    graph.vertices.map(x => ArrangoGraphX.point(x._2.hashCode.toString, x._2)).take(20).foreach { println }
-    graph.triplets.map(x => ArrangoGraphX.link(x.srcAttr.hashCode().toString, x.dstAttr.hashCode.toString, x.attr)).take(20).foreach { println }
 
-    graph.vertices.collect().map(x => g.vertexCollection(vertex).insertVertex(ArrangoGraphX.point(x._2.hashCode.toString, x._2), null))
-    graph.triplets.collect().map(x => g.edgeCollection(edge).insertEdge(ArrangoGraphX.link(vertex+'/'+x.srcAttr.hashCode.toString, vertex+'/'+x.dstAttr.hashCode.toString, x.attr)))
+    //graph.vertices.map(x => ArrangoGraphX.point(x._2.hashCode.toString, x._2)).take(20).foreach { println }
+    //graph.triplets.map(x => ArrangoGraphX.link(x.srcAttr.hashCode().toString, x.dstAttr.hashCode.toString, x.attr)).take(20).foreach { println }
 
+    graph.vertices.foreachPartition(iter => {
+      val arangoDB = getdb(getconf(conf))
+      val db = arangoDB.db(database)
+      val g = db.graph(graphdb)
+      iter.foreach(x => g.vertexCollection(vertex).insertVertex(ArrangoGraphX.point(x._2.hashCode.toString, x._2), null))
+    })
+    graph.triplets.foreachPartition(iter => {
+      val arangoDB = getdb(getconf(conf))
+      val db = arangoDB.db(database)
+      val g = db.graph(graphdb)
+      iter.foreach(x => g.edgeCollection(edge).insertEdge(ArrangoGraphX.link(vertex + '/' + x.srcAttr.hashCode.toString, vertex + '/' + x.dstAttr.hashCode.toString, x.attr)))
+    })
   }
 
 }
@@ -93,6 +110,9 @@ object ArrangoGraphX {
   case class point(_key: String, concept: String) {
     def this() = this("", "")
   }
+  case class ArrangoOption(host: Option[String], port: Option[String], user: Option[String], password: Option[String]) {
+  }
+
   def apply(spark: SparkSession) = new ArrangoGraphX(spark)
 
   //    case class Concept(name: String)
@@ -107,29 +127,29 @@ object ArrangoGraphX {
 
   //    import com.arangodb.entity.DocumentField
   //    import com.arangodb.entity.DocumentField.Type
-  
-//      val db = arangoDB.db(database)
-//
-//    println("idMap")
-//
-//    val data = "3"
-//    val id = db.collection("test").insertDocument(ArrangoGraphX.point(data.hashCode.toString,data)).getId
-//
-//    println("id = " + id)
-//
-//    println(JSON.parseFull(db.getDocument(id, classOf[java.lang.String])))
-//    //    match { case map: Map[String, Any] => map.get("Concept").asInstanceOf[String]}  )
-//
-//    println(db.getDocument(id, classOf[ArrangoGraphX.point]))
-//
-//    edges.flatMap { x => Array(x._from, x._to) }.distinct().collect()
-//      .map(x =>
-//        {
-//          println(x)
-//          (x, db.getDocument(x, classOf[ArrangoGraphX.point]).hashCode())
-//        }).foreach(println)
-//
-//    val idMap = edges.flatMap { x => Array(x._from, x._to) }.distinct().collect()
-//      .map(x => (x, db.getDocument(x, classOf[ArrangoGraphX.point]).hashCode())).toMap
+
+  //      val db = arangoDB.db(database)
+  //
+  //    println("idMap")
+  //
+  //    val data = "3"
+  //    val id = db.collection("test").insertDocument(ArrangoGraphX.point(data.hashCode.toString,data)).getId
+  //
+  //    println("id = " + id)
+  //
+  //    println(JSON.parseFull(db.getDocument(id, classOf[java.lang.String])))
+  //    //    match { case map: Map[String, Any] => map.get("Concept").asInstanceOf[String]}  )
+  //
+  //    println(db.getDocument(id, classOf[ArrangoGraphX.point]))
+  //
+  //    edges.flatMap { x => Array(x._from, x._to) }.distinct().collect()
+  //      .map(x =>
+  //        {
+  //          println(x)
+  //          (x, db.getDocument(x, classOf[ArrangoGraphX.point]).hashCode())
+  //        }).foreach(println)
+  //
+  //    val idMap = edges.flatMap { x => Array(x._from, x._to) }.distinct().collect()
+  //      .map(x => (x, db.getDocument(x, classOf[ArrangoGraphX.point]).hashCode())).toMap
 
 }

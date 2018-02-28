@@ -6,12 +6,11 @@ import org.apache.spark.sql.{ DataFrame, SparkSession }
 import org.apache.spark.graphx.{ Edge, VertexId, Graph }
 
 class ElasticsearchGraphX(spark: SparkSession) {
-  def save(graph: Graph[String, String], index:String) = {
-    
+  def save(graph: Graph[String, String], index:String):Unit = {
+    this.save(TripleGraphX(spark).toTriple(graph),index)
   }
   
-  
-  def save(triple: DataFrame, index:String) = { 
+  def save(triple: DataFrame, index:String):Unit = { 
     triple.saveToEs(index)//("spark/vertex")
   }
   //    
