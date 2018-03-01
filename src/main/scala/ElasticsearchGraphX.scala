@@ -1,17 +1,29 @@
 import org.apache.spark._
 import org.elasticsearch.spark._
 import org.elasticsearch.spark.sql._
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.Row
 import org.elasticsearch.spark.rdd.Metadata._
 import org.apache.spark.sql.{ DataFrame, SparkSession }
 import org.apache.spark.graphx.{ Edge, VertexId, Graph }
 
 class ElasticsearchGraphX(spark: SparkSession) {
-  def save(graph: Graph[String, String], index:String):Unit = {
-    this.save(TripleGraphX(spark).toTriple(graph),index)
+  val sc = spark.sparkContext
+  def toES(graph: Graph[String, String], index:String) {
+    this.toES(TripleGraphX(spark).toTriple(graph),index)
   }
   
-  def save(triple: DataFrame, index:String):Unit = { 
+  def toES(triple: DataFrame, index:String) { 
     triple.saveToEs(index)//("spark/vertex")
+  }
+  def toGraphX(index:String)
+  {
+    val triple = sc.esRDD(index)
+    triple.take(5).foreach(println)
+    //.map(triplet =>
+//      Row(triplet.srcAttr, triplet.attr, triplet.dstAttr))
+//    spark.createDataFrame(triple.distinct(), TripleGraphX.schema)
+    
   }
   //    
 //    val es = sc.esRDD("spark/vertex")
