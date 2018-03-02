@@ -42,3 +42,11 @@ class ElasticsearchGraphX(spark: SparkSession) {
 //    val airportsRDD = sc.makeRDD(Seq((otpMeta, otp), (mucMeta, muc), (sfoMeta, sfo)))
 //    airportsRDD.saveToEsWithMeta("airports/2015")
 }
+
+object ElasticsearchGraphX {
+  def apply(spark: SparkSession) = new ElasticsearchGraphX(spark)
+  def unitTest()
+  {
+    
+  }
+}
