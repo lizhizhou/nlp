@@ -115,6 +115,10 @@ object ArrangoGraphX {
 
   def apply(spark: SparkSession) = new ArrangoGraphX(spark)
 
+  def unitTest()
+  {
+    
+  }
   //    case class Concept(name: String)
   //    case class Triple(obj: String, rel: String, subject: String)
   //

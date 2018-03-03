@@ -20,4 +20,8 @@ class Office(spark: SparkSession) {
 
 object Office {
   def apply(spark: SparkSession) = new Office(spark)
+  def unitTest()
+  {
+    
+  }
 }

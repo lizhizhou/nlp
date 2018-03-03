@@ -38,4 +38,8 @@ object TripleGraphX {
     StructField("relation", StringType, nullable = true),
     StructField("subject", StringType, nullable = true)))
   def apply(spark: SparkSession) = new TripleGraphX(spark)
+  def unitTest()
+  {
+    
+  }
 }

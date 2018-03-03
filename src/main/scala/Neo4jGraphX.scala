@@ -19,9 +19,10 @@ class Neo4jGraphX(spark: SparkSession) {
 
 object Neo4jGraphX {
   def apply(spark: SparkSession) = new Neo4jGraphX(spark)
-  //
-
-  //    
+  def unitTest()
+  {
+    
+  } 
   //// load graph via Cypher query
   //val graphQuery = "MATCH (n:Person)-[r:KNOWS]->(m:Person) RETURN id(n) as source, id(m) as target, type(r) as value SKIP {_skip} LIMIT {_limit}"
   //val graph: Graph[Long, String] = neo.rels(graphQuery).partitions(7).batch(200).loadGraph
