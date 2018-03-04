@@ -3,7 +3,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{ DataFrame, SparkSession }
 import org.apache.spark.graphx.{ Edge, VertexId, Graph }
 
-class RDF {
+class RDF (spark: SparkSession) {
   //  val factory = new RdfXmlReaderFactory()
   //HadoopRdfIORegistry.addReaderFactory(factory)
   //val conf = new Configuration()
@@ -15,9 +15,14 @@ class RDF {
   //    conf)
   //data.take(10).foreach(println)
 
-  def main(args: Array[String]) {
-    val baseURI = "http://snee.com/xpropgraph#"
-    val sc = new SparkContext("local", "ExamplePropertyGraph", "127.0.0.1")
+  def toRDF(graph: Graph[String, String]) = {}
+}
+object RDF {
+  def apply(spark: SparkSession) = new RDF(spark)
+  def unitTest(spark: SparkSession)
+  {
+     val baseURI = "http://snee.com/xpropgraph#"
+     val sc = spark.sparkContext
 
     // Create an RDD for the vertices
     val users: RDD[(VertexId, (String, String))] =
@@ -57,5 +62,5 @@ class RDF {
 
     sc.stop
 
-  }
+  } 
 }

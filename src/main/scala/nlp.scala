@@ -33,15 +33,16 @@ object NLP {
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
     import sqlContext.implicits._
 
+    RDF.unitTest(spark); return
+    
     val office = Office(spark)
     val textrdd = office.openWord(Seq("/home/bigdata/test.docx"):_ *)
-    
-    println(textrdd.foreach { println })
-    //val text = "<xml>Stanford University is located in California. It is a great university.</xml>"
-    //val input = Seq(
-    //  (text.hashCode(), text)).toDF("id", "text")
     val input = textrdd.map { x => (x.hashCode(),x) }.toDF("id", "text")
-    input.show()
+    println(textrdd.foreach { println })
+//    val text = "<xml>Stanford University is located in California. It is a great university.</xml>"
+//    val input = Seq(
+//      (text.hashCode(), text)).toDF("id", "text")
+//        input.show()
 
 //    val output = input
 //      .select(cleanxml('text).as('doc))
@@ -49,17 +50,17 @@ object NLP {
 //      .select('sen, tokenize('sen).as('words), ner('sen).as('nerTags), coref('sen).as('coref), openie('sen).as('openie), sentiment('sen).as('sentiment))
 //    output.show(truncate = false)
 
-//    val triplet =  input.select(cleanxml('text).as('doc))
-//      .select(explode(ssplit('doc)).as('sen))
-//       .select(openie('sen).as('openie))
-//    val tripleRow = triplet.rdd.map(x => (x.getAs[WrappedArray[GenericRowWithSchema]]("openie")))
-//    .flatMap { iter => 
-//      for (x <- iter) yield  Row(x(0), x(1), x(2))
-//    }
-//    tripleRow.foreach { println }
-//    val triple = spark.createDataFrame(tripleRow.distinct(), TripleGraphX.schema)
+    val triplet =  input.select(cleanxml('text).as('doc))
+      .select(explode(ssplit('doc)).as('sen))
+       .select(openie('sen).as('openie))
+    val tripleRow = triplet.rdd.map(x => (x.getAs[WrappedArray[GenericRowWithSchema]]("openie")))
+    .flatMap { iter => 
+      for (x <- iter) yield  Row(x(0), x(1), x(2))
+    }
+    tripleRow.foreach { println }
+    val triple = spark.createDataFrame(tripleRow.distinct(), TripleGraphX.schema)
   
-    val triple = sqlContext.read.json("/home/bigdata/microeco.json")
+    //val triple = sqlContext.read.json("/home/bigdata/microeco.json")
     //val triple = sqlContext.read.json("/home/bigdata/chinese.json")
     
     val tg = TripleGraphX(spark)
@@ -113,7 +114,7 @@ object NLP {
     //  .option("rootTag", "books")
     //  .option("rowTag", "book")
     //  .xml("newbooks.xml")
-
+    
     sc.stop()
   }
 }
