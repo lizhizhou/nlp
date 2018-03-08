@@ -37,10 +37,17 @@ import scala.io.Source
  * with 20 different categories. This model can achieve around 90% accuracy after
  * 2 epochs training.
  */
-class TextClassifier(param: AbstractTextClassificationParams) extends Serializable{
+class TextClassifier() extends Serializable{
   val log: Logger = LoggerFactory.getLogger(this.getClass)
-  val gloveDir = s"${param.baseDir}/glove.6B/"
-  val textDataDir = s"${param.baseDir}/20news-18828/"
+  val gloveDir = s"./glove.6B/"
+  val textDataDir = s"./20news-18828/"
+  val maxWordsNum = 500
+  val partitionNum = 5
+  val embeddingDim = 100
+  val maxSequenceLength = 500
+  val trainingSplit = 50
+  val batchSize = 128
+  val learningRate = 0.5
   var classNum = -1
 
   /**
@@ -123,7 +130,7 @@ class TextClassifier(param: AbstractTextClassificationParams) extends Serializab
     val frequencies = dataRdd.flatMap{case (text: String, label: Float) =>
       SimpleTokenizer.toTokens(text)
     }.map(word => (word, 1)).reduceByKey(_ + _)
-      .sortBy(- _._2).collect().slice(10, param.maxWordsNum)
+      .sortBy(- _._2).collect().slice(10, maxWordsNum)
 
     val indexes = Range(1, frequencies.length)
     val word2Meta = frequencies.zip(indexes).map{item =>
@@ -138,11 +145,10 @@ class TextClassifier(param: AbstractTextClassificationParams) extends Serializab
     Map[String, WordMeta],
     Map[Float, Array[Float]]) = {
 
-    val sequenceLen = param.maxSequenceLength
-    val embeddingDim = param.embeddingDim
-    val trainingSplit = param.trainingSplit
+    val sequenceLen = maxSequenceLength
+
     // For large dataset, you might want to get such RDD[(String, Float)] from HDFS
-    val dataRdd = sc.parallelize(loadRawData(), param.partitionNum)
+    val dataRdd = sc.parallelize(loadRawData(), partitionNum)
     val (word2Meta, word2Vec) = analyzeTexts(dataRdd)
     val word2MetaBC = sc.broadcast(word2Meta)
     val word2VecBC = sc.broadcast(word2Vec)
@@ -166,9 +172,9 @@ class TextClassifier(param: AbstractTextClassificationParams) extends Serializab
   def buildModel(classNum: Int): Sequential[Float] = {
     val model = Sequential[Float]()
 
-    model.add(TemporalConvolution(param.embeddingDim, 256, 5))
+    model.add(TemporalConvolution(embeddingDim, 256, 5))
       .add(ReLU())
-      .add(TemporalMaxPooling(param.maxSequenceLength - 5 + 1))
+      .add(TemporalMaxPooling(maxSequenceLength - 5 + 1))
       .add(Squeeze(2))
       .add(Linear(256, 128))
       .add(Dropout(0.2))
@@ -188,12 +194,10 @@ class TextClassifier(param: AbstractTextClassificationParams) extends Serializab
       .set("spark.task.maxFailures", "1")
     val sc = new SparkContext(conf)
     Engine.init
-    val sequenceLen = param.maxSequenceLength
-    val embeddingDim = param.embeddingDim
-    val trainingSplit = param.trainingSplit
+    val sequenceLen = maxSequenceLength
 
     // For large dataset, you might want to get such RDD[(String, Float)] from HDFS
-    val dataRdd = sc.parallelize(loadRawData(), param.partitionNum)
+    val dataRdd = sc.parallelize(loadRawData(), partitionNum)
     val (word2Meta, word2Vec) = analyzeTexts(dataRdd)
     val word2MetaBC = sc.broadcast(word2Meta)
     val word2VecBC = sc.broadcast(word2Vec)
@@ -215,13 +219,13 @@ class TextClassifier(param: AbstractTextClassificationParams) extends Serializab
       model = buildModel(classNum),
       sampleRDD = trainingRDD,
       criterion = new ClassNLLCriterion[Float](),
-      batchSize = param.batchSize
+      batchSize = batchSize
     )
 
     optimizer
-      .setOptimMethod(new Adagrad(learningRate = param.learningRate,
+      .setOptimMethod(new Adagrad(learningRate = learningRate,
         learningRateDecay = 0.001))
-      .setValidation(Trigger.everyEpoch, valRDD, Array(new Top1Accuracy[Float]), param.batchSize)
+      .setValidation(Trigger.everyEpoch, valRDD, Array(new Top1Accuracy[Float]), batchSize)
       .setEndWhen(Trigger.maxEpoch(20))
       .optimize()
     sc.stop()
@@ -236,14 +240,14 @@ class TextClassifier(param: AbstractTextClassificationParams) extends Serializab
     // create rdd from input directory
     val trainingRDD = rdds(0).map { case (input: Array[Array[Float]], label: Float) =>
       Sample(
-        featureTensor = Tensor(input.flatten, Array(param.maxSequenceLength, param.embeddingDim))
+        featureTensor = Tensor(input.flatten, Array(maxSequenceLength, embeddingDim))
           .transpose(1, 2).contiguous(),
         label = label)
     }
 
     val valRDD = rdds(1).map { case (input: Array[Array[Float]], label: Float) =>
       Sample(
-        featureTensor = Tensor(input.flatten, Array(param.maxSequenceLength, param.embeddingDim))
+        featureTensor = Tensor(input.flatten, Array(maxSequenceLength, embeddingDim))
           .transpose(1, 2).contiguous(),
         label = label)
     }
@@ -253,12 +257,12 @@ class TextClassifier(param: AbstractTextClassificationParams) extends Serializab
       model = buildModel(classNum),
       sampleRDD = trainingRDD,
       criterion = new ClassNLLCriterion[Float](),
-      batchSize = param.batchSize
+      batchSize = batchSize
     )
 
     optimizer
-      .setOptimMethod(new Adagrad(learningRate = param.learningRate, learningRateDecay = 0.0002))
-      .setValidation(Trigger.everyEpoch, valRDD, Array(new Top1Accuracy[Float]), param.batchSize)
+      .setOptimMethod(new Adagrad(learningRate = learningRate, learningRateDecay = 0.0002))
+      .setValidation(Trigger.everyEpoch, valRDD, Array(new Top1Accuracy[Float]), batchSize)
       .setEndWhen(Trigger.maxEpoch(1))
       .optimize()
   }
@@ -301,6 +305,9 @@ class bigdl {
 }
   
 object bigdl {
+  val log: Logger = LoggerFactory.getLogger(this.getClass)
+  LoggerFilter.redirectSparkInfoLogs()
+  Logger4j.getLogger("com.intel.analytics.bigdl.optim").setLevel(Levle4j.INFO)
 
   def unittest = {
     val modelPath = "./syntaxnet/models/output_graph.pb"
@@ -311,44 +318,8 @@ object bigdl {
     // For tensorflow freezed graph or graph without Variables
     val model = Module.loadTF(modelPath, inputs, outputs, ByteOrder.LITTLE_ENDIAN)
 
+    val textClassification = new TextClassifier()
+    textClassification.train()
+    
   }
-  
-object TextClassifier {
-  val log: Logger = LoggerFactory.getLogger(this.getClass)
-  LoggerFilter.redirectSparkInfoLogs()
-  Logger4j.getLogger("com.intel.analytics.bigdl.optim").setLevel(Levle4j.INFO)
-
-  def main(args: Array[String]): Unit = {
-    val localParser = new OptionParser[TextClassificationParams]("BigDL Example") {
-      opt[String]('b', "baseDir")
-        .required()
-        .text("Base dir containing the training and word2Vec data")
-        .action((x, c) => c.copy(baseDir = x))
-      opt[String]('p', "partitionNum")
-        .text("you may want to tune the partitionNum if run into spark mode")
-        .action((x, c) => c.copy(partitionNum = x.toInt))
-      opt[String]('s', "maxSequenceLength")
-        .text("maxSequenceLength")
-        .action((x, c) => c.copy(maxSequenceLength = x.toInt))
-      opt[String]('w', "maxWordsNum")
-        .text("maxWordsNum")
-        .action((x, c) => c.copy(maxWordsNum = x.toInt))
-      opt[String]('l', "trainingSplit")
-        .text("trainingSplit")
-        .action((x, c) => c.copy(trainingSplit = x.toDouble))
-      opt[String]('z', "batchSize")
-        .text("batchSize")
-        .action((x, c) => c.copy(batchSize = x.toInt))
-      opt[Int]('l', "learningRate")
-        .text("learningRate")
-        .action((x, c) => c.copy(learningRate = x))
-    }
-
-    localParser.parse(args, TextClassificationParams()).map { param =>
-      log.info(s"Current parameters: $param")
-      val textClassification = new TextClassifier(param)
-      textClassification.train()
-    }
-  }
-}
 }
