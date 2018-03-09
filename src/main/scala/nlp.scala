@@ -33,7 +33,8 @@ object NLP {
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
     import sqlContext.implicits._
 
-    RDF.unitTest(spark); return
+    bigdl.unittest; return
+    //RDF.unitTest(spark); return
     
     val office = Office(spark)
     val textrdd = office.openWord(Seq("/home/bigdata/test.docx"):_ *)
