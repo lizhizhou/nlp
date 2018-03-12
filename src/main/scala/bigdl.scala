@@ -1,4 +1,5 @@
 import java.nio.ByteOrder
+import org.apache.spark.sql.SparkSession
 import com.intel.analytics.bigdl.nn._
 import com.intel.analytics.bigdl.numeric.NumericFloat
 import com.intel.analytics.bigdl.example.utils._
@@ -39,8 +40,8 @@ import scala.io.Source
  */
 class TextClassifier() extends Serializable{
   val log: Logger = LoggerFactory.getLogger(this.getClass)
-  val gloveDir = s"./glove.6B/"
-  val textDataDir = s"./20news-18828/"
+  val gloveDir = s"/home/bigdata/Downloads/glove.6B/"
+  val textDataDir = s"/home/bigdata/Downloads/20news-18828/"
   val maxWordsNum = 500
   val partitionNum = 5
   val embeddingDim = 100
@@ -188,11 +189,8 @@ class TextClassifier() extends Serializable{
   /**
    * Start to train the text classification model
    */
-  def train(): Unit = {
-    val conf = Engine.createSparkConf()
-      .setAppName("Text classification")
-      .set("spark.task.maxFailures", "1")
-    val sc = new SparkContext(conf)
+  def train(spark: SparkSession): Unit = {
+    val sc = spark.sparkContext
     Engine.init
     val sequenceLen = maxSequenceLength
 
@@ -309,17 +307,17 @@ object bigdl {
   LoggerFilter.redirectSparkInfoLogs()
   Logger4j.getLogger("com.intel.analytics.bigdl.optim").setLevel(Levle4j.INFO)
 
-  def unittest = {
-    val modelPath = "./syntaxnet/models/output_graph.pb"
-    val binPath = "./syntaxnet/models/lm.binary"
-    val inputs = Seq("input_node","input_lengths")
-    val outputs = Seq("output_node")
-
-    // For tensorflow freezed graph or graph without Variables
-    val model = Module.loadTF(modelPath, inputs, outputs, ByteOrder.LITTLE_ENDIAN)
+  def unittest(spark: SparkSession) = {
+//    val modelPath = "./syntaxnet/models/output_graph.pb"
+//    val binPath = "./syntaxnet/models/lm.binary"
+//    val inputs = Seq("input_node","input_lengths")
+//    val outputs = Seq("output_node")
+//
+//    // For tensorflow freezed graph or graph without Variables
+//    val model = Module.loadTF(modelPath, inputs, outputs, ByteOrder.LITTLE_ENDIAN)
 
     val textClassification = new TextClassifier()
-    textClassification.train()
+    textClassification.train(spark)
     
   }
 }

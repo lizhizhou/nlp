@@ -33,7 +33,7 @@ object NLP {
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
     import sqlContext.implicits._
 
-    bigdl.unittest; return
+    bigdl.unittest(spark); return
     //RDF.unitTest(spark); return
     
     val office = Office(spark)
