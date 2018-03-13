@@ -15,12 +15,12 @@ import scala.beans.BeanProperty
 import edu.stanford.nlp.util._
 import scala.collection.mutable.WrappedArray
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
+import com.intel.analytics.bigdl.utils.{Engine, LoggerFilter, T}
 
 object NLP {
 
   def main(args: Array[String]) {
-
-    val conf = new SparkConf()
+    val conf = Engine.createSparkConf()
       .set("arangodb.host", "127.0.0.1")
       .set("arangodb.port", "8529")
       .set("arangodb.user", "root")

@@ -42,13 +42,13 @@ class TextClassifier() extends Serializable{
   val log: Logger = LoggerFactory.getLogger(this.getClass)
   val gloveDir = s"/home/bigdata/Downloads/glove.6B/"
   val textDataDir = s"/home/bigdata/Downloads/20news-18828/"
-  val maxWordsNum = 500
-  val partitionNum = 5
-  val embeddingDim = 100
+  val maxWordsNum = 5000
+  val partitionNum = 4
+  val embeddingDim = 200
   val maxSequenceLength = 500
-  val trainingSplit = 50
+  val trainingSplit = 0.8
   val batchSize = 128
-  val learningRate = 0.5
+  val learningRate = 0.01
   var classNum = -1
 
   /**
