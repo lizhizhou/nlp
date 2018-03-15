@@ -115,9 +115,10 @@ object ArrangoGraphX {
 
   def apply(spark: SparkSession) = new ArrangoGraphX(spark)
 
-  def unitTest()
+  def unitTest(spark: SparkSession)
   {
-    
+    val graph = TestKnowledgeGraph(spark)
+
   }
   //    case class Concept(name: String)
   //    case class Triple(obj: String, rel: String, subject: String)
