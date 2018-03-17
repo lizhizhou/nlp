@@ -120,7 +120,7 @@ object ArrangoGraphX {
     val graph = TestKnowledgeGraph(spark)
     val arrango = ArrangoGraphX(spark)
     val ag = arrango.toArrango(graph, "test", "graphdb", "vertex", "edge")
-    arrango.toGraphX(ag, "vertex", "edge")
+    arrango.toGraphX("graphdb", "vertex", "edge")
   }
   //    case class Concept(name: String)
   //    case class Triple(obj: String, rel: String, subject: String)
