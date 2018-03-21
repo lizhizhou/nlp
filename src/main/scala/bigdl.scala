@@ -189,8 +189,11 @@ class TextClassifier() extends Serializable{
   /**
    * Start to train the text classification model
    */
-  def train(spark: SparkSession): Unit = {
-    val sc = spark.sparkContext
+  def train(): Unit = {
+    val conf = Engine.createSparkConf()
+      .setAppName("Text classification")
+      .set("spark.task.maxFailures", "1")
+    val sc = new SparkContext(conf)
     Engine.init
     val sequenceLen = maxSequenceLength
 
@@ -307,7 +310,7 @@ object bigdl {
   LoggerFilter.redirectSparkInfoLogs()
   Logger4j.getLogger("com.intel.analytics.bigdl.optim").setLevel(Levle4j.INFO)
 
-  def unittest(spark: SparkSession) = {
+  def unittest() = {
 //    val modelPath = "./syntaxnet/models/output_graph.pb"
 //    val binPath = "./syntaxnet/models/lm.binary"
 //    val inputs = Seq("input_node","input_lengths")
@@ -317,7 +320,7 @@ object bigdl {
 //    val model = Module.loadTF(modelPath, inputs, outputs, ByteOrder.LITTLE_ENDIAN)
 
     val textClassification = new TextClassifier()
-    textClassification.train(spark)
+    textClassification.train()
     
   }
 }

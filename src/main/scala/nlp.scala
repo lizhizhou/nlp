@@ -20,6 +20,9 @@ import com.intel.analytics.bigdl.utils.{Engine, LoggerFilter, T}
 object NLP {
 
   def main(args: Array[String]) {
+    
+    bigdl.unittest(); return
+    
     val conf = Engine.createSparkConf()
       .set("arangodb.host", "127.0.0.1")
       .set("arangodb.port", "8529")
@@ -33,7 +36,6 @@ object NLP {
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
     import sqlContext.implicits._
 
-    bigdl.unittest(spark); return
     //RDF.unitTest(spark); return
     
     val office = Office(spark)
