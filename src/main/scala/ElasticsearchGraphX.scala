@@ -20,10 +20,11 @@ class ElasticsearchGraphX(spark: SparkSession) {
   {
     val triple = sc.esRDD(index)
     triple.take(5).foreach(println)
-    //.map(triplet =>
-//      Row(triplet.srcAttr, triplet.attr, triplet.dstAttr))
-//    spark.createDataFrame(triple.distinct(), TripleGraphX.schema)
-    
+    val tripleRow  = triple.map(triplet =>
+      Row(triplet._2.get("object"), triplet._2.get("relation"), triplet._2.get("subject")))
+    val tripleDF =  spark.createDataFrame(tripleRow.distinct(), TripleGraphX.schema)
+    val tg = TripleGraphX(spark)
+    tg.toGraphX(tripleDF)
   } 
 
 }
