@@ -34,7 +34,9 @@ object ElasticsearchGraphX {
   def unitTest(spark: SparkSession)
   {
     val graph = TestKnowledgeGraph(spark)
-    
+    val esgraph = ElasticsearchGraphX(spark)
+    esgraph.toES(graph, "test")
+    esgraph.toGraphX("test")
 //    val es = sc.esRDD("spark/vertex")
 //    es.take(10).foreach(println)
 //

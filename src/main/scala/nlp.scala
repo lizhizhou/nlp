@@ -21,7 +21,7 @@ object NLP {
 
   def main(args: Array[String]) {
     
-    bigdl.unittest(); return
+    //bigdl.unittest(); return
     
     val conf = Engine.createSparkConf()
       .set("arangodb.host", "127.0.0.1")
@@ -37,7 +37,7 @@ object NLP {
     import sqlContext.implicits._
 
     //RDF.unitTest(spark); return
-    
+    ElasticsearchGraphX.unitTest(spark)
     val office = Office(spark)
     val textrdd = office.openWord(Seq("/home/bigdata/test.docx"):_ *)
     val input = textrdd.map { x => (x.hashCode(),x) }.toDF("id", "text")
