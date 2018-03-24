@@ -38,6 +38,8 @@ object NLP {
 
     //RDF.unitTest(spark); return
     ElasticsearchGraphX.unitTest(spark)
+    return 
+    
     val office = Office(spark)
     val textrdd = office.openWord(Seq("/home/bigdata/test.docx"):_ *)
     val input = textrdd.map { x => (x.hashCode(),x) }.toDF("id", "text")
