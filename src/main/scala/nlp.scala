@@ -37,8 +37,7 @@ object NLP {
     import sqlContext.implicits._
 
     //RDF.unitTest(spark); return
-    ElasticsearchGraphX.unitTest(spark)
-    return 
+    //ElasticsearchGraphX.unitTest(spark)
     
     val office = Office(spark)
     val textrdd = office.openWord(Seq("/home/bigdata/test.docx"):_ *)

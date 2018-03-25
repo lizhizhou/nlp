@@ -16,12 +16,11 @@ class ElasticsearchGraphX(spark: SparkSession) {
   def toES(triple: DataFrame, index:String) { 
     triple.saveToEs(index)//("spark/vertex")
   }
-  def toGraphX(index:String)
+  def toGraphX(index:String) = 
   {
     val triple = sc.esRDD(index)
-    triple.take(5).foreach(println)
     val tripleRow  = triple.map(triplet =>
-      Row(triplet._2.get("object"), triplet._2.get("relation"), triplet._2.get("subject")))
+      Row(triplet._2.get("object").get, triplet._2.get("relation").get, triplet._2.get("subject").get))
     val tripleDF =  spark.createDataFrame(tripleRow.distinct(), TripleGraphX.schema)
     val tg = TripleGraphX(spark)
     tg.toGraphX(tripleDF)
@@ -35,11 +34,12 @@ object ElasticsearchGraphX {
   {
     val graph = TestKnowledgeGraph(spark)
     val esgraph = ElasticsearchGraphX(spark)
-    esgraph.toES(graph, "test")
-    esgraph.toGraphX("test")
-//    val es = sc.esRDD("spark/vertex")
-//    es.take(10).foreach(println)
-//
+    esgraph.toES(graph, "test/test")
+    val graphr = esgraph.toGraphX("test/test")
+    graphr.triplets.map(
+      triplet => triplet.srcAttr + " " + triplet.attr + " " + triplet.dstAttr
+    ).collect.foreach(println(_))
+
 //    val otp = Map("iata" -> "OTP", "name" -> "Otopeni")
 //    val muc = Map("iata" -> "MUC", "name" -> "Munich")
 //    val sfo = Map("iata" -> "SFO", "name" -> "San Fran")
