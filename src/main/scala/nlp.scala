@@ -21,7 +21,7 @@ object NLP {
 
   def main(args: Array[String]) {
     
-    //bigdl.unittest(); return
+    bigdl.unittest(); return
     
     val conf = Engine.createSparkConf()
       .set("arangodb.host", "127.0.0.1")
