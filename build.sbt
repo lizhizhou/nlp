@@ -20,7 +20,8 @@ libraryDependencies ++= Seq(
    "org.apache.jena" % "jena-elephas-io" % "0.9.0",
    "com.databricks" %% "spark-xml" % "0.4.1",
    "com.crealytics" % "spark-excel_2.11" % "0.9.14",
-   "org.apache.poi" % "poi" % "3.17"
+   "org.apache.poi" % "poi" % "3.17",
+   "io.thekraken" % "grok" % "0.1.5"
 )
 
 mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
