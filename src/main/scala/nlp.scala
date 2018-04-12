@@ -42,6 +42,7 @@ gm.captures();
 println(gm.toJson());
     
 return
+
     
     val conf = Engine.createSparkConf()
       .set("arangodb.host", "127.0.0.1")
@@ -57,7 +58,8 @@ return
     import sqlContext.implicits._
 
     //RDF.unitTest(spark); return
-    ElasticsearchGraphX.unitTest(spark)
+    //ElasticsearchGraphX.unitTest(spark)
+    
     val office = Office(spark)
     val textrdd = office.openWord(Seq("/home/bigdata/test.docx"):_ *)
     val input = textrdd.map { x => (x.hashCode(),x) }.toDF("id", "text")
