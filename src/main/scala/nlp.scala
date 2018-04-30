@@ -16,6 +16,7 @@ import edu.stanford.nlp.util._
 import scala.collection.mutable.WrappedArray
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import com.intel.analytics.bigdl.utils.{Engine, LoggerFilter, T}
+import com.softwaremill.debug.DebugMacros._
 
 
 object NLP {
@@ -34,6 +35,12 @@ object NLP {
     val sc = spark.sparkContext
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
     import sqlContext.implicits._
+
+    debug()
+    import com.github.johnreedlol.Pos
+    Pos.err("Standard error") 
+    Pos.out("Hello World")
+    return
 
     //RDF.unitTest(spark); return
     //ElasticsearchGraphX.unitTest(spark)
@@ -118,7 +125,7 @@ object NLP {
     //  .option("rootTag", "books")
     //  .option("rowTag", "book")
     //  .xml("newbooks.xml")
-    
+
     sc.stop()
   }
 }

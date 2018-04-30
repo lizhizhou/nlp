@@ -21,7 +21,9 @@ libraryDependencies ++= Seq(
    "com.databricks" %% "spark-xml" % "0.4.1",
    "com.crealytics" % "spark-excel_2.11" % "0.9.14",
    "org.apache.poi" % "poi" % "3.17",
-   "io.thekraken" % "grok" % "0.1.5"
+   "io.thekraken" % "grok" % "0.1.5",
+   "com.softwaremill.scalamacrodebug" %% "macros" % "0.4", 
+   "com.github.johnreedlol" %% "scala-trace-debug" % "4.5.0"
 )
 
 mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
