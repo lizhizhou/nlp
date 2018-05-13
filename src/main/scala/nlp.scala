@@ -36,11 +36,11 @@ object NLP {
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
     import sqlContext.implicits._
 
-    debug()
-    import com.github.johnreedlol.Pos
-    Pos.err("Standard error") 
-    Pos.out("Hello World")
-    return
+//    debug()
+//    import com.github.johnreedlol.Pos
+//    Pos.err("Standard error") 
+//    Pos.out("Hello World")
+//    return
 
     //RDF.unitTest(spark); return
     //ElasticsearchGraphX.unitTest(spark)
