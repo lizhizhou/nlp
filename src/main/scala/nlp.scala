@@ -36,6 +36,12 @@ object NLP {
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
     import sqlContext.implicits._
 
+    
+    val userComment = spark.read.parquet("/home/bigdata/temp_spam_user_topic_comment/1",
+        "/home/bigdata/temp_spam_user_topic_comment/2")
+    val triplet = userComment.select($"nickname", $"content", $"target_user_nick_name")
+    triplet.show
+ 
 //    debug()
 //    import com.github.johnreedlol.Pos
 //    Pos.err("Standard error") 
@@ -46,10 +52,10 @@ object NLP {
     //ElasticsearchGraphX.unitTest(spark)
     //GrokPattern.unitTest()
     
-    val office = Office(spark)
-    val textrdd = office.openWord(Seq("/home/bigdata/test.docx"):_ *)
-    val input = textrdd.map { x => (x.hashCode(),x) }.toDF("id", "text")
-    println(textrdd.foreach { println })
+//    val office = Office(spark)
+//    val textrdd = office.openWord(Seq("/home/bigdata/test.docx"):_ *)
+//    val input = textrdd.map { x => (x.hashCode(),x) }.toDF("id", "text")
+//    println(textrdd.foreach { println })
 //    val text = "<xml>Stanford University is located in California. It is a great university.</xml>"
 //    val input = Seq(
 //      (text.hashCode(), text)).toDF("id", "text")
@@ -61,14 +67,16 @@ object NLP {
 //      .select('sen, tokenize('sen).as('words), ner('sen).as('nerTags), coref('sen).as('coref), openie('sen).as('openie), sentiment('sen).as('sentiment))
 //    output.show(truncate = false)
 
-    val triplet =  input.select(cleanxml('text).as('doc))
-      .select(explode(ssplit('doc)).as('sen))
-       .select(openie('sen).as('openie))
-    val tripleRow = triplet.rdd.map(x => (x.getAs[WrappedArray[GenericRowWithSchema]]("openie")))
-    .flatMap { iter => 
-      for (x <- iter) yield  Row(x(0), x(1), x(2))
-    }
-    tripleRow.foreach { println }
+//    val triplet =  input.select(cleanxml('text).as('doc))
+//      .select(explode(ssplit('doc)).as('sen))
+//       .select(openie('sen).as('openie))
+//    val tripleRow = triplet.rdd.map(x => (x.getAs[WrappedArray[GenericRowWithSchema]]("openie")))
+//    .flatMap { iter => 
+//      for (x <- iter) yield  Row(x(0), x(1), x(2))
+//    }
+    val tripleRow = triplet.sample(false, 0.001).rdd
+    println(tripleRow.count)
+    //tripleRow.foreach { println }
     val triple = spark.createDataFrame(tripleRow.distinct(), TripleGraphX.schema)
   
     //val triple = sqlContext.read.json("/home/bigdata/microeco.json")
@@ -82,10 +90,10 @@ object NLP {
     ag.toArrango(tg.toGraphX(triple), "test", "myGraph", "concept", "link")
     tg.toTriple(ag.toGraphX("test", "concept", "link")).show(10)
 
-    val ng = Neo4jGraphX(spark)
-    ng.toNeo4j(tg.toGraphX(triple))
-    val neo = ng.toGraphX()
-    println("Count of edge " + neo.edges.count)
+//    val ng = Neo4jGraphX(spark)
+//    ng.toNeo4j(tg.toGraphX(triple))
+//    val neo = ng.toGraphX()
+//    println("Count of edge " + neo.edges.count)
      
     //val sqlContext = new SQLContext(sc)
     //val df = sqlContext.read
@@ -103,14 +111,14 @@ object NLP {
     //    .schema(myCustomSchema) // Optional, default: Either inferred schema, or all columns are Strings
     //    .load("Worktime.xlsx")
     //
-    tf.write
-      .format("com.crealytics.spark.excel")
-      .option("sheetName", "Daily")
-      .option("useHeader", "true")
-      .option("dateFormat", "yy-mmm-d") // Optional, default: yy-m-d h:mm
-      .option("timestampFormat", "mm-dd-yyyy hh:mm:ss") // Optional, default: yyyy-mm-dd hh:mm:ss.000
-      .mode("overwrite")
-      .save("/home/bigdata/triple.xlsx")
+//    tf.write
+//      .format("com.crealytics.spark.excel")
+//      .option("sheetName", "Daily")
+//      .option("useHeader", "true")
+//      .option("dateFormat", "yy-mmm-d") // Optional, default: yy-m-d h:mm
+//      .option("timestampFormat", "mm-dd-yyyy hh:mm:ss") // Optional, default: yyyy-mm-dd hh:mm:ss.000
+//      .mode("overwrite")
+//      .save("/home/bigdata/triple.xlsx")
     //
     //import org.apache.spark.sql.SQLContext
     //import com.databricks.spark.xml._
