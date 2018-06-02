@@ -82,6 +82,7 @@ RUN curl -sL --retry 3 \
  && mv /tmp/zeppelin* $ZEPPELIN_HOME \
  && mkdir -p $ZEPPELIN_HOME/logs \
  && mkdir -p $ZEPPELIN_HOME/run
+RUN /usr/zeppelin/bin/install-interpreter.sh --name md,shell,jdbc,python
 
 #CLEANUP
 RUN apt-get clean \
