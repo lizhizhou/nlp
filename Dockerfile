@@ -84,6 +84,29 @@ RUN curl -sL --retry 3 \
  && mkdir -p $ZEPPELIN_HOME/run
 RUN /usr/zeppelin/bin/install-interpreter.sh --name md,shell,jdbc,python
 
+# 
+
+# ArrangoDB
+ARG ARRANGO_MAJOR_VERSION=3
+ARG ARRANGO_UPDATE_VERSION=3
+ARG ARRANGO_BUILD_NUMBER=9
+ARG ARRANGO_PATCH_NUMBER=1
+#RUN curl -L --retry 3 -o /tmp/arrango.deb https://download.arangodb.com/arangodb33/xUbuntu_17.04/amd64/arangodb${ARRANGO_MAJOR_VERSION}-${ARRANGO_MAJOR_VERSION}.${ARRANGO_UPDATE_VERSION}.${ARRANGO_BUILD_NUMBER}-${ARRANGO_PATCH_NUMBER}_amd64.deb
+#RUN dpkg --force-all -i /tmp/arrango.deb
+
+# ElasticSearch
+ARG ES_MAJOR_VERSION=6
+ARG ES_UPDATE_VERSION=2
+ARG ES_BUILD_NUMBER=4
+ARG KIBANA_MAJOR_VERSION=6
+ARG KIBANA_UPDATE_VERSION=2
+ARG KIBANA_BUILD_NUMBER=4
+RUN curl -L --retry 3 -o /tmp/es.deb https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ES_MAJOR_VERSION}.${ES_UPDATE_VERSION}.${ES_BUILD_NUMBER}.deb
+RUN dpkg --force-all -i /tmp/es.deb
+RUN curl -L --retry 3 -o /tmp/kibana.deb https://artifacts.elastic.co/downloads/kibana/kibana-${KIBANA_MAJOR_VERSION}.${KIBANA_UPDATE_VERSION}.${KIBANA_BUILD_NUMBER}-amd64.deb
+RUN dpkg --force-all -i /tmp/kibana.deb
+
+
 #CLEANUP
 RUN apt-get clean \
  && rm -rf /var/lib/apt/lists/*
@@ -98,6 +121,12 @@ EXPOSE 6006
 EXPOSE 8888
 # Zeppelin
 EXPOSE 8080
+# ArangoDB
+EXPOSE 8529
+# Elasticsearch
+EXPOSE 9200
+# Kibana
+EXPOSE 5601
 
 WORKDIR "/notebooks"
 
