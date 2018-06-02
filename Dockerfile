@@ -35,11 +35,11 @@ ARG MAVEN_MAJOR_VERSION=3
 ARG MAVEN_UPDATE_VERSION=3
 ARG MAVEN_BUILD_NUMBER=9
 ARG MAVEN_PATCH_NUMBER=4
-RUN curl -L -o /tmp/scala.deb www.scala-lang.org/files/archive/scala-${SCALA_MAJOR_VERSION}.${SCALA_UPDATE_VERSION}.${SCALA_BUILD_NUMBER}.deb
+RUN curl -L --retry 3 -o /tmp/scala.deb www.scala-lang.org/files/archive/scala-${SCALA_MAJOR_VERSION}.${SCALA_UPDATE_VERSION}.${SCALA_BUILD_NUMBER}.deb
 RUN dpkg --force-all -i /tmp/scala.deb
-RUN curl -L -o sbt.deb http://dl.bintray.com/sbt/debian/sbt-0.13.15.deb
+RUN curl -L --retry 3 -o /tmp/sbt.deb http://dl.bintray.com/sbt/debian/sbt-0.13.15.deb
 RUN dpkg --force-all -i /tmp/sbt.deb
-RUN curl -L -o maven.deb http://ftp.us.debian.org/debian/pool/main/m/maven/maven_${MAVEN_MAJOR_VERSION}.${{MAVEN_UPDATE_VERSION}.${{MAVEN_BUILD_NUMBER}.-{MAVEN_PATCH_NUMBER}_all.deb
+RUN curl -L --retry 3 -o /tmp/maven.deb http://ftp.us.debian.org/debian/pool/main/m/maven/maven_${MAVEN_MAJOR_VERSION}.${MAVEN_UPDATE_VERSION}.${MAVEN_BUILD_NUMBER}-${MAVEN_PATCH_NUMBER}_all.deb
 RUN dpkg --force-all -i /tmp/maven.deb
 
 # HADOOP
@@ -72,17 +72,16 @@ ENV ZEPPELIN_PORT 8080
 ENV ZEPPELIN_HOME /usr/zeppelin
 ENV ZEPPELIN_CONF_DIR $ZEPPELIN_HOME/conf
 ENV ZEPPELIN_NOTEBOOK_DIR $ZEPPELIN_HOME/notebook
-ARG SBT_MAJOR_VERSION=0
-ARG SBT_UPDATE_VERSION=7
-ARG SBT_BUILD_NUMBER=3
+ARG ZEPPELIN_MAJOR_VERSION=0
+ARG ZEPPELIN_UPDATE_VERSION=7
+ARG ZEPPELIN_BUILD_NUMBER=3
 RUN curl -sL --retry 3 \
-  "http://mirror.bit.edu.cn/apache/zeppelin/zeppelin-${ZEPPELIN_MAJOR_VERSION}.${{ZEPPELIN_UPDATE_VERSION}.${{ZEPPELIN_BUILD_NUMBER}/zeppelin-${ZEPPELIN_MAJOR_VERSION}.${{ZEPPELIN_UPDATE_VERSION}.${{ZEPPELIN_BUILD_NUMBER}-bin-netinst.tgz" \
+  "http://mirror.bit.edu.cn/apache/zeppelin/zeppelin-${ZEPPELIN_MAJOR_VERSION}.${ZEPPELIN_UPDATE_VERSION}.${ZEPPELIN_BUILD_NUMBER}/zeppelin-${ZEPPELIN_MAJOR_VERSION}.${ZEPPELIN_UPDATE_VERSION}.${ZEPPELIN_BUILD_NUMBER}-bin-netinst.tgz" \
   | gunzip \
-  | tar x -C /usr/ \
- && mv /usr/zeppelin* $ZEPPELIN_HOME \
+  | tar x -C /tmp/ \
+ && mv /tmp/zeppelin* $ZEPPELIN_HOME \
  && mkdir -p $ZEPPELIN_HOME/logs \
  && mkdir -p $ZEPPELIN_HOME/run
-
 
 #CLEANUP
 RUN apt-get clean \
@@ -90,13 +89,16 @@ RUN apt-get clean \
 RUN rm -rf /tmp/*
 RUN rm -rf /usr/share/doc/*
 RUN rm -rf usr/*.whl
-RUN apt-get purge -y --auto-remove $buildDeps
+RUN apt-get purge -f -y --auto-remove
 
 # TensorBoard
 EXPOSE 6006
 # IPython
 EXPOSE 8888
+# Zeppelin
+EXPOSE 8080
 
 WORKDIR "/notebooks"
 
 CMD ["/run_jupyter.sh", "--allow-root"]
+CMD ["/usr/zeppelin/bin/zeppelin.sh",""]
