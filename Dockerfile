@@ -91,8 +91,19 @@ ARG ARRANGO_MAJOR_VERSION=3
 ARG ARRANGO_UPDATE_VERSION=3
 ARG ARRANGO_BUILD_NUMBER=9
 ARG ARRANGO_PATCH_NUMBER=1
-#RUN curl -L --retry 3 -o /tmp/arrango.deb https://download.arangodb.com/arangodb33/xUbuntu_17.04/amd64/arangodb${ARRANGO_MAJOR_VERSION}-${ARRANGO_MAJOR_VERSION}.${ARRANGO_UPDATE_VERSION}.${ARRANGO_BUILD_NUMBER}-${ARRANGO_PATCH_NUMBER}_amd64.deb
-#RUN dpkg --force-all -i /tmp/arrango.deb
+RUN curl -L --retry 3 -o /tmp/arangodb.deb https://download.arangodb.com/arangodb33/xUbuntu_16.04/amd64/arangodb${ARRANGO_MAJOR_VERSION}-${ARRANGO_MAJOR_VERSION}.${ARRANGO_UPDATE_VERSION}.${ARRANGO_BUILD_NUMBER}-${ARRANGO_PATCH_NUMBER}_amd64.deb
+RUN (echo arangodb3 arangodb3/password password test | debconf-set-selections) && \
+    (echo arangodb3 arangodb3/password_again password test | debconf-set-selections) && \
+    DEBIAN_FRONTEND="noninteractive" dpkg -i /tmp/arangodb.deb && \
+    rm -rf /var/lib/arangodb3/* && \
+    sed -ri \
+        -e 's!127\.0\.0\.1!0.0.0.0!g' \
+        -e 's!^(file\s*=).*!\1 -!' \
+        -e 's!^#\s*uid\s*=.*!uid = arangodb!' \
+        -e 's!^#\s*gid\s*=.*!gid = arangodb!' \
+        /etc/arangodb3/arangod.conf \
+    && \
+    rm -f /tmp/arangodb.deb*
 
 # ElasticSearch
 ARG ES_MAJOR_VERSION=6
@@ -130,5 +141,8 @@ EXPOSE 5601
 
 WORKDIR "/notebooks"
 
+#CMD [service arangodb3 start]
+#CMD [service elasticsearch start]
+#CMD [service kibana start]
 CMD ["/run_jupyter.sh", "--allow-root"]
 CMD ["/usr/zeppelin/bin/zeppelin.sh",""]
