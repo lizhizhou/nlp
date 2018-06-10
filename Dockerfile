@@ -42,6 +42,9 @@ RUN dpkg --force-all -i /tmp/sbt.deb
 RUN curl -L --retry 3 -o /tmp/maven.deb http://ftp.us.debian.org/debian/pool/main/m/maven/maven_${MAVEN_MAJOR_VERSION}.${MAVEN_UPDATE_VERSION}.${MAVEN_BUILD_NUMBER}-${MAVEN_PATCH_NUMBER}_all.deb
 RUN dpkg --force-all -i /tmp/maven.deb
 
+# ZOOKEEPER
+RUN apt-get install -y zookeeperd
+
 # HADOOP
 ENV HADOOP_VERSION 2.8.3
 ENV HADOOP_HOME /usr/hadoop-$HADOOP_VERSION
@@ -84,7 +87,18 @@ RUN curl -sL --retry 3 \
  && mkdir -p $ZEPPELIN_HOME/run
 RUN /usr/zeppelin/bin/install-interpreter.sh --name md,shell,jdbc,python
 
-# 
+# KAFKA
+ENV KAFKA_VERSION 1.0.0
+ENV KAFKA_SCALA  2.11
+ENV KAFKA_HOME /usr/kafka-${KAFKA_VERSION}
+ENV KAFKA_PACKAGE kafka_${KAFKA_SCALA}-${KAFKA_VERSION}
+ENV PATH $PATH:${KAFKA_HOME}/bin
+RUN curl -sL --retry 3 \
+  "http://mirrors.shuosc.org/apache/kafka/1.0.0/${KAFKA_PACKAGE}.tgz" \
+  | gunzip \
+  | tar x -C /usr/ \
+ && mv /usr/$KAFKA_PACKAGE $KAFKA_HOME \
+ && chown -R root:root $KAFKA_HOME
 
 # ArrangoDB
 ARG ARRANGO_MAJOR_VERSION=3
