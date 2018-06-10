@@ -302,7 +302,19 @@ case class TextClassificationParams(override val baseDir: String = "./",
   extends AbstractTextClassificationParams
 
 class bigdl {
-
+  val textClassification = new TextClassifier()
+  def infer(rdd:RDD[String]):RDD[Integer] = {
+      return rdd.map( x => x.hashCode())
+  }
+  def train()
+  {
+    val textClassification = new TextClassifier()
+    textClassification.train()
+  }
+  def load()
+  {
+    
+  }
 }
   
 object bigdl {
