@@ -43,7 +43,15 @@ RUN curl -L --retry 3 -o /tmp/maven.deb http://ftp.us.debian.org/debian/pool/mai
 RUN dpkg --force-all -i /tmp/maven.deb
 
 # ZOOKEEPER
-RUN apt-get install -y zookeeperd
+ENV ZOOKEEPER_VERSION 3.4.12
+ENV ZOOKEEPER_HOME /usr/zookeeper-$ZOOKEEPER_VERSION
+ENV PATH $PATH:$ZOOKEEPER_HOME/bin
+RUN curl -sL --retry 3 \
+  "http://www-us.apache.org/dist/zookeeper/zookeeper-$ZOOKEEPER_VERSION/zookeeper-$ZOOKEEPER_VERSION.tar.gz" \
+  | gunzip \
+  | tar -x -C /usr/ \
+ && rm -rf $ZOOKEEPER_HOME/share/doc \
+ && chown -R root:root $ZOOKEEPER_HOME
 
 # HADOOP
 ENV HADOOP_VERSION 2.8.3
@@ -152,6 +160,8 @@ EXPOSE 8529
 EXPOSE 9200
 # Kibana
 EXPOSE 5601
+# Zookeeper
+EXPOSE 2181
 
 WORKDIR "/notebooks"
 
