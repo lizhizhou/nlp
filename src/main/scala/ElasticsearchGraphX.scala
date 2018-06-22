@@ -10,7 +10,7 @@ import org.apache.spark.graphx.{ Edge, VertexId, Graph }
 class ElasticsearchGraphX(spark: SparkSession) {
   val sc = spark.sparkContext
   def toES(graph: Graph[String, String], index:String) {
-    this.toES(TripleGraphX(spark).toTriple(graph),index)
+    this.toES(TripleGraphX[String,String](spark, "object", "subject", "relation").toTriple(graph),index)
   }
   
   def toES(triple: DataFrame, index:String) { 
@@ -21,8 +21,8 @@ class ElasticsearchGraphX(spark: SparkSession) {
     val triple = sc.esRDD(index)
     val tripleRow  = triple.map(triplet =>
       Row(triplet._2.get("object").get, triplet._2.get("relation").get, triplet._2.get("subject").get))
-    val tripleDF =  spark.createDataFrame(tripleRow.distinct(), TripleGraphX.schema)
-    val tg = TripleGraphX(spark)
+    val tg = TripleGraphX[String,String](spark, "object", "subject", "relation")
+    val tripleDF =  spark.createDataFrame(tripleRow.distinct(), tg.schema)
     tg.toGraphX(tripleDF)
   } 
 

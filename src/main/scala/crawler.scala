@@ -256,7 +256,7 @@ class crawler(startPage: String, outputPath: String = "./crawl.txt", filter: (St
 
 object crawler{
   def main(args:Array[String]): Unit ={
-    new crawler("http://www.7caimi.com/xiaoshuo/2/",
+    new crawler("http://www.sina.com.cn/",
       "crawl.txt",
       filter = (url:String) => url.contains("http://www.7caimi.com/xiaoshuo/2/")).crawl()
   }
