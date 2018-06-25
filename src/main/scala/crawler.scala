@@ -26,7 +26,7 @@ class crawler(startPage: String, outputPath: String = "./crawl.txt", filter: (St
   /**
     * 文件类型正则
     */
-  private val htmlTypeRegex = "\btext/html\b"
+  private val htmlTypeRegex = ".*text\\/html.*"
 
   /**
     * 存储符合条件的链接
@@ -144,6 +144,7 @@ class crawler(startPage: String, outputPath: String = "./crawl.txt", filter: (St
       if(conn != null) conn.disconnect
       crawledPool.add(url)
     }
+    if (headers == null || !isTextPage(headers)) data="";
     return (status, data, headers)
   }
 
@@ -256,8 +257,8 @@ class crawler(startPage: String, outputPath: String = "./crawl.txt", filter: (St
 
 object crawler{
   def main(args:Array[String]): Unit ={
-    new crawler("http://www.sina.com.cn/",
+    new crawler("http://lizhizhou.github.io/",
       "crawl.txt",
-      filter = (url:String) => url.contains("http://www.7caimi.com/xiaoshuo/2/")).crawl()
+      filter = (url:String) => url.contains("http://lizhizhou.github.io/")).crawl()
   }
 }
