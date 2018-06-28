@@ -323,16 +323,29 @@ object bigdl {
   Logger4j.getLogger("com.intel.analytics.bigdl.optim").setLevel(Levle4j.INFO)
 
   def unittest() = {
-//    val modelPath = "./syntaxnet/models/output_graph.pb"
-//    val binPath = "./syntaxnet/models/lm.binary"
-//    val inputs = Seq("input_node","input_lengths")
-//    val outputs = Seq("output_node")
-//
-//    // For tensorflow freezed graph or graph without Variables
-//    val model = Module.loadTF(modelPath, inputs, outputs, ByteOrder.LITTLE_ENDIAN)
 
     val textClassification = new TextClassifier()
     textClassification.train()
     
+  }
+
+  def main(args: Array[String]): Unit = {
+    val conf = Engine.createSparkConf()
+      .setAppName("Text classification")
+      .set("spark.task.maxFailures", "1")
+    val sc = new SparkContext(conf)
+    Engine.init
+    val modelPath = "/tmp/model/model.pb"
+    val binPath = "/tmp/model/model.bin"
+    val inputs = Seq("Placeholder")
+    val outputs = Seq("output")
+    val model = Module.loadTF(modelPath, Seq("Placeholder"),
+      Seq("output"), ByteOrder.LITTLE_ENDIAN, Some(binPath))
+    val image = Tensor(1).fill(0.1f)
+    val label = 1f
+    val sample = Sample(image, label)
+    val sampledata = sc.parallelize(Seq(sample))
+      model.predict(sampledata)
+
   }
 }
