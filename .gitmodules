@@ -1,0 +1,3 @@
+[submodule "spark-corenlp"]
+	path = spark-corenlp
+	url = https://github.com/lizhizhou/spark-corenlp.git
