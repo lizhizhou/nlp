@@ -1,6 +1,12 @@
 FROM tensorflow/tensorflow:1.8.0-py3
 MAINTAINER Zhizhou Li <lizhizhou1983@gmail.com>
 RUN apt-get update
+RUN apt install -y python3-tk
+
+RUN mkdir ~/.pip
+RUN echo "[global]" >> ~/.pip/pip.conf
+RUN echo "trusted-host=pypi.douban.com" >> ~/.pip/pip.conf
+RUN echo "index-url = http://pypi.douban.com/simple" >> ~/.pip/pip.conf
 
 # PYTHON
 RUN pip3 install pandas
