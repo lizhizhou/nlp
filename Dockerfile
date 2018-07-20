@@ -10,6 +10,7 @@ RUN echo "index-url = http://pypi.douban.com/simple" >> ~/.pip/pip.conf
 
 # PYTHON
 RUN pip3 install pandas
+RUN pip3 install django
 
 # DEEPLEANING
 RUN pip3 install keras
