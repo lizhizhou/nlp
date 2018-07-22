@@ -66,7 +66,7 @@ ENV HADOOP_HOME /usr/hadoop-$HADOOP_VERSION
 ENV HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
 ENV PATH $PATH:$HADOOP_HOME/bin
 RUN curl -sL --retry 3 \
-  "http://archive.apache.org/dist/hadoop/common/hadoop-$HADOOP_VERSION/hadoop-$HADOOP_VERSION.tar.gz" \
+  "http://archive.apache.org/dist/hadoop/common/hadoop-${HADOOP_VERSION}/hadoop-${HADOOP_VERSION}.tar.gz" \
   | gunzip \
   | tar -x -C /usr/ \
  && rm -rf $HADOOP_HOME/share/doc \
@@ -91,10 +91,10 @@ ENV ZEPPELIN_HOME /usr/zeppelin
 ENV ZEPPELIN_CONF_DIR $ZEPPELIN_HOME/conf
 ENV ZEPPELIN_NOTEBOOK_DIR $ZEPPELIN_HOME/notebook
 ARG ZEPPELIN_MAJOR_VERSION=0
-ARG ZEPPELIN_UPDATE_VERSION=7
-ARG ZEPPELIN_BUILD_NUMBER=3
+ARG ZEPPELIN_UPDATE_VERSION=8
+ARG ZEPPELIN_BUILD_NUMBER=0
 RUN curl -sL --retry 3 \
-  "http://mirror.bit.edu.cn/apache/zeppelin/zeppelin-${ZEPPELIN_MAJOR_VERSION}.${ZEPPELIN_UPDATE_VERSION}.${ZEPPELIN_BUILD_NUMBER}/zeppelin-${ZEPPELIN_MAJOR_VERSION}.${ZEPPELIN_UPDATE_VERSION}.${ZEPPELIN_BUILD_NUMBER}-bin-netinst.tgz" \
+  "https://archive.apache.org/dist/zeppelin/zeppelin-${ZEPPELIN_MAJOR_VERSION}.${ZEPPELIN_UPDATE_VERSION}.${ZEPPELIN_BUILD_NUMBER}/zeppelin-${ZEPPELIN_MAJOR_VERSION}.${ZEPPELIN_UPDATE_VERSION}.${ZEPPELIN_BUILD_NUMBER}-bin-netinst.tgz" \
   | gunzip \
   | tar x -C /tmp/ \
  && mv /tmp/zeppelin* $ZEPPELIN_HOME \
@@ -109,7 +109,7 @@ ENV KAFKA_HOME /usr/kafka-${KAFKA_VERSION}
 ENV KAFKA_PACKAGE kafka_${KAFKA_SCALA}-${KAFKA_VERSION}
 ENV PATH $PATH:${KAFKA_HOME}/bin
 RUN curl -sL --retry 3 \
-  "http://mirrors.shuosc.org/apache/kafka/1.0.0/${KAFKA_PACKAGE}.tgz" \
+  "https://archive.apache.org/dist/kafka/${KAFKA_VERSION}/${KAFKA_PACKAGE}.tgz" \
   | gunzip \
   | tar x -C /usr/ \
  && mv /usr/$KAFKA_PACKAGE $KAFKA_HOME \
