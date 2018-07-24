@@ -146,7 +146,7 @@ RUN dpkg --force-all -i /tmp/es.deb
 RUN curl -L --retry 3 -o /tmp/kibana.deb https://artifacts.elastic.co/downloads/kibana/kibana-${KIBANA_MAJOR_VERSION}.${KIBANA_UPDATE_VERSION}.${KIBANA_BUILD_NUMBER}-amd64.deb
 RUN dpkg --force-all -i /tmp/kibana.deb
 
-#Flink
+# Flink
 ENV FLINK_VERSION 1.5.1
 ENV FLINK_SCALA  2.11
 ENV FLINK_PACKAGE flink-${FLINK_VERSION}
@@ -159,7 +159,7 @@ RUN curl -sL --retry 3 \
  && mv /tmp/flink* $FLINK_HOME \
  && chown -R root:root $FLINK_HOME
 
-#CLEANUP
+# CLEANUP
 RUN apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 RUN rm -rf /tmp/*
