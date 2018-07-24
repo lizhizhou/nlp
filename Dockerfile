@@ -149,14 +149,14 @@ RUN dpkg --force-all -i /tmp/kibana.deb
 #Flink
 ENV FLINK_VERSION 1.5.1
 ENV FLINK_SCALA  2.11
-ENV FLINK_PACKAGE flink-${FLINK_VERSION}-bin-scala_
+ENV FLINK_PACKAGE flink-${FLINK_VERSION}
 ENV FLINK_HOME /usr/flink-${FLINK_VERSION}
 ENV PATH $PATH:${SPARK_HOME}/bin
 RUN curl -sL --retry 3 \
-   "https://archive.apache.org/dist/flink/flink-${FLINK_VERSION}/${FLINK_PACKAGE}.${FLINK_SCALA}.tgz" \
+   "https://archive.apache.org/dist/flink/flink-${FLINK_VERSION}/${FLINK_PACKAGE}-bin-scala_${FLINK_SCALA}.tgz" \
   | gunzip \
-  | tar x -C /usr/ \
- && mv /usr/$FLINK_PACKAGE $FLINK_HOME \
+  | tar x -C /tmp/ \
+ && mv /tmp/flink* $FLINK_HOME \
  && chown -R root:root $FLINK_HOME
 
 #CLEANUP
