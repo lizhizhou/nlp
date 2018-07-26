@@ -12,6 +12,9 @@ RUN echo "index-url = http://pypi.douban.com/simple" >> ~/.pip/pip.conf
 RUN pip3 install pandas
 RUN pip3 install django
 
+# MACHINELEANING
+RUN pip3 install sklearn
+
 # DEEPLEANING
 RUN pip3 install keras
 RUN pip3 install tensorlayer
