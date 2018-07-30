@@ -57,7 +57,7 @@ ENV ZOOKEEPER_VERSION 3.4.12
 ENV ZOOKEEPER_HOME /usr/zookeeper-$ZOOKEEPER_VERSION
 ENV PATH $PATH:$ZOOKEEPER_HOME/bin
 RUN curl -sL --retry 3 \
-  "http://www-us.apache.org/dist/zookeeper/zookeeper-$ZOOKEEPER_VERSION/zookeeper-$ZOOKEEPER_VERSION.tar.gz" \
+  "https://archive.apache.org/dist/zookeeper/zookeeper-$ZOOKEEPER_VERSION/zookeeper-$ZOOKEEPER_VERSION.tar.gz" \
   | gunzip \
   | tar -x -C /usr/ \
  && rm -rf $ZOOKEEPER_HOME/share/doc \
