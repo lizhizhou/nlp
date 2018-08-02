@@ -158,7 +158,7 @@ ENV FLINK_PACKAGE flink-${FLINK_VERSION}
 ENV FLINK_HOME /usr/flink-${FLINK_VERSION}
 ENV PATH $PATH:${SPARK_HOME}/bin
 RUN curl -sL --retry 3 \
-   "https://archive.apache.org/dist/flink/flink-${FLINK_VERSION}/${FLINK_PACKAGE}-bin-scala_${FLINK_SCALA}.tgz" \
+   "$APACHEMIRROR/flink/flink-${FLINK_VERSION}/${FLINK_PACKAGE}-bin-scala_${FLINK_SCALA}.tgz" \
   | gunzip \
   | tar x -C /tmp/ \
  && mv /tmp/flink* $FLINK_HOME \
