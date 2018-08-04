@@ -33,6 +33,7 @@ RUN curl -sL --retry 3 --insecure \
   | tar x -C /usr/ \
   && ln -s $JAVA_HOME /usr/java \
   && rm -rf $JAVA_HOME/man
+RUN ln -s $JAVA_HOME/bin/java /usr/bin/java
 
 # SCALA
 ARG SCALA_MAJOR_VERSION=2
