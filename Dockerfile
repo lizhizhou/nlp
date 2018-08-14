@@ -204,8 +204,8 @@ EXPOSE 8081 6123
 
 WORKDIR "/notebooks"
 
-#CMD [service arangodb3 start]
-#CMD [service elasticsearch start]
-#CMD [service kibana start]
+CMD [service arangodb3 start]
+CMD [service elasticsearch start]
+CMD [service kibana start]
 CMD ["/run_jupyter.sh", "--allow-root"]
 CMD ["/usr/zeppelin/bin/zeppelin.sh",""]
