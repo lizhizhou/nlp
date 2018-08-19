@@ -169,13 +169,26 @@ ENV FLINK_VERSION 1.5.1
 ENV FLINK_SCALA  2.11
 ENV FLINK_PACKAGE flink-${FLINK_VERSION}
 ENV FLINK_HOME /usr/flink-${FLINK_VERSION}
-ENV PATH $PATH:${SPARK_HOME}/bin
+ENV PATH $PATH:${FLINK_VERSION}/bin
 RUN curl -sL --retry 3 \
    "$APACHEMIRROR/flink/flink-${FLINK_VERSION}/${FLINK_PACKAGE}-bin-scala_${FLINK_SCALA}.tgz" \
   | gunzip \
   | tar x -C /tmp/ \
  && mv /tmp/flink* $FLINK_HOME \
  && chown -R root:root $FLINK_HOME
+
+# Nifi
+ENV NIFI_VERSION=1.7.0
+ENV NIFI_HOME /usr/nifi-${NIFI_VERSION} 
+ENV NIFI_BINARY_URL /nifi/${NIFI_VERSION}/nifi-${NIFI_VERSION}-bin.tar.gz
+ENV NIFI_PID_DIR ${NIFI_HOME}/run
+ENV NIFI_LOG_DIR ${NIFI_HOME}/logs
+RUN curl -sL --retry 3 \
+   "$APACHEMIRROR/$NIFI_BINARY_URL" \
+  | gunzip \
+  | tar x -C /tmp/ \
+ && mv /tmp/nifi* $NIFI_HOME \
+ && chown -R root:root $NIFI_HOME
 
 # CLEANUP
 RUN apt-get clean \
@@ -184,6 +197,23 @@ RUN rm -rf /tmp/*
 RUN rm -rf /usr/share/doc/*
 RUN rm -rf usr/*.whl
 RUN apt-get purge -f -y --auto-remove
+
+# Config 
+RUN echo "network.host: 0.0.0.0" >> /etc/elasticsearch/elasticsearch.yml
+RUN echo "server.host: 0.0.0.0" >> /etc/kibana/kibana.yml
+RUN echo "\nnifi.web.http.port=9090" >> /usr/nifi-1.7.0/conf/nifi.properties
+RUN cp   /usr/zeppelin/conf/zeppelin-site.xml.template /usr/zeppelin/conf/zeppelin-site.xml
+RUN echo "service arangodb3 start\n" >> /service.sh
+RUN echo "service elasticsearch start\n" >> /service.sh
+RUN echo "service kibana start\n" >> /service.sh
+RUN echo "/usr/flink-1.5.1/bin/taskmanager.sh start\n" >> /service.sh
+RUN echo "/usr/flink-1.5.1/bin/jobmanager.sh start\n" >> /service.sh
+RUN echo "/usr/nifi-1.7.0/bin/nifi.sh start\n" >> /service.sh
+RUN echo "/usr/kafka-1.0.0/bin/zookeeper-server-start.sh /usr/kafka-1.0.0/config/zookeeper.properties &" >> /service.sh
+RUN echo "/usr/kafka-1.0.0/bin/kafka-server-start.sh /usr/kafka-1.0.0/config/server.properties &" >> /service.sh
+RUN echo "/usr/zeppelin/bin/zeppelin-daemon.sh start\n" >> /service.sh
+RUN echo "/run_jupyter.sh --allow-root \n" >> /service.sh
+RUN chmod +x /service.sh
 
 # TensorBoard
 EXPOSE 6006
@@ -201,11 +231,10 @@ EXPOSE 5601
 EXPOSE 2181
 #Flink
 EXPOSE 8081 6123
+#Nifi
+#Nifi 
+EXPOSE 9090 8443 10000
 
 WORKDIR "/notebooks"
 
-CMD [service arangodb3 start]
-CMD [service elasticsearch start]
-CMD [service kibana start]
-CMD ["/run_jupyter.sh", "--allow-root"]
-CMD ["/usr/zeppelin/bin/zeppelin.sh",""]
+CMD ["/service.sh",""]

@@ -1,1 +1,1 @@
-sudo docker build . 
+sudo docker build -t nlp . 

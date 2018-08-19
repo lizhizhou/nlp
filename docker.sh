@@ -1,1 +1,1 @@
-sudo docker run -v ~/.m2:/root/.m2 -v "$PWD":/usr/src -w /usr/src maven:3-jdk-8 mvn package
+sudo docker run -v ~/.m2:/root/.m2 -v "$PWD":/nlp -p 8080:8080 -p 5601:5601 -p 9200:9200 -p 8888:8888 -p 8081:8081 -p 6123:6123 -p 9090:9090 -p 8529:8529 -p 6006:6006 -it nlp bash
