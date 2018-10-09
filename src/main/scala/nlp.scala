@@ -24,10 +24,10 @@ object NLP {
   def main(args: Array[String]) {
     
     val conf = Engine.createSparkConf()
-      .set("arangodb.host", "127.0.0.1")
-      .set("arangodb.port", "8529")
-      .set("arangodb.user", "root")
-      .set("arangodb.password", "lab123")
+      .set("spark.arangodb.host", "127.0.0.1")
+      .set("spark.arangodb.port", "8529")
+      .set("spark.arangodb.user", "root")
+      .set("spark.arangodb.password", "lab123")
       .set("es.index.auto.create", "true")
       .set("spark.neo4j.bolt.user", "neo4j")
       .set("spark.neo4j.bolt.password", "lab123")
