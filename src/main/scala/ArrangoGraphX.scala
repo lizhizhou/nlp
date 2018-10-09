@@ -26,9 +26,9 @@ class ArrangoGraphX(spark: SparkSession) extends Serializable {
       builder.build();
     }
   private def getconf(conf: SparkConf): ArrangoGraphX.ArrangoOption = {
-    val propertyHost = "arangodb.host"
-    val propertyPort = "arangodb.port"
-    val propertyUser = "arangodb.user"
+    val propertyHost = "spark.arangodb.host"
+    val propertyPort = "spark.arangodb.port"
+    val propertyUser = "spark.arangodb.user"
     val propertyPassword = "arangodb.password"
     val host = Some(conf.get(propertyHost, null))
     val port = Some(conf.get(propertyPort, null))
