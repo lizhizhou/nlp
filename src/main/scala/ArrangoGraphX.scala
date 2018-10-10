@@ -13,6 +13,7 @@ import com.arangodb.velocypack.module.jdk8.VPackJdk8Module
 import com.arangodb.velocypack.module.scala.VPackScalaModule
 import scala.util.parsing.json.JSON
 import scala.reflect.ClassTag
+import java.io._
 
 class ArrangoGraphX(spark: SparkSession) extends Serializable {
 
@@ -101,15 +102,16 @@ class ArrangoGraphX(spark: SparkSession) extends Serializable {
     })
   }
 
-  def toArrangoImp(graph: Graph[String, String], vertexfile:String, edgefile: String, vertexName: String): Unit = {
-    val vertexOut = new PrintWriter(new BufferedWriter(new FileWriter(vertexfile)));
-    val edgeOut = new PrintWriter(new BufferedWriter(new FileWriter(edgefile)));
-    vertexOut.println("_key,"+"attr")
+  // Use arangoimp --file "data.csv" --type csv --collection "users" to import data
+  def toArrangoImp(graph: Graph[String, String], vertexFile:String, vertexAttr:String, edgeFile: String, edgeAttr: String, vertexName: String): Unit = {
+    val vertexOut = new PrintWriter(new BufferedWriter(new FileWriter(vertexFile)));
+    val edgeOut = new PrintWriter(new BufferedWriter(new FileWriter(edgeFile)));
+    vertexOut.println("_key,"+vertexAttr)
     graph.vertices.map(x => x.productIterator.mkString(",")).collect.foreach(vertexOut.println)
-    edgeOut.println("_from,_to,"+"attr")
-    graph.triplets.map(x => (vertexName + '/' + x.srcAttr.hashCode.toString, vertexName + '/' + x.dstAttr.hashCode.toString, x.attr)).map(x => x.productIterator.mkString(",")).collect.foreach(edgeOut.println)
+    edgeOut.println("_from,_to,"+ edgeAttr)
+    graph.triplets.map(x => (vertexName + '/' + x.srcAttr.hashCode.toString, vertexName + '/' + x.dstAttr.hashCode.toString, x.attr))
+      .map(x => x.productIterator.mkString(",")).collect.foreach(edgeOut.println)
   }
-
 }
 
 object ArrangoGraphX {
