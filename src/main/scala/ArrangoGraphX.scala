@@ -85,21 +85,24 @@ class ArrangoGraphX(spark: SparkSession) extends Serializable {
     // Add vertex and edge element 
     val g = db.graph(graphdb)
 
+    ArangoSpark.save[ArrangoGraphX.point](graph.vertices.map(x => ArrangoGraphX.point(x._2.hashCode.toString, x._2)),vertex, WriteOptions(database));
+    ArangoSpark.save[ArrangoGraphX.link](graph.triplets.map(x => ArrangoGraphX.link(vertex + '/' + x.srcAttr.hashCode.toString, vertex + '/' + x.dstAttr.hashCode.toString, x.attr)),edge, WriteOptions(database));
+
     //graph.vertices.map(x => ArrangoGraphX.point(x._2.hashCode.toString, x._2)).take(20).foreach { println }
     //graph.triplets.map(x => ArrangoGraphX.link(x.srcAttr.hashCode().toString, x.dstAttr.hashCode.toString, x.attr)).take(20).foreach { println }
 
-    graph.vertices.foreachPartition(iter => {
-      val arangoDB = getdb(getconf(conf))
-      val db = arangoDB.db(database)
-      val g = db.graph(graphdb)
-      iter.foreach(x => g.vertexCollection(vertex).insertVertex(ArrangoGraphX.point(x._2.hashCode.toString, x._2), null))
-    })
-    graph.triplets.foreachPartition(iter => {
-      val arangoDB = getdb(getconf(conf))
-      val db = arangoDB.db(database)
-      val g = db.graph(graphdb)
-      iter.foreach(x => g.edgeCollection(edge).insertEdge(ArrangoGraphX.link(vertex + '/' + x.srcAttr.hashCode.toString, vertex + '/' + x.dstAttr.hashCode.toString, x.attr)))
-    })
+    //    graph.vertices.foreachPartition(iter => {
+    //      val arangoDB = getdb(getconf(conf))
+    //      val db = arangoDB.db(database)
+    //      val g = db.graph(graphdb)
+    //      iter.foreach(x => g.vertexCollection(vertex).insertVertex(ArrangoGraphX.point(x._2.hashCode.toString, x._2), null))
+    //    })
+    //    graph.triplets.foreachPartition(iter => {
+    //      val arangoDB = getdb(getconf(conf))
+    //      val db = arangoDB.db(database)
+    //      val g = db.graph(graphdb)
+    //      iter.foreach(x => g.edgeCollection(edge).insertEdge(ArrangoGraphX.link(vertex + '/' + x.srcAttr.hashCode.toString, vertex + '/' + x.dstAttr.hashCode.toString, x.attr)))
+    //    })
   }
 
   // Use arangoimp --file "data.csv" --type csv --collection "users" to import data
