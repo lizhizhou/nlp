@@ -78,7 +78,7 @@ object NLP {
     println(tripleRow.count)
     //tripleRow.foreach { println }
     val tg = TripleGraphX[String,String](spark, "object", "subject", "relation")
-    val triple = spark.createDataFrame(tripleRow.distinct(), tg.schema)
+    val triple = spark.createDataFrame(tripleRow.distinct(), tg.getSchema())
   
     //val triple = sqlContext.read.json("/home/bigdata/microeco.json")
     //val triple = sqlContext.read.json("/home/bigdata/chinese.json")

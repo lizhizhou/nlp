@@ -29,7 +29,7 @@ class ArrangoGraphX(spark: SparkSession) extends Serializable {
     val propertyHost = "spark.arangodb.host"
     val propertyPort = "spark.arangodb.port"
     val propertyUser = "spark.arangodb.user"
-    val propertyPassword = "arangodb.password"
+    val propertyPassword = "spark.arangodb.password"
     val host = Some(conf.get(propertyHost, null))
     val port = Some(conf.get(propertyPort, null))
     val user = Some(conf.get(propertyUser, null))
@@ -99,6 +99,15 @@ class ArrangoGraphX(spark: SparkSession) extends Serializable {
       val g = db.graph(graphdb)
       iter.foreach(x => g.edgeCollection(edge).insertEdge(ArrangoGraphX.link(vertex + '/' + x.srcAttr.hashCode.toString, vertex + '/' + x.dstAttr.hashCode.toString, x.attr)))
     })
+  }
+
+  def toArrangoImp(graph: Graph[String, String], vertexfile:String, edgefile: String, vertexName: String): Unit = {
+    val vertexOut = new PrintWriter(new BufferedWriter(new FileWriter(vertexfile)));
+    val edgeOut = new PrintWriter(new BufferedWriter(new FileWriter(edgefile)));
+    vertexOut.println("_key,"+"attr")
+    graph.vertices.map(x => x.productIterator.mkString(",")).collect.foreach(vertexOut.println)
+    edgeOut.println("_from,_to,"+"attr")
+    graph.triplets.map(x => (vertexName + '/' + x.srcAttr.hashCode.toString, vertexName + '/' + x.dstAttr.hashCode.toString, x.attr)).map(x => x.productIterator.mkString(",")).collect.foreach(edgeOut.println)
   }
 
 }

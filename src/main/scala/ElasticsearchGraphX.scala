@@ -22,7 +22,7 @@ class ElasticsearchGraphX(spark: SparkSession) {
     val tripleRow  = triple.map(triplet =>
       Row(triplet._2.get("object").get, triplet._2.get("relation").get, triplet._2.get("subject").get))
     val tg = TripleGraphX[String,String](spark, "object", "subject", "relation")
-    val tripleDF =  spark.createDataFrame(tripleRow.distinct(), tg.schema)
+    val tripleDF =  spark.createDataFrame(tripleRow.distinct(), tg.getSchema())
     tg.toGraphX(tripleDF)
   } 
 
