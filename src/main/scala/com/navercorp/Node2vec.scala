@@ -85,6 +85,11 @@ object Node2vec extends Serializable {
   }
   
   def randomWalk(): this.type = {
+    graph.vertices.collect.foreach(println(_))
+    graph.triplets.map(
+      triplet => triplet.srcAttr + " is the " + triplet.attr + " of " + triplet.dstAttr
+    ).collect.foreach(println(_))
+
     val edge2attr = graph.triplets.map { edgeTriplet =>
       (s"${edgeTriplet.srcId}${edgeTriplet.dstId}", edgeTriplet.attr)
     }.repartition(200).cache
@@ -118,7 +123,6 @@ object Node2vec extends Serializable {
             case e: Exception => throw new RuntimeException(e.getMessage)
           }
         }.cache
-
         activeWalks = randomWalk.first()
         prevWalk.unpersist(blocking=false)
       }

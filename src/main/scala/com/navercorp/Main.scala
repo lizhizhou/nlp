@@ -12,13 +12,13 @@ object Main {
   }
   import Command._
 
-  case class Params(iter: Int = 10,
+  case class Params(iter: Int = 1,
                     lr: Double = 0.025,
                     numPartition: Int = 10,
                     dim: Int = 128,
                     window: Int = 10,
                     walkLength: Int = 80,
-                    numWalks: Int = 10,
+                    numWalks: Int = 1,
                     p: Double = 1.0,
                     q: Double = 1.0,
                     weighted: Boolean = true,
