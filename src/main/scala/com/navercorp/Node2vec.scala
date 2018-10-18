@@ -2,13 +2,17 @@ package com.navercorp
 
 
 import java.io.Serializable
+
+import com.navercorp.Main.Command
+import com.navercorp.Main.Command.Command
+
 import scala.util.Try
 import scala.collection.mutable.ArrayBuffer
 import org.slf4j.{Logger, LoggerFactory}
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 import org.apache.spark.graphx.{EdgeTriplet, Graph, _}
-import com.navercorp.graph.{GraphOps, EdgeAttr, NodeAttr}
+import com.navercorp.graph.{EdgeAttr, GraphOps, NodeAttr}
 
 object Node2vec extends Serializable {
   lazy val logger: Logger = LoggerFactory.getLogger(getClass.getName);
@@ -21,10 +25,29 @@ object Node2vec extends Serializable {
   var graph: Graph[NodeAttr, EdgeAttr] = _
   var randomWalkPaths: RDD[(Long, ArrayBuffer[Long])] = null
 
+  def setParams(context: SparkContext, iter: Int = 1,
+                lr: Double = 0.025,
+                numPartition: Int = 50,
+                dim: Int = 128,
+                window: Int = 10,
+                walkLength: Int = 80,
+                numWalks: Int = 1,
+                p: Double = 1.0,
+                q: Double = 1.0,
+                weighted: Boolean = true,
+                directed: Boolean = false,
+                degree: Int = 30,
+                indexed: Boolean = true)= {
+    val defaultParams = Main.Params(iter, lr, numPartition, dim, window, walkLength, numWalks, p, q,
+    weighted, directed, degree, indexed, null, null, null, Command.node2vec
+    )
+    Node2vec.setup(context, defaultParams)
+    this
+  }
+
   def setup(context: SparkContext, param: Main.Params): this.type = {
     this.context = context
     this.config = param
-    
     this
   }
   
@@ -59,6 +82,36 @@ object Node2vec extends Serializable {
     
     this
   }
+
+  def loadFromGraph(graph: Graph[String, String]): this.type = {
+    val bcMaxDegree = context.broadcast(config.degree)
+    val bcEdgeCreator = config.directed match {
+      case true => context.broadcast(GraphOps.createDirectedEdge)
+      case false => context.broadcast(GraphOps.createUndirectedEdge)
+    }
+
+    val inputTriplets: RDD[(Long, Long, Double)] = graph.triplets.map(x =>
+    (x.srcAttr.hashCode, x.dstAttr.hashCode, -1))
+
+    indexedNodes = inputTriplets.flatMap { case (srcId, dstId, weight) =>
+      bcEdgeCreator.value.apply(srcId, dstId, weight)
+    }.reduceByKey(_++_).map { case (nodeId, neighbors: Array[(VertexId, Double)]) =>
+      var neighbors_ = neighbors
+      if (neighbors_.length > bcMaxDegree.value) {
+        neighbors_ = neighbors.sortWith{ case (left, right) => left._2 > right._2 }.slice(0, bcMaxDegree.value)
+      }
+
+      (nodeId, NodeAttr(neighbors = neighbors_.distinct))
+    }.repartition(200).cache
+
+    indexedEdges = indexedNodes.flatMap { case (srcId, clickNode) =>
+      clickNode.neighbors.map { case (dstId, weight) =>
+        Edge(srcId, dstId, EdgeAttr())
+      }
+    }.repartition(200).cache
+
+    this
+  }
   
   def initTransitionProb(): this.type = {
     val bcP = context.broadcast(config.p)
@@ -85,11 +138,6 @@ object Node2vec extends Serializable {
   }
   
   def randomWalk(): this.type = {
-    graph.vertices.collect.foreach(println(_))
-    graph.triplets.map(
-      triplet => triplet.srcAttr + " is the " + triplet.attr + " of " + triplet.dstAttr
-    ).collect.foreach(println(_))
-
     val edge2attr = graph.triplets.map { edgeTriplet =>
       (s"${edgeTriplet.srcId}${edgeTriplet.dstId}", edgeTriplet.attr)
     }.repartition(200).cache
@@ -152,30 +200,36 @@ object Node2vec extends Serializable {
   }
   
   def save(): this.type = {
-    this.saveRandomPath()
-        .saveModel()
-        .saveVectors()
+    this.saveRandomPath(config.output)
+        .saveModel(config.output)
+        .saveVectors(config.output)
   }
-  
-  def saveRandomPath(): this.type = {
+
+  def save(path: String): this.type = {
+    this.saveRandomPath(path)
+      .saveModel(path)
+      .saveVectors(path)
+  }
+
+  def saveRandomPath(path: String): this.type = {
     randomWalkPaths
             .map { case (vertexId, pathBuffer) =>
               Try(pathBuffer.mkString("\t")).getOrElse(null)
             }
             .filter(x => x != null && x.replaceAll("\\s", "").length > 0)
             .repartition(200)
-            .saveAsTextFile(config.output)
+            .saveAsTextFile(path)
     
     this
   }
   
-  def saveModel(): this.type = {
-    Word2vec.save(config.output)
+  def saveModel(path: String): this.type = {
+    Word2vec.save(path)
     
     this
   }
   
-  def saveVectors(): this.type = {
+  def saveVectors(path: String): this.type = {
     val node2vector = context.parallelize(Word2vec.getVectors.toList)
             .map { case (nodeId, vector) =>
               (nodeId.toLong, vector.mkString(","))
@@ -189,11 +243,11 @@ object Node2vec extends Serializable {
       node2vector.join(id2Node)
               .map { case (nodeId, (vector, name)) => s"$name\t$vector" }
               .repartition(200)
-              .saveAsTextFile(s"${config.output}.emb")
+              .saveAsTextFile(s"${path}.emb")
     } else {
       node2vector.map { case (nodeId, vector) => s"$nodeId\t$vector" }
               .repartition(200)
-              .saveAsTextFile(s"${config.output}.emb")
+              .saveAsTextFile(s"${path}.emb")
     }
     
     this

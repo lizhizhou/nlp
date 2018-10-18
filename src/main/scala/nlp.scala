@@ -2,20 +2,19 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
 import org.apache.spark._
-import org.apache.spark.graphx.{ Edge, VertexId, Graph }
+import org.apache.spark.graphx.{Edge, Graph, VertexId}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions._
 import com.databricks.spark.corenlp.functions._
-
-import com.arangodb.spark.{ ArangoSpark, ReadOptions, WriteOptions }
+import com.arangodb.spark.{ArangoSpark, ReadOptions, WriteOptions}
 import com.arangodb.ArangoDB
-import scala.beans.BeanProperty
 
-import edu.stanford.nlp.util._
+import scala.beans.BeanProperty
 import scala.collection.mutable.WrappedArray
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import com.intel.analytics.bigdl.utils.{Engine, LoggerFilter, T}
+import com.navercorp.Node2vec
 import com.softwaremill.debug.DebugMacros._
 
 
@@ -37,9 +36,8 @@ object NLP {
     import sqlContext.implicits._
 
     
-    val userComment = spark.read.parquet("/home/bigdata/temp_spam_user_topic_comment/1",
-        "/home/bigdata/temp_spam_user_topic_comment/2")
-    val triplet = userComment.select($"nickname", $"content", $"target_user_nick_name")
+    val userComment = spark.read.parquet("/home/bigdata/temp_spam_user_topic_comment/1")
+    val triplet = userComment.select($"user_id", $"follow_source", $"target_user_id")
     triplet.show
  
 //    debug()
@@ -74,7 +72,7 @@ object NLP {
 //    .flatMap { iter => 
 //      for (x <- iter) yield  Row(x(0), x(1), x(2))
 //    }
-    val tripleRow = triplet.sample(false, 0.001).rdd
+    val tripleRow = triplet.rdd
     println(tripleRow.count)
     //tripleRow.foreach { println }
     val tg = TripleGraphX[String,String](spark, "object", "subject", "relation")
@@ -86,10 +84,16 @@ object NLP {
 
     val tf = tg.toTriple(tg.toGraphX(triple))
     tf.show(10)
-    //triple.show(10)
+    triple.show(10)
     val ag = ArrangoGraphX(spark)
-    ag.toArrango(tg.toGraphX(triple), "test", "myGraph", "concept", "link")
+    ag.toArrango(tg.toGraphX(triple), "test", "node2vec", "concept", "link")
     tg.toTriple(ag.toGraphX("test", "concept", "link")).show(10)
+
+    Node2vec.setParams(sc).loadFromGraph(tg.toGraphX(triple))
+      .initTransitionProb()
+      .randomWalk()
+      .embedding()
+        .save("model")
 
 //    val ng = Neo4jGraphX(spark)
 //    ng.toNeo4j(tg.toGraphX(triple))

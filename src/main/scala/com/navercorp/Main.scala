@@ -14,10 +14,10 @@ object Main {
 
   case class Params(iter: Int = 1,
                     lr: Double = 0.025,
-                    numPartition: Int = 10,
+                    numPartition: Int = 50,
                     dim: Int = 128,
                     window: Int = 10,
-                    walkLength: Int = 80,
+                    walkLength: Int = 10,
                     numWalks: Int = 1,
                     p: Double = 1.0,
                     q: Double = 1.0,
@@ -105,11 +105,11 @@ object Main {
         case Command.randomwalk => Node2vec.load()
                                            .initTransitionProb()
                                            .randomWalk()
-                                           .saveRandomPath()
+                                           .saveRandomPath(param.output)
         case Command.embedding => {
           val randomPaths = Word2vec.setup(context, param).read(param.input)
           Word2vec.fit(randomPaths).save(param.output)
-          Node2vec.loadNode2Id(param.nodePath).saveVectors()
+          Node2vec.loadNode2Id(param.nodePath).saveVectors(param.output)
         }
       }
     } getOrElse {
