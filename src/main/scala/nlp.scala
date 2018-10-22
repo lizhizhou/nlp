@@ -36,9 +36,10 @@ object NLP {
     import sqlContext.implicits._
 
     
-    val userComment = spark.read.parquet("/home/bigdata/temp_spam_user_topic_comment/1")
-    val triplet = userComment.select($"user_id", $"follow_source", $"target_user_id")
-    triplet.show
+    //val userComment = spark.read.parquet("/data/user_follow/")
+//    val userComment = spark.read.parquet("/tmp/user_follow")
+//    val triplet = userComment.select($"user_id", $"follow_source", $"target_user_id")
+//    triplet.show
  
 //    debug()
 //    import com.github.johnreedlol.Pos
@@ -54,16 +55,17 @@ object NLP {
 //    val textrdd = office.openWord(Seq("/home/bigdata/test.docx"):_ *)
 //    val input = textrdd.map { x => (x.hashCode(),x) }.toDF("id", "text")
 //    println(textrdd.foreach { println })
-//    val text = "<xml>Stanford University is located in California. It is a great university.</xml>"
-//    val input = Seq(
-//      (text.hashCode(), text)).toDF("id", "text")
-//        input.show()
+    val text = "<xml>Stanford University is located in California. It is a great university.</xml>"
+    //val text = "<xml>快速的棕色狐狸跳过了懒惰的狗</xml>"
+    val input = Seq(
+      (text.hashCode(), text)).toDF("id", "text")
+        input.show()
 
-//    val output = input
-//      .select(cleanxml('text).as('doc))
-//      .select(explode(ssplit('doc)).as('sen))
-//      .select('sen, tokenize('sen).as('words), ner('sen).as('nerTags), coref('sen).as('coref), openie('sen).as('openie), sentiment('sen).as('sentiment))
-//    output.show(truncate = false)
+    val output = input
+      .select(cleanxml('text).as('doc))
+      .select(explode(ssplit('doc)).as('sen))
+      .select('sen, tokenize('sen).as('words), ner('sen).as('nerTags), coref('sen).as('coref), openie('sen).as('openie), sentiment('sen).as('sentiment))
+    output.show(truncate = false)
 
 //    val triplet =  input.select(cleanxml('text).as('doc))
 //      .select(explode(ssplit('doc)).as('sen))
@@ -72,28 +74,29 @@ object NLP {
 //    .flatMap { iter => 
 //      for (x <- iter) yield  Row(x(0), x(1), x(2))
 //    }
-    val tripleRow = triplet.rdd
-    println(tripleRow.count)
-    //tripleRow.foreach { println }
-    val tg = TripleGraphX[String,String](spark, "object", "subject", "relation")
-    val triple = spark.createDataFrame(tripleRow.distinct(), tg.getSchema())
+//    val tripleRow = triplet.rdd
+//    println(tripleRow.count)
+//    //tripleRow.foreach { println }
+//    val tg = TripleGraphX[String,String](spark, "object", "subject", "relation")
+//    val triple = spark.createDataFrame(tripleRow.distinct(), tg.getSchema())
   
     //val triple = sqlContext.read.json("/home/bigdata/microeco.json")
     //val triple = sqlContext.read.json("/home/bigdata/chinese.json")
     
 
-    val tf = tg.toTriple(tg.toGraphX(triple))
-    tf.show(10)
-    triple.show(10)
-    val ag = ArrangoGraphX(spark)
-    ag.toArrango(tg.toGraphX(triple), "test", "node2vec", "concept", "link")
-    tg.toTriple(ag.toGraphX("test", "concept", "link")).show(10)
+//    val tf = tg.toTriple(tg.toGraphX(triple))
+//    tf.show(10)
+//    triple.show(10)
+//    val ag = ArrangoGraphX(spark)
+//    ag.toArrango(tg.toGraphX(triple), "test", "node2vec", "concept", "link")
+//    tg.toTriple(ag.toGraphX("test", "concept", "link")).show(10)
 
-    Node2vec.setParams(sc).loadFromGraph(tg.toGraphX(triple))
-      .initTransitionProb()
-      .randomWalk()
-      .embedding()
-        .save("model")
+//    Node2vec.setParams(sc).loadFromGraph(tg.toGraphX(triple))
+//      .initTransitionProb()
+//      .randomWalk()
+//        //.saveRandomPath("path")
+//      .embedding()
+//        .save("model")
 
 //    val ng = Neo4jGraphX(spark)
 //    ng.toNeo4j(tg.toGraphX(triple))

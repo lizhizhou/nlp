@@ -30,14 +30,14 @@ object Node2vec extends Serializable {
                 numPartition: Int = 50,
                 dim: Int = 128,
                 window: Int = 10,
-                walkLength: Int = 80,
+                walkLength: Int = 7,
                 numWalks: Int = 1,
                 p: Double = 1.0,
                 q: Double = 1.0,
                 weighted: Boolean = true,
                 directed: Boolean = false,
                 degree: Int = 30,
-                indexed: Boolean = true)= {
+                indexed: Boolean = false)= {
     val defaultParams = Main.Params(iter, lr, numPartition, dim, window, walkLength, numWalks, p, q,
     weighted, directed, degree, indexed, null, null, null, Command.node2vec
     )
