@@ -21,7 +21,8 @@ import com.softwaremill.debug.DebugMacros._
 object NLP {
 
   def main(args: Array[String]) {
-    
+    System.setProperty("corenlp.props", "StanfordCoreNLP-chinese.properties")
+    //System.setProperty("corenlp.props", "StanfordCoreNLP.properties")
     val conf = Engine.createSparkConf()
       .set("spark.arangodb.host", "127.0.0.1")
       .set("spark.arangodb.port", "8529")
