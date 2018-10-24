@@ -1,41 +1,50 @@
 import org.apache.spark.SparkConf
-import org.apache.spark.graphx.{ Edge, VertexId, Graph }
-import com.arangodb.spark.{ ArangoSpark, ReadOptions, WriteOptions }
+import org.apache.spark.graphx.{Edge, Graph, VertexId}
+import com.arangodb.spark.{ArangoSpark, ReadOptions, WriteOptions}
 import org.apache.spark.rdd.RDD
-import com.arangodb.ArangoDB
+import com.arangodb.{ArangoDB, ArangoDBException}
 import com.arangodb.entity.EdgeDefinition
 import com.arangodb.entity.GraphEntity
 import com.arangodb.model.GraphCreateOptions
 import org.apache.spark.sql.SparkSession
+
 import collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 import com.arangodb.velocypack.module.jdk8.VPackJdk8Module
 import com.arangodb.velocypack.module.scala.VPackScalaModule
+
 import scala.util.parsing.json.JSON
 import scala.reflect.ClassTag
 import java.io._
 
 class ArrangoGraphX(spark: SparkSession) extends Serializable {
 
+  private def hosts(hosts: String): List[(String, Int)] =
+    hosts.split(",").map({ x =>
+      val s = x.split(":")
+      if (s.length != 2 || !s(1).matches("[0-9]+"))
+        throw new ArangoDBException(s"Could not load property-value arangodb.hosts=${s}. Expected format ip:port,ip:port,...");
+      else
+        (s(0), s(1).toInt)
+    }).toList
+
   private def getdb(opt: ArrangoGraphX.ArrangoOption): ArangoDB =
     {
       val builder = new ArangoDB.Builder()
       builder.registerModules(new VPackJdk8Module, new VPackScalaModule)
-      opt.host.foreach { builder.host(_, opt.port.getOrElse("8529").toInt) }
+      opt.hosts.foreach{ hosts(_).map { case (host, port) => builder.host(host, port) }}
       opt.user.foreach { builder.user(_) }
       opt.password.foreach { builder.password(_) }
       builder.build();
     }
   private def getconf(conf: SparkConf): ArrangoGraphX.ArrangoOption = {
-    val propertyHost = "spark.arangodb.host"
-    val propertyPort = "spark.arangodb.port"
+    val propertyHosts = "spark.arangodb.hosts"
     val propertyUser = "spark.arangodb.user"
     val propertyPassword = "spark.arangodb.password"
-    val host = Some(conf.get(propertyHost, null))
-    val port = Some(conf.get(propertyPort, null))
+    val hosts = Some(conf.get(propertyHosts, null))
     val user = Some(conf.get(propertyUser, null))
     val password = Some(conf.get(propertyPassword, null))
-    ArrangoGraphX.ArrangoOption(host, port, user, password)
+    ArrangoGraphX.ArrangoOption(hosts, user, password)
   }
 
   def toGraphX(database: String, vertex: String, edge: String) = {
@@ -124,7 +133,7 @@ object ArrangoGraphX {
   case class point(_key: String, concept: String) {
     def this() = this("", "")
   }
-  case class ArrangoOption(host: Option[String], port: Option[String], user: Option[String], password: Option[String]) {
+  case class ArrangoOption(hosts: Option[String], user: Option[String], password: Option[String]) {
   }
 
   def apply(spark: SparkSession) = new ArrangoGraphX(spark)
@@ -134,7 +143,7 @@ object ArrangoGraphX {
     val graph = TestKnowledgeGraph(spark)
     val arrango = ArrangoGraphX(spark)
     val ag = arrango.toArrango(graph, "test", "graphdb", "vertex", "edge")
-    arrango.toGraphX("graphdb", "vertex", "edge")
+    arrango.toGraphX("test", "vertex", "edge")
   }
   //    case class Concept(name: String)
   //    case class Triple(obj: String, rel: String, subject: String)

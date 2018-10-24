@@ -24,8 +24,7 @@ object NLP {
     System.setProperty("corenlp.props", "StanfordCoreNLP-chinese.properties")
     //System.setProperty("corenlp.props", "StanfordCoreNLP.properties")
     val conf = Engine.createSparkConf()
-      .set("spark.arangodb.host", "127.0.0.1")
-      .set("spark.arangodb.port", "8529")
+      .set("spark.arangodb.hosts", "127.0.0.1:8529")
       .set("spark.arangodb.user", "root")
       .set("spark.arangodb.password", "lab123")
       .set("es.index.auto.create", "true")
@@ -51,22 +50,23 @@ object NLP {
     //RDF.unitTest(spark); return
     //ElasticsearchGraphX.unitTest(spark)
     //GrokPattern.unitTest()
+    ArrangoGraphX.unitTest(spark)
     
 //    val office = Office(spark)
 //    val textrdd = office.openWord(Seq("/home/bigdata/test.docx"):_ *)
 //    val input = textrdd.map { x => (x.hashCode(),x) }.toDF("id", "text")
 //    println(textrdd.foreach { println })
     //val text = "<xml>Stanford University is located in California. It is a great university.</xml>"
-    val text = "<xml>克林顿说，华盛顿将逐步落实对韩国的经济援助。</xml>"
-    val input = Seq(
-      (text.hashCode(), text)).toDF("id", "text")
-        input.show()
-
-    val output = input
-      .select(cleanxml('text).as('doc))
-      .select(explode(ssplit('doc)).as('sen))
-      .select('sen, tokenize('sen).as('words), ner('sen).as('nerTags))
-    output.show(truncate = false)
+//    val text = "<xml>克林顿说，华盛顿将逐步落实对韩国的经济援助。</xml>"
+//    val input = Seq(
+//      (text.hashCode(), text)).toDF("id", "text")
+//        input.show()
+//
+//    val output = input
+//      .select(cleanxml('text).as('doc))
+//      .select(explode(ssplit('doc)).as('sen))
+//      .select('sen, tokenize('sen).as('words), ner('sen).as('nerTags))
+//    output.show(truncate = false)
 
 //    val triplet =  input.select(cleanxml('text).as('doc))
 //      .select(explode(ssplit('doc)).as('sen))
