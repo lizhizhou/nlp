@@ -26,7 +26,8 @@ libraryDependencies ++= Seq(
    "io.thekraken" % "grok" % "0.1.5",
    "com.softwaremill.scalamacrodebug" %% "macros" % "0.4", 
    "com.github.johnreedlol" %% "scala-trace-debug" % "4.5.0",
-   "com.huaban" % "jieba-analysis" % "1.0.2"
+   "com.huaban" % "jieba-analysis" % "1.0.2",
+   "com.mayabot" % "fastText4j" % "1.2.2"
 )
 
 mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>

@@ -1,3 +1,5 @@
+import java.io.File
+
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
@@ -16,7 +18,7 @@ import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import com.intel.analytics.bigdl.utils.{Engine, LoggerFilter, T}
 import com.navercorp.Node2vec
 import com.softwaremill.debug.DebugMacros._
-
+import com.mayabot.mynlp.fasttext._
 
 object NLP {
 
@@ -156,6 +158,18 @@ object NLP {
     //   println(
     //       jieba(sentence))
     // }
+
+    //Word representation learning//Word representation learning
+    val fastText = FastText.train(new File("train.data"), ModelName.sg)
+    // Text classification
+    //val fastText = FastText.train(new File("train.data"), ModelName.sup)
+
+    //fastText.saveModel("path/data.model")
+    //val fastText = FastText.loadModel("path/data.model", true)
+
+//    val fastText = FastText.loadFasttextBinModel("path/wiki.bin")
+//    val predict = fastText.predict(Arrays.asList("fastText在预测标签时使用了非线性激活函数".split(" ")), 5)
+
     sc.stop()
   }
 }
