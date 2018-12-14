@@ -160,7 +160,7 @@ object NLP {
     // }
 
     //Word representation learning//Word representation learning
-    val fastText = FastText.train(new File("train.data"), ModelName.sg)
+    // val fastText = FastText.train(new File("train.data"), ModelName.sg)
     // Text classification
     //val fastText = FastText.train(new File("train.data"), ModelName.sup)
 
