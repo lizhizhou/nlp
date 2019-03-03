@@ -4,26 +4,30 @@ version := "1.0"
 
 scalaVersion := "2.11.8"
 
-sparkVersion := "2.2.1"
+sparkVersion := "2.1.1"
 
 sparkComponents ++= Seq("streaming", "sql", "graphx", "mllib")
 
 spAppendScalaVersion := true
 
+resolvers += Resolver.mavenLocal
+
 libraryDependencies ++= Seq(
    "com.intel.analytics.bigdl" % "bigdl-SPARK_2.1" % "0.4.0",
-   "databricks" %% "spark-corenlp" % "0.3.0-SNAPSHOT",
-   "org.elasticsearch" % "elasticsearch-spark-20_2.11" % "6.1.2",
+   "databricks" %% "spark-corenlp" % "0.3.2-SNAPSHOT" classifier "assembly",
+   "org.elasticsearch" %% "elasticsearch-spark-20" % "6.1.2",
    "neo4j-contrib" % "neo4j-spark-connector" % "2.1.0-M4",
-   "com.arangodb" % "arangodb-spark-connector" % "1.0.2",
-   "com.arangodb" % "arangodb-java-driver" % "4.3.0",
+   "com.arangodb" % "arangodb-spark-connector" % "1.0.8-SNAPSHOT",
+   "com.arangodb" % "arangodb-java-driver" % "5.0.1",
    "org.apache.jena" % "jena-elephas-io" % "0.9.0",
    "com.databricks" %% "spark-xml" % "0.4.1",
-   "com.crealytics" % "spark-excel_2.11" % "0.9.14",
+   "com.crealytics" %% "spark-excel" % "0.9.14",
    "org.apache.poi" % "poi" % "3.17",
    "io.thekraken" % "grok" % "0.1.5",
    "com.softwaremill.scalamacrodebug" %% "macros" % "0.4", 
-   "com.github.johnreedlol" %% "scala-trace-debug" % "4.5.0"
+   "com.github.johnreedlol" %% "scala-trace-debug" % "4.5.0",
+   "com.huaban" % "jieba-analysis" % "1.0.2",
+   "com.mayabot" % "fastText4j" % "1.2.2"
 )
 
 mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>

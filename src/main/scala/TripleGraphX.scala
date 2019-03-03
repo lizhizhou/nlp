@@ -7,10 +7,8 @@ import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions._
 
-class TripleGraphX[V:ClassTag,E:ClassTag](spark: SparkSession, obj:String, sub:String, rel:String) {
-  val schema = StructType(Array(StructField(obj, StringType, nullable = true),
-    StructField(rel, StringType, nullable = true),
-    StructField(sub, StringType, nullable = true)))
+class TripleGraphX[V:ClassTag,E:ClassTag](spark: SparkSession, obj:String, sub:String, rel:String) extends Serializable {
+
   def toGraphX(triple: DataFrame) = {
     val edges = triple.rdd.map { x => (x.getAs[V](obj), x.getAs[V](sub), x.getAs[E](rel)) }
 
@@ -32,8 +30,11 @@ class TripleGraphX[V:ClassTag,E:ClassTag](spark: SparkSession, obj:String, sub:S
 
     val triple = graph.triplets.map(triplet =>
       Row(triplet.srcAttr, triplet.attr, triplet.dstAttr))
-    spark.createDataFrame(triple.distinct(), schema)
+    spark.createDataFrame(triple.distinct(), getSchema())
   }
+  def getSchema() = StructType(Array(StructField(obj, StringType, nullable = true),
+    StructField(rel, StringType, nullable = true),
+    StructField(sub, StringType, nullable = true)))
 }
 
 object TripleGraphX {

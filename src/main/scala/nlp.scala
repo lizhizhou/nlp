@@ -1,33 +1,34 @@
+import java.io.File
+
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
 import org.apache.spark._
-import org.apache.spark.graphx.{ Edge, VertexId, Graph }
+import org.apache.spark.graphx.{Edge, Graph, VertexId}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions._
 import com.databricks.spark.corenlp.functions._
-
-import com.arangodb.spark.{ ArangoSpark, ReadOptions, WriteOptions }
+import com.arangodb.spark.{ArangoSpark, ReadOptions, WriteOptions}
 import com.arangodb.ArangoDB
-import scala.beans.BeanProperty
 
-import edu.stanford.nlp.util._
+import scala.beans.BeanProperty
 import scala.collection.mutable.WrappedArray
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import com.intel.analytics.bigdl.utils.{Engine, LoggerFilter, T}
+import com.navercorp.Node2vec
 import com.softwaremill.debug.DebugMacros._
-
+import com.mayabot.mynlp.fasttext._
 
 object NLP {
 
   def main(args: Array[String]) {
-    
+    System.setProperty("corenlp.props", "StanfordCoreNLP-chinese.properties")
+    //System.setProperty("corenlp.props", "StanfordCoreNLP.properties")
     val conf = Engine.createSparkConf()
-      .set("arangodb.host", "127.0.0.1")
-      .set("arangodb.port", "8529")
-      .set("arangodb.user", "root")
-      .set("arangodb.password", "lab123")
+      .set("spark.arangodb.hosts", "127.0.0.1:8529")
+      .set("spark.arangodb.user", "root")
+      .set("spark.arangodb.password", "lab123")
       .set("es.index.auto.create", "true")
       .set("spark.neo4j.bolt.user", "neo4j")
       .set("spark.neo4j.bolt.password", "lab123")
@@ -37,10 +38,10 @@ object NLP {
     import sqlContext.implicits._
 
     
-    val userComment = spark.read.parquet("/home/bigdata/temp_spam_user_topic_comment/1",
-        "/home/bigdata/temp_spam_user_topic_comment/2")
-    val triplet = userComment.select($"nickname", $"content", $"target_user_nick_name")
-    triplet.show
+    //val userComment = spark.read.parquet("/data/user_follow/")
+//    val userComment = spark.read.parquet("/tmp/user_follow")
+//    val triplet = userComment.select($"user_id", $"follow_source", $"target_user_id")
+//    triplet.show
  
 //    debug()
 //    import com.github.johnreedlol.Pos
@@ -51,20 +52,22 @@ object NLP {
     //RDF.unitTest(spark); return
     //ElasticsearchGraphX.unitTest(spark)
     //GrokPattern.unitTest()
+    ArrangoGraphX.unitTest(spark)
     
 //    val office = Office(spark)
 //    val textrdd = office.openWord(Seq("/home/bigdata/test.docx"):_ *)
 //    val input = textrdd.map { x => (x.hashCode(),x) }.toDF("id", "text")
 //    println(textrdd.foreach { println })
-//    val text = "<xml>Stanford University is located in California. It is a great university.</xml>"
+    //val text = "<xml>Stanford University is located in California. It is a great university.</xml>"
+//    val text = "<xml>克林顿说，华盛顿将逐步落实对韩国的经济援助。</xml>"
 //    val input = Seq(
 //      (text.hashCode(), text)).toDF("id", "text")
 //        input.show()
-
+//
 //    val output = input
 //      .select(cleanxml('text).as('doc))
 //      .select(explode(ssplit('doc)).as('sen))
-//      .select('sen, tokenize('sen).as('words), ner('sen).as('nerTags), coref('sen).as('coref), openie('sen).as('openie), sentiment('sen).as('sentiment))
+//      .select('sen, tokenize('sen).as('words), ner('sen).as('nerTags))
 //    output.show(truncate = false)
 
 //    val triplet =  input.select(cleanxml('text).as('doc))
@@ -74,22 +77,29 @@ object NLP {
 //    .flatMap { iter => 
 //      for (x <- iter) yield  Row(x(0), x(1), x(2))
 //    }
-    val tripleRow = triplet.sample(false, 0.001).rdd
-    println(tripleRow.count)
-    //tripleRow.foreach { println }
-    val tg = TripleGraphX[String,String](spark, "object", "subject", "relation")
-    val triple = spark.createDataFrame(tripleRow.distinct(), tg.schema)
+//    val tripleRow = triplet.rdd
+//    println(tripleRow.count)
+//    //tripleRow.foreach { println }
+//    val tg = TripleGraphX[String,String](spark, "object", "subject", "relation")
+//    val triple = spark.createDataFrame(tripleRow.distinct(), tg.getSchema())
   
     //val triple = sqlContext.read.json("/home/bigdata/microeco.json")
     //val triple = sqlContext.read.json("/home/bigdata/chinese.json")
     
 
-    val tf = tg.toTriple(tg.toGraphX(triple))
-    tf.show(10)
-    //triple.show(10)
-    val ag = ArrangoGraphX(spark)
-    ag.toArrango(tg.toGraphX(triple), "test", "myGraph", "concept", "link")
-    tg.toTriple(ag.toGraphX("test", "concept", "link")).show(10)
+//    val tf = tg.toTriple(tg.toGraphX(triple))
+//    tf.show(10)
+//    triple.show(10)
+//    val ag = ArrangoGraphX(spark)
+//    ag.toArrango(tg.toGraphX(triple), "test", "node2vec", "concept", "link")
+//    tg.toTriple(ag.toGraphX("test", "concept", "link")).show(10)
+
+//    Node2vec.setParams(sc).loadFromGraph(tg.toGraphX(triple))
+//      .initTransitionProb()
+//      .randomWalk()
+//        //.saveRandomPath("path")
+//      .embedding()
+//        .save("model")
 
 //    val ng = Neo4jGraphX(spark)
 //    ng.toNeo4j(tg.toGraphX(triple))
@@ -134,6 +144,31 @@ object NLP {
     //  .option("rootTag", "books")
     //  .option("rowTag", "book")
     //  .xml("newbooks.xml")
+    
+    // import com.huaban.analysis.jieba.JiebaSegmenter
+    // import com.huaban.analysis.jieba.JiebaSegmenter.SegMode
+    // import scala.collection.JavaConversions._
+    // def jieba(s:String) =  {
+    //     val segmenter = new JiebaSegmenter()
+    //     segmenter.process(s, SegMode.SEARCH).toList.map(_.word + " ").foldLeft("")(_+_).toString
+    // }
+
+    // val sentences: Array[String] = Array[String]("这是一个伸手不见五指的黑夜。我叫孙悟空，我爱北京，我爱Python和C++。", "我不喜欢日本和服。", "雷猴回归人间。", "工信处女干事每月经过下属科室都要亲口交代24口交换机等技术性器件的安装工作", "结果婚的和尚未结过婚的")
+    // for (sentence <- sentences) {
+    //   println(
+    //       jieba(sentence))
+    // }
+
+    //Word representation learning//Word representation learning
+    // val fastText = FastText.train(new File("train.data"), ModelName.sg)
+    // Text classification
+    //val fastText = FastText.train(new File("train.data"), ModelName.sup)
+
+    //fastText.saveModel("path/data.model")
+    //val fastText = FastText.loadModel("path/data.model", true)
+
+//    val fastText = FastText.loadFasttextBinModel("path/wiki.bin")
+//    val predict = fastText.predict(Arrays.asList("fastText在预测标签时使用了非线性激活函数".split(" ")), 5)
 
     sc.stop()
   }

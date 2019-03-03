@@ -12,6 +12,9 @@ RUN echo "index-url = http://pypi.douban.com/simple" >> ~/.pip/pip.conf
 RUN pip3 install pandas
 RUN pip3 install django
 
+# MACHINELEANING
+RUN pip3 install sklearn
+
 # DEEPLEANING
 RUN pip3 install keras
 RUN pip3 install tensorlayer
@@ -22,14 +25,17 @@ ARG JAVA_UPDATE_VERSION=131
 ARG JAVA_BUILD_NUMBER=11
 ENV JAVA_HOME /usr/jdk1.${JAVA_MAJOR_VERSION}.0_${JAVA_UPDATE_VERSION}
 
-ENV PATH $PATH:$JAVA_HOME/bin
-RUN curl -sL --retry 3 --insecure \
-  --header "Cookie: oraclelicense=accept-securebackup-cookie;" \
-  "http://download.oracle.com/otn-pub/java/jdk/${JAVA_MAJOR_VERSION}u${JAVA_UPDATE_VERSION}-b${JAVA_BUILD_NUMBER}/d54c1d3a095b4ff2b6607d096fa80163/server-jre-${JAVA_MAJOR_VERSION}u${JAVA_UPDATE_VERSION}-linux-x64.tar.gz" \
-  | gunzip \
-  | tar x -C /usr/ \
-  && ln -s $JAVA_HOME /usr/java \
-  && rm -rf $JAVA_HOME/man
+# JAVA APT
+RUN \
+ apt-get update && \
+ apt-get install -y software-properties-common && \
+ echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && \
+ add-apt-repository -y ppa:webupd8team/java && \
+ apt-get update && \
+ apt-get install -y oracle-java8-installer && \
+ rm -rf /var/lib/apt/lists/* && \
+ rm -rf /var/cache/oracle-jdk8-installer#
+
 
 # SCALA
 ARG SCALA_MAJOR_VERSION=2
@@ -49,12 +55,14 @@ RUN dpkg --force-all -i /tmp/sbt.deb
 RUN curl -L --retry 3 -o /tmp/maven.deb http://ftp.us.debian.org/debian/pool/main/m/maven/maven_${MAVEN_MAJOR_VERSION}.${MAVEN_UPDATE_VERSION}.${MAVEN_BUILD_NUMBER}-${MAVEN_PATCH_NUMBER}_all.deb
 RUN dpkg --force-all -i /tmp/maven.deb
 
+ARG APACHEMIRROR=https://archive.apache.org/dist
+
 # ZOOKEEPER
 ENV ZOOKEEPER_VERSION 3.4.12
 ENV ZOOKEEPER_HOME /usr/zookeeper-$ZOOKEEPER_VERSION
 ENV PATH $PATH:$ZOOKEEPER_HOME/bin
 RUN curl -sL --retry 3 \
-  "http://www-us.apache.org/dist/zookeeper/zookeeper-$ZOOKEEPER_VERSION/zookeeper-$ZOOKEEPER_VERSION.tar.gz" \
+  "$APACHEMIRROR/zookeeper/zookeeper-$ZOOKEEPER_VERSION/zookeeper-$ZOOKEEPER_VERSION.tar.gz" \
   | gunzip \
   | tar -x -C /usr/ \
  && rm -rf $ZOOKEEPER_HOME/share/doc \
@@ -66,7 +74,7 @@ ENV HADOOP_HOME /usr/hadoop-$HADOOP_VERSION
 ENV HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
 ENV PATH $PATH:$HADOOP_HOME/bin
 RUN curl -sL --retry 3 \
-  "http://archive.apache.org/dist/hadoop/common/hadoop-${HADOOP_VERSION}/hadoop-${HADOOP_VERSION}.tar.gz" \
+  "$APACHEMIRROR/hadoop/common/hadoop-${HADOOP_VERSION}/hadoop-${HADOOP_VERSION}.tar.gz" \
   | gunzip \
   | tar -x -C /usr/ \
  && rm -rf $HADOOP_HOME/share/doc \
@@ -79,7 +87,7 @@ ENV SPARK_HOME /usr/spark-${SPARK_VERSION}
 ENV SPARK_DIST_CLASSPATH="$HADOOP_HOME/etc/hadoop/*:$HADOOP_HOME/share/hadoop/common/lib/*:$HADOOP_HOME/share/hadoop/common/*:$HADOOP_HOME/share/hadoop/hdfs/*:$HADOOP_HOME/share/hadoop/hdfs/lib/*:$HADOOP_HOME/share/hadoop/hdfs/*:$HADOOP_HOME/share/hadoop/yarn/lib/*:$HADOOP_HOME/share/hadoop/yarn/*:$HADOOP_HOME/share/hadoop/mapreduce/lib/*:$HADOOP_HOME/share/hadoop/mapreduce/*:$HADOOP_HOME/share/hadoop/tools/lib/*"
 ENV PATH $PATH:${SPARK_HOME}/bin
 RUN curl -sL --retry 3 \
-  "https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/${SPARK_PACKAGE}.tgz" \
+  "$APACHEMIRROR/spark/spark-${SPARK_VERSION}/${SPARK_PACKAGE}.tgz" \
   | gunzip \
   | tar x -C /usr/ \
  && mv /usr/$SPARK_PACKAGE $SPARK_HOME \
@@ -94,7 +102,7 @@ ARG ZEPPELIN_MAJOR_VERSION=0
 ARG ZEPPELIN_UPDATE_VERSION=8
 ARG ZEPPELIN_BUILD_NUMBER=0
 RUN curl -sL --retry 3 \
-  "https://archive.apache.org/dist/zeppelin/zeppelin-${ZEPPELIN_MAJOR_VERSION}.${ZEPPELIN_UPDATE_VERSION}.${ZEPPELIN_BUILD_NUMBER}/zeppelin-${ZEPPELIN_MAJOR_VERSION}.${ZEPPELIN_UPDATE_VERSION}.${ZEPPELIN_BUILD_NUMBER}-bin-netinst.tgz" \
+  "$APACHEMIRROR//zeppelin/zeppelin-${ZEPPELIN_MAJOR_VERSION}.${ZEPPELIN_UPDATE_VERSION}.${ZEPPELIN_BUILD_NUMBER}/zeppelin-${ZEPPELIN_MAJOR_VERSION}.${ZEPPELIN_UPDATE_VERSION}.${ZEPPELIN_BUILD_NUMBER}-bin-netinst.tgz" \
   | gunzip \
   | tar x -C /tmp/ \
  && mv /tmp/zeppelin* $ZEPPELIN_HOME \
@@ -109,7 +117,7 @@ ENV KAFKA_HOME /usr/kafka-${KAFKA_VERSION}
 ENV KAFKA_PACKAGE kafka_${KAFKA_SCALA}-${KAFKA_VERSION}
 ENV PATH $PATH:${KAFKA_HOME}/bin
 RUN curl -sL --retry 3 \
-  "https://archive.apache.org/dist/kafka/${KAFKA_VERSION}/${KAFKA_PACKAGE}.tgz" \
+  "$APACHEMIRROR//kafka/${KAFKA_VERSION}/${KAFKA_PACKAGE}.tgz" \
   | gunzip \
   | tar x -C /usr/ \
  && mv /usr/$KAFKA_PACKAGE $KAFKA_HOME \
@@ -146,14 +154,56 @@ RUN dpkg --force-all -i /tmp/es.deb
 RUN curl -L --retry 3 -o /tmp/kibana.deb https://artifacts.elastic.co/downloads/kibana/kibana-${KIBANA_MAJOR_VERSION}.${KIBANA_UPDATE_VERSION}.${KIBANA_BUILD_NUMBER}-amd64.deb
 RUN dpkg --force-all -i /tmp/kibana.deb
 
+# Flink
+ENV FLINK_VERSION 1.5.1
+ENV FLINK_SCALA  2.11
+ENV FLINK_PACKAGE flink-${FLINK_VERSION}
+ENV FLINK_HOME /usr/flink-${FLINK_VERSION}
+ENV PATH $PATH:${FLINK_VERSION}/bin
+RUN curl -sL --retry 3 \
+   "$APACHEMIRROR/flink/flink-${FLINK_VERSION}/${FLINK_PACKAGE}-bin-scala_${FLINK_SCALA}.tgz" \
+  | gunzip \
+  | tar x -C /tmp/ \
+ && mv /tmp/flink* $FLINK_HOME \
+ && chown -R root:root $FLINK_HOME
 
-#CLEANUP
+# Nifi
+ENV NIFI_VERSION=1.7.0
+ENV NIFI_HOME /usr/nifi-${NIFI_VERSION} 
+ENV NIFI_BINARY_URL /nifi/${NIFI_VERSION}/nifi-${NIFI_VERSION}-bin.tar.gz
+ENV NIFI_PID_DIR ${NIFI_HOME}/run
+ENV NIFI_LOG_DIR ${NIFI_HOME}/logs
+RUN curl -sL --retry 3 \
+   "$APACHEMIRROR/$NIFI_BINARY_URL" \
+  | gunzip \
+  | tar x -C /tmp/ \
+ && mv /tmp/nifi* $NIFI_HOME \
+ && chown -R root:root $NIFI_HOME
+
+# CLEANUP
 RUN apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 RUN rm -rf /tmp/*
 RUN rm -rf /usr/share/doc/*
 RUN rm -rf usr/*.whl
 RUN apt-get purge -f -y --auto-remove
+
+# Config 
+RUN echo "network.host: 0.0.0.0" >> /etc/elasticsearch/elasticsearch.yml
+RUN echo "server.host: 0.0.0.0" >> /etc/kibana/kibana.yml
+RUN echo "\nnifi.web.http.port=9090" >> /usr/nifi-1.7.0/conf/nifi.properties
+RUN cp   /usr/zeppelin/conf/zeppelin-site.xml.template /usr/zeppelin/conf/zeppelin-site.xml
+RUN echo "service arangodb3 start\n" >> /service.sh
+RUN echo "service elasticsearch start\n" >> /service.sh
+RUN echo "service kibana start\n" >> /service.sh
+RUN echo "/usr/flink-1.5.1/bin/taskmanager.sh start\n" >> /service.sh
+RUN echo "/usr/flink-1.5.1/bin/jobmanager.sh start\n" >> /service.sh
+RUN echo "/usr/nifi-1.7.0/bin/nifi.sh start\n" >> /service.sh
+RUN echo "/usr/kafka-1.0.0/bin/zookeeper-server-start.sh /usr/kafka-1.0.0/config/zookeeper.properties &" >> /service.sh
+RUN echo "/usr/kafka-1.0.0/bin/kafka-server-start.sh /usr/kafka-1.0.0/config/server.properties &" >> /service.sh
+RUN echo "/usr/zeppelin/bin/zeppelin-daemon.sh start\n" >> /service.sh
+RUN echo "/run_jupyter.sh --allow-root \n" >> /service.sh
+RUN chmod +x /service.sh
 
 # TensorBoard
 EXPOSE 6006
@@ -169,11 +219,11 @@ EXPOSE 9200
 EXPOSE 5601
 # Zookeeper
 EXPOSE 2181
+#Flink
+EXPOSE 8081 6123
+#Nifi 
+EXPOSE 9090 8443 10000
 
 WORKDIR "/notebooks"
 
-#CMD [service arangodb3 start]
-#CMD [service elasticsearch start]
-#CMD [service kibana start]
-CMD ["/run_jupyter.sh", "--allow-root"]
-CMD ["/usr/zeppelin/bin/zeppelin.sh",""]
+CMD ["/service.sh",""]
