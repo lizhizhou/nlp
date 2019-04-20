@@ -18,7 +18,10 @@ import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import com.intel.analytics.bigdl.utils.{Engine, LoggerFilter, T}
 import com.navercorp.Node2vec
 import com.softwaremill.debug.DebugMacros._
-import com.mayabot.mynlp.fasttext._
+import scala.util.Try
+import org.apache.spark.sql.DataFrame
+//import org.apache.spark.ml.feature.Word2Phrase
+//import com.mayabot.mynlp.fasttext._
 
 object NLP {
 
@@ -37,7 +40,7 @@ object NLP {
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
     import sqlContext.implicits._
 
-    
+    def hasColumn(df: DataFrame, path: String) = Try(df(path)).isSuccess
     //val userComment = spark.read.parquet("/data/user_follow/")
 //    val userComment = spark.read.parquet("/tmp/user_follow")
 //    val triplet = userComment.select($"user_id", $"follow_source", $"target_user_id")
@@ -52,7 +55,7 @@ object NLP {
     //RDF.unitTest(spark); return
     //ElasticsearchGraphX.unitTest(spark)
     //GrokPattern.unitTest()
-    ArrangoGraphX.unitTest(spark)
+    //ArrangoGraphX.unitTest(spark)
     
 //    val office = Office(spark)
 //    val textrdd = office.openWord(Seq("/home/bigdata/test.docx"):_ *)
@@ -160,7 +163,7 @@ object NLP {
     // }
 
     //Word representation learning//Word representation learning
-    // val fastText = FastText.train(new File("train.data"), ModelName.sg)
+    //val fastText = FastText.train(new File("train.data"), ModelName.sg)
     // Text classification
     //val fastText = FastText.train(new File("train.data"), ModelName.sup)
 
@@ -169,7 +172,36 @@ object NLP {
 
 //    val fastText = FastText.loadFasttextBinModel("path/wiki.bin")
 //    val predict = fastText.predict(Arrays.asList("fastText在预测标签时使用了非线性激活函数".split(" ")), 5)
-
+//    val wordDataFrame = sqlContext.createDataFrame(Seq(
+//      (0, "new york test drive cool york how always learn media new york ."),
+//      (1, "online york new york learn to media cool time ."),
+//      (2, "media play how cool times play ."),
+//      (3, "code to to code york to loaded times media ."),
+//      (4, "play awesome to york ."),
+//      (1099, "work please ideone how awesome times ."),
+//      (1100, "play how play awesome to new york york awesome use new york work please loaded always like ."),
+//      (1101, "learn like I media online new york ."),
+//      (1102, "media follow learn code code there to york times ."),
+//      (1103, "cool use play work please york cool new york how follow ."),
+//      (1104, "awesome how loaded media use us cool new york online code judge ideone like ."),
+//      (1105, "judge media times time ideone new york new york time us fun ."),
+//      (1106, "new york to time there media time fun there new like media time time ."),
+//      (1107, "awesome to new times learn cool code play how to work please to learn to ."),
+//      (1108, "there work please online new york how to play play judge how always work please ."),
+//      (1109, "fun ideone to play loaded like how ."),
+//      (1110, "fun york test drive awesome play times ideone new us media like follow .")
+//    )).toDF("label", "inputWords")
+//
+//
+//    val t = new Word2Phrase().setInputCol("inputWords").setOutputCol("out")
+//
+//    val model = t.fit(wordDataFrame)
+//
+//    val bi_gram_data = model.transform(wordDataFrame)
+//
+//    bi_gram_data.show()
+    TfIdf.unittest(spark)
+    CharConvertor.unittest()
     sc.stop()
   }
 }
