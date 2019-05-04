@@ -13,6 +13,8 @@ import org.apache.spark.sql.{Dataset, DataFrame, functions => f}
 
 import scala.util.matching._
 
+// https://github.com/s4weng/word2phrase
+
 /**
   * Params for [[Word2Phrase]] and [[Word2PhraseModel]].
   */
