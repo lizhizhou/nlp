@@ -1,7 +1,7 @@
 import org.apache.spark.ml.feature.Word2Phrase
 import org.apache.spark.sql.SparkSession
 
-object testData {
+object TestTextData {
   def unittest(spark: SparkSession): Unit =
   {
     import spark.implicits._
