@@ -5,9 +5,11 @@ class CharConvertor {
     //          CharConvertor.charCharMap.getOrElse(c,CharConvertor.charStringMap.getOrElse(c,c)).toString())
     //        new String(charArray)
     val r1 = input.flatMap(c => {
+      if (c >= '\u20D0' && c <= '\u20FF') "" else
       CharConvertor.charCharMap.getOrElse(c,
         CharConvertor.charStringMap.getOrElse(c, c)).toString()
     })
+
     var skip = false
     val r2 = r1.sliding(2, 1).map(x => if (skip == true) {
       skip = false;
@@ -180,8 +182,8 @@ object CharConvertor {
     "🄩" -> "Z",
 
     // 表情字符
-    "0️⃣" -> "0", "1️⃣" -> "1", "2️⃣" -> "2", "3️⃣" -> "3", "4️⃣" -> "4",
-    "5️⃣" -> "5", "6️⃣" -> "6", "7️⃣" -> "7", "8️⃣" -> "8", "9️⃣" -> "9",
+//    "0️⃣" -> "0", "1️⃣" -> "1", "2️⃣" -> "2", "3️⃣" -> "3", "4️⃣" -> "4",  //convert by skip
+//    "5️⃣" -> "5", "6️⃣" -> "6", "7️⃣" -> "7", "8️⃣" -> "8", "9️⃣" -> "9",
     "🔟" -> "10",
     "🅰" -> "A",
     "🅱" -> "B",
@@ -196,6 +198,7 @@ object CharConvertor {
     println(convert.convert("lℹzhℹzhou"))
     println(convert.convert("️ＡＡＡＡＡ"))
     println(convert.convert("jiao-dapei九九九数字小写"))
-    println(convert.convert("🄐🄐🄐A"))
+    println(convert.convert("🄐🄐🄐A🅰"))
+    println(convert.convert("0️⃣0️⃣0️⃣0️⃣"))
   }
 }
