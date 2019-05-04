@@ -172,8 +172,8 @@ object NLP {
 
 //    val fastText = FastText.loadFasttextBinModel("path/wiki.bin")
 //    val predict = fastText.predict(Arrays.asList("fastText在预测标签时使用了非线性激活函数".split(" ")), 5)
-    TestTextData.unittest(spark)
-    TfIdf.unittest(spark)
+    //TestTextData.unittest(spark)
+    //TfIdf.unittest(spark)
     CharConvertor.unittest()
     sc.stop()
   }
