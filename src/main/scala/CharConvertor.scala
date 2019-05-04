@@ -1,5 +1,8 @@
 class CharConvertor {
   def convert(input: String):String = {
+    //    val charArray = s.toCharArray
+    //    charArray.map( c => if(c == '0') ' ')
+    //    new String(charArray)
     return input.map(x => {
       CharConvertor.charMap.getOrElse(x,x)
     })
@@ -160,8 +163,8 @@ object CharConvertor {   val charMap: Map[Char,Char] =  Map(
   def apply () = new CharConvertor()
   def unittest() = {
     val convert = new CharConvertor()
-    println(convert.convert("lℹzhℹzhou&"))
-    println(convert.convert("1️⃣2️⃣4️⃣️"))
+    println(convert.convert("lℹzhℹzhou"))
+    println(convert.convert("️ＡＡＡＡＡ"))
     println(convert.convert("jiao-dapei九九九数字小写"))
   }
 }
