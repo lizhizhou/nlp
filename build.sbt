@@ -24,7 +24,7 @@ libraryDependencies ++= Seq(
    "com.crealytics" %% "spark-excel" % "0.9.14",
    "org.apache.poi" % "poi" % "3.17",
    "io.thekraken" % "grok" % "0.1.5",
-   "com.softwaremill.scalamacrodebug" %% "macros" % "0.4", 
+   "com.softwaremill.scalamacrodebug" %% "macros" % "0.4",
    "com.github.johnreedlol" %% "scala-trace-debug" % "4.5.0",
    "com.huaban" % "jieba-analysis" % "1.0.2",
    "com.mayabot" % "fastText4j" % "1.2.2",
