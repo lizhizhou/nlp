@@ -221,23 +221,27 @@ class crawler(startPage: String, outputPath: String = "./crawl.txt", filter: (St
 
   /**
     * 从原始的html文件中提取出自己想要的内容。所以需要修改这个函数来适应不同的网站页面。
-    *
+    * toDo Use the HTML/XML parser
     * @param html
     * @return
     */
   private def extractTitleAndContent(html:String):String ={
-    val h1StartIndex = html.indexOf("<h1>")
-    val h1EndIndex = html.indexOf("</h1>", h1StartIndex)
-    val contentStartIndex = html.indexOf("<div>", h1EndIndex)
-    val contentEndIndex = html.indexOf("</div>", contentStartIndex)
-     if(h1StartIndex < 0 || h1EndIndex < 0 || contentStartIndex < 0 || contentEndIndex < 0)
-      return ""
+    val titleStartIndex = html.indexOf("<title>")
+    val titleEndIndex = html.indexOf("</title>")
 
-    val title = html.substring(h1StartIndex+4, h1EndIndex)
-
-    val content = html
-      .substring(contentStartIndex+5, contentEndIndex)
-      .replaceAll("<br />|&nbsp;+|\t+", "")
+    val title =  if(titleStartIndex < 0 || titleEndIndex < 0) "" else  html.substring(titleStartIndex+"<title>".length(), titleEndIndex)
+    var content = ""
+    var contentStartIndex = -1
+    var contentEndIndex = titleEndIndex
+    do {
+      contentStartIndex = html.indexOf("<p>", contentEndIndex)
+      contentEndIndex = html.indexOf("</p>", contentStartIndex)
+      if (contentStartIndex > 0 && contentEndIndex > 0 )
+        content += html
+          .substring(contentStartIndex+"<p>".length, contentEndIndex)
+          .replaceAll("<br />|&nbsp;+|\t+", "")
+    }
+    while(contentStartIndex > 0 && contentEndIndex > 0 )
 
     s"${title}\n${content}\n\n"
   }
