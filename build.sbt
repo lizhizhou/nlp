@@ -29,6 +29,7 @@ libraryDependencies ++= Seq(
    "com.huaban" % "jieba-analysis" % "1.0.2",
    "com.mayabot" % "fastText4j" % "1.2.2",
    "org.scalanlp" %% "breeze" % "0.13.2",
+   "net.ruippeixotog" %% "scala-scraper" % "2.1.0",
    "com.soundcloud" %% "cosine-lsh-join-spark" % "1.0.6"
 )
 

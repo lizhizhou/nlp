@@ -8,6 +8,11 @@ import java.util.regex.Pattern
 
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.Stack
+import net.ruippeixotog.scalascraper.browser.JsoupBrowser
+import net.ruippeixotog.scalascraper.model._
+import net.ruippeixotog.scalascraper.dsl.DSL._
+import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
+import net.ruippeixotog.scalascraper.dsl.DSL.Parse._
 
 //https://blog.csdn.net/liangyihuai/article/details/54698469
 /**
@@ -225,24 +230,14 @@ class crawler(startPage: String, outputPath: String = "./crawl.txt", filter: (St
     * @param html
     * @return
     */
+
   private def extractTitleAndContent(html:String):String ={
-    val titleStartIndex = html.indexOf("<title>")
-    val titleEndIndex = html.indexOf("</title>")
-
-    val title =  if(titleStartIndex < 0 || titleEndIndex < 0) "" else  html.substring(titleStartIndex+"<title>".length(), titleEndIndex)
-    var content = ""
-    var contentStartIndex = -1
-    var contentEndIndex = titleEndIndex
-    do {
-      contentStartIndex = html.indexOf("<p>", contentEndIndex)
-      contentEndIndex = html.indexOf("</p>", contentStartIndex)
-      if (contentStartIndex > 0 && contentEndIndex > 0 )
-        content += html
-          .substring(contentStartIndex+"<p>".length, contentEndIndex)
-          .replaceAll("<br />|&nbsp;+|\t+", "")
-    }
-    while(contentStartIndex > 0 && contentEndIndex > 0 )
-
+    if(html.isEmpty) return ""
+    val browser = JsoupBrowser()
+    val htmldom = browser.parseString(html)
+    val title = htmldom >> text("title")
+    val content = (htmldom >> texts("p")).mkString(" ")
+    //map (_.replaceAll("<br />|&nbsp;+|\t+", ""))
     s"${title}\n${content}\n\n"
   }
 
@@ -264,7 +259,7 @@ class crawler(startPage: String, outputPath: String = "./crawl.txt", filter: (St
 
 object crawler{
   def main(args:Array[String]): Unit ={
-    new crawler("http://lizhizhou.github.io/",
+    new crawler("http://lizhizhou.github.io/", //"http://lizhizhou.github.io/", //""
       "crawl.txt",
       filter = (url:String) => url.contains("http://lizhizhou.github.io/")).crawl()
   }
