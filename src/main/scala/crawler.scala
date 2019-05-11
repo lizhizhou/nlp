@@ -90,7 +90,7 @@ class crawler(startPage: String, outputPath: String = "./crawl.txt", filter: (St
           threadPool.execute(future)
 
           val pageContent = future.get(this.READ_TIME_OUT, TimeUnit.SECONDS)._2
-
+          println(pageContent)
           val tempLinks = parseCrawlLinks(link, pageContent)
           tempLinks.filter(!crawledPool.contains(_)).foreach(LinksStack.push(_))
           result += (link -> pageContent)
@@ -100,6 +100,7 @@ class crawler(startPage: String, outputPath: String = "./crawl.txt", filter: (St
     }finally {
       threadPool.shutdown()
     }
+    println(result)
     result
   }
 
@@ -249,7 +250,9 @@ class crawler(startPage: String, outputPath: String = "./crawl.txt", filter: (St
     val writer = new BufferedWriter(new FileWriter(new File(outputPath)))
     val values = linksAndContent.valuesIterator
     while(values.hasNext){
-      writer.write(values.next())
+      val v = values.next()
+      println(v)
+      writer.write(v)
     }
     writer.close()
   }

@@ -28,6 +28,7 @@ libraryDependencies ++= Seq(
    "com.github.johnreedlol" %% "scala-trace-debug" % "4.5.0",
    "com.huaban" % "jieba-analysis" % "1.0.2",
    "com.mayabot" % "fastText4j" % "1.2.2",
+   "org.scalanlp" %% "breeze" % "0.13.2",
    "com.soundcloud" %% "cosine-lsh-join-spark" % "1.0.6"
 )
 
