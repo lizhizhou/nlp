@@ -21,7 +21,7 @@ import net.ruippeixotog.scalascraper.dsl.DSL.Parse._
   * @param outputPath 所爬取小说的存储路径，默认为当前目录下的crawl.txt文件.
   * @param filter url的过滤条件, 默认为true
   */
-class crawler(startPage: String, outputPath: String = "./crawl.txt", filter: (String => Boolean) = (url: String) => true) {
+class crawler(startPage: String, filter: (String => Boolean) = (url: String) => true) {
 
   /**
     * 获取链接的正则表达式
@@ -48,7 +48,7 @@ class crawler(startPage: String, outputPath: String = "./crawl.txt", filter: (St
     */
   private val READ_TIME_OUT = 15*1000
 
-  def crawl():Unit ={
+  def crawl(outputPath: String = "./crawl.txt"):Unit ={
     //爬取原始html页面
     val linksAndContent = doCrawlPages(startPage)
     //解析和提取有价值的内容
@@ -57,6 +57,13 @@ class crawler(startPage: String, outputPath: String = "./crawl.txt", filter: (St
     storeContent(linksAndContent, outputPath)
   }
 
+  def crawl() = {
+    //爬取原始html页面
+    val linksAndContent = doCrawlPages(startPage)
+    //解析和提取有价值的内容
+    linksAndContent.foreach(entry => {linksAndContent += (entry._1 -> extractTitleAndContent(entry._2))})
+    linksAndContent
+  }
 
   /**
     * 这个函数负责主要的爬取任务。它调用线程池中的一条线程来爬取一个页面，返回所爬取的页面内容和对应的url。
@@ -249,9 +256,7 @@ class crawler(startPage: String, outputPath: String = "./crawl.txt", filter: (St
     val writer = new BufferedWriter(new FileWriter(new File(outputPath)))
     val values = linksAndContent.valuesIterator
     while(values.hasNext){
-      val v = values.next()
-      println(v)
-      writer.write(v)
+      writer.write(values.next())
     }
     writer.close()
   }
@@ -259,8 +264,7 @@ class crawler(startPage: String, outputPath: String = "./crawl.txt", filter: (St
 
 object crawler{
   def main(args:Array[String]): Unit ={
-    new crawler("http://lizhizhou.github.io/", //"http://lizhizhou.github.io/", //""
-      "crawl.txt",
-      filter = (url:String) => url.contains("http://lizhizhou.github.io/")).crawl()
+    new crawler("http://lizhizhou.github.io/", //http://www.example.com/,
+      filter = (url:String) => url.contains("http://lizhizhou.github.io/")).crawl("crawl.txt")
   }
 }
