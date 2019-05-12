@@ -102,7 +102,6 @@ class crawler(startPage: String, filter: (String => Boolean) = (url: String) => 
           threadPool.execute(future)
 
           val pageContent = future.get(this.READ_TIME_OUT, TimeUnit.SECONDS)._2
-          println(pageContent)
           val tempLinks = parseCrawlLinks(link, pageContent)
           tempLinks.filter(!crawledPool.contains(_)).foreach(LinksStack.push(_))
           result += (link -> pageContent)
@@ -180,6 +179,9 @@ class crawler(startPage: String, filter: (String => Boolean) = (url: String) => 
             parentUrl.substring(0, index) + "/" + link
         }
     }.filter {
+      link => !link.matches(".*(\\.ico|\\.jpeg|\\.jpg|\\.png|\\.gif)$")  //remove pic
+    }
+    .filter {
       link => !crawledPool.contains(link) && this.filter(link)
     }
     println("find " + links.size + " links at page " + parentUrl)
@@ -234,6 +236,7 @@ class crawler(startPage: String, filter: (String => Boolean) = (url: String) => 
   /**
     * 从原始的html文件中提取出自己想要的内容。所以需要修改这个函数来适应不同的网站页面。
     * toDo Use the HTML/XML parser
+    *
     * @param html
     * @return
     */
