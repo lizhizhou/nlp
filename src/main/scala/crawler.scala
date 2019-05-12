@@ -1,5 +1,7 @@
 import java.net.{HttpURLConnection, SocketTimeoutException, URL}
 
+import org.apache.spark.sql.functions._
+
 import scala.collection.JavaConversions._
 import java.io._
 import java.util.concurrent._
@@ -21,7 +23,7 @@ import net.ruippeixotog.scalascraper.dsl.DSL.Parse._
   * @param outputPath 所爬取小说的存储路径，默认为当前目录下的crawl.txt文件.
   * @param filter url的过滤条件, 默认为true
   */
-class crawler(startPage: String, filter: (String => Boolean) = (url: String) => true) {
+class crawler(startPage: String, filter: (String => Boolean) = (url: String) => true) extends Serializable {
 
   /**
     * 获取链接的正则表达式
@@ -57,7 +59,7 @@ class crawler(startPage: String, filter: (String => Boolean) = (url: String) => 
     storeContent(linksAndContent, outputPath)
   }
 
-  def crawl() = {
+  def crawl():HashMap[String,String] = {
     //爬取原始html页面
     val linksAndContent = doCrawlPages(startPage)
     //解析和提取有价值的内容
@@ -111,7 +113,6 @@ class crawler(startPage: String, filter: (String => Boolean) = (url: String) => 
     }finally {
       threadPool.shutdown()
     }
-    println(result)
     result
   }
 
@@ -266,6 +267,13 @@ class crawler(startPage: String, filter: (String => Boolean) = (url: String) => 
 }
 
 object crawler{
+  def crawler_url(link:String) = {
+    val data = new crawler(link,
+      filter = (url:String) => url.contains(link)).crawl()
+    data.map{case (k,v) => v }.mkString(" ")
+  }
+  val crawler_udf = udf((link: String) => crawler_url(link))
+
   def main(args:Array[String]): Unit ={
     new crawler("http://lizhizhou.github.io/", //http://www.example.com/,
       filter = (url:String) => url.contains("http://lizhizhou.github.io/")).crawl("crawl.txt")
