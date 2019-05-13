@@ -152,7 +152,7 @@ object NLP {
     //  .option("rowTag", "book")
     //  .xml("newbooks.xml")
 
-    val linkdf = Seq((1,"http://lizhizhou.github.io/")).toDF("id","root")
+    val linkdf = Seq((1,"https://www.ulucu.com/")).toDF("id","root")
     val web = linkdf.select($"id", $"root", crawler.crawler_udf($"root").as("content"))
     val jiebaweb = web.select($"id", $"root", $"content", jieba.jieba_udf($"content").as("words"))
     jiebaweb.show()

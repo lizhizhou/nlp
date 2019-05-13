@@ -31,6 +31,11 @@ class crawler(startPage: String, filter: (String => Boolean) = (url: String) => 
   private val linkRegex = """ (src|href)="([^"]+)"|(src|href)='([^']+)' """.trim.r
 
   /**
+    * 地址最大长度
+    */
+  private val maxLinklength = 200
+
+  /**
     * 文件类型正则
     */
   private val htmlTypeRegex = ".*text\\/html.*"
@@ -105,7 +110,8 @@ class crawler(startPage: String, filter: (String => Boolean) = (url: String) => 
 
           val pageContent = future.get(this.READ_TIME_OUT, TimeUnit.SECONDS)._2
           val tempLinks = parseCrawlLinks(link, pageContent)
-          tempLinks.filter(!crawledPool.contains(_)).foreach(LinksStack.push(_))
+          tempLinks.filter(_.length() < maxLinklength)
+            .filter(!crawledPool.contains(_)).foreach(LinksStack.push(_))
           result += (link -> pageContent)
         }
         Thread.sleep(200)
@@ -184,7 +190,7 @@ class crawler(startPage: String, filter: (String => Boolean) = (url: String) => 
     }
     .filter {
       link => !crawledPool.contains(link) && this.filter(link)
-    }
+    }.map(link => link.replaceAll("#.*", ""))
     println("find " + links.size + " links at page " + parentUrl)
     links
   }
