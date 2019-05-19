@@ -151,13 +151,17 @@ object NLP {
     //  .option("rootTag", "books")
     //  .option("rowTag", "book")
     //  .xml("newbooks.xml")
-
+    
     val linkdf = Seq((1,"https://www.ulucu.com/")).toDF("id","root")
     val web = linkdf.select($"id", $"root", crawler.crawler_udf($"root").as("content"))
-    val jiebaweb = web.select($"id", $"root", $"content", jieba.jieba_udf($"content").as("words"))
-    jiebaweb.show()
+    //val jiebaweb = web.select($"id", $"root", $"content", jieba.jieba_udf($"content").as("words"))
 
-    LSH.unittest(spark)
+    val entity = web.select(cleanxml('content).as('doc))
+          .select(explode(ssplit('doc)).as('sen))
+           .select('sen, tokenize('sen).as('words), ner('sen).as('nerTags), openie('sen).as('openie))
+    entity.where(array_contains('nerTags, "PERSON")).show(true)
+
+    // LSH.unittest(spark)
      //Word representation learning//Word representation learning
     //val fastText = FastText.train(new File("train.data"), ModelName.sg)
     // Text classification
