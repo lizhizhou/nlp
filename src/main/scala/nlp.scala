@@ -26,6 +26,8 @@ import org.apache.spark.sql.functions.{col, udf}
 import org.apache.spark.ml.feature._
 import org.apache.spark.ml.linalg._
 import org.apache.spark.sql.types._
+import org.ansj.splitWord.analysis.ToAnalysis
+
 
 object NLP {
 
@@ -162,6 +164,7 @@ object NLP {
     entity.where(array_contains('nerTags, "PERSON")).show(true)
 
     // LSH.unittest(spark)
+
      //Word representation learning//Word representation learning
     //val fastText = FastText.train(new File("train.data"), ModelName.sg)
     // Text classification
@@ -175,7 +178,8 @@ object NLP {
     //TestTextData.unittest(spark)
     //TfIdf.unittest(spark)
     // CharConvertor.unittest()
-
+    val str: String = "欢迎使用ansj_seg,(ansj中文分词)在这里如果你遇到什么问题都可以联系我.我一定尽我所能.帮助大家.ansj_seg更快,更准,更自由!"
+    println(ToAnalysis.parse(str))
 
     sc.stop()
   }
