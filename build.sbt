@@ -31,7 +31,7 @@ libraryDependencies ++= Seq(
    "org.scalanlp" %% "breeze" % "0.13.2",
    "net.ruippeixotog" %% "scala-scraper" % "2.1.0",
    "io.lemonlabs" %% "scala-uri" % "1.4.5",
-   "com.soundcloud" %% "cosine-lsh-join-spark" % "1.0.6"
+   "org.ansj" % "ansj_seg" % "5.1.6"
 )
 
 mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
