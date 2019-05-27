@@ -4,3 +4,6 @@
 [submodule "arangodb-spark-connector"]
 	path = arangodb-spark-connector
 	url = https://github.com/lizhizhou/arangodb-spark-connector.git
+[submodule "louvain-modularity"]
+	path = louvain-modularity
+	url = https://github.com/athinggoingon/louvain-modularity.git
