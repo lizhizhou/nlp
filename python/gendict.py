@@ -16,4 +16,4 @@ def gendict(inputFile, ouputFile):
         output_f.close()
         f.close()
 
-gendict('..\Tencent_AILab_ChineseEmbedding.txt', '..\jieba.txt')  
+gendict('../Tencent_AILab_ChineseEmbedding.txt', '../jieba.txt')
