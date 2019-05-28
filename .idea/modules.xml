@@ -1,8 +1,0 @@
-<project version="4">
-  <component name="ProjectModuleManager">
-    <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/NLP Project-build.iml" filepath="$PROJECT_DIR$/.idea_modules/NLP Project-build.iml"/>
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/NLP Project.iml" filepath="$PROJECT_DIR$/.idea_modules/NLP Project.iml"/>
-    </modules>
-  </component>
-</project>
