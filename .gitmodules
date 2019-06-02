@@ -10,3 +10,6 @@
 [submodule "InfoFlow"]
 	path = InfoFlow
 	url = https://github.com/felixfung/InfoFlow.git
+[submodule "jieba-analysis"]
+	path = jieba-analysis
+	url = https://github.com/lizhizhou/jieba-analysis.git
