@@ -6,7 +6,7 @@ import scala.collection.JavaConversions._
 object jieba
 {
   def jieba(s:String) =  {
-    val segmenter = new JiebaSegmenter()
+    val segmenter = new JiebaSegmenter() // .initUserDict("jieba.txt")
     segmenter.process(s, SegMode.SEARCH).toList.map(_.word + " ").foldLeft("")(_+_).toString
   }
 

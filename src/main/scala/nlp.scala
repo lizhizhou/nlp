@@ -26,6 +26,8 @@ import org.apache.spark.sql.functions.{col, udf}
 import org.apache.spark.ml.feature._
 import org.apache.spark.ml.linalg._
 import org.apache.spark.sql.types._
+import org.ansj.splitWord.analysis.ToAnalysis
+
 
 object NLP {
 
@@ -154,10 +156,15 @@ object NLP {
 
     val linkdf = Seq((1,"https://www.ulucu.com/")).toDF("id","root")
     val web = linkdf.select($"id", $"root", crawler.crawler_udf($"root").as("content"))
-    val jiebaweb = web.select($"id", $"root", $"content", jieba.jieba_udf($"content").as("words"))
-    jiebaweb.show()
+    //val jiebaweb = web.select($"id", $"root", $"content", jieba.jieba_udf($"content").as("words"))
 
-    LSH.unittest(spark)
+    val entity = web.select(cleanxml('content).as('doc))
+          .select(explode(ssplit('doc)).as('sen))
+           .select('sen, tokenize('sen).as('words), ner('sen).as('nerTags), openie('sen).as('openie))
+    entity.where(array_contains('nerTags, "PERSON")).show(true)
+
+    // LSH.unittest(spark)
+
      //Word representation learning//Word representation learning
     //val fastText = FastText.train(new File("train.data"), ModelName.sg)
     // Text classification
@@ -171,7 +178,8 @@ object NLP {
     //TestTextData.unittest(spark)
     //TfIdf.unittest(spark)
     // CharConvertor.unittest()
-
+    val str: String = "欢迎使用ansj_seg,(ansj中文分词)在这里如果你遇到什么问题都可以联系我.我一定尽我所能.帮助大家.ansj_seg更快,更准,更自由!"
+    println(ToAnalysis.parse(str))
 
     sc.stop()
   }
