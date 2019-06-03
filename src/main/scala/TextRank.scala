@@ -1,11 +1,14 @@
 import org.apache.spark.sql.SparkSession
+
 import scala.collection.mutable
 import org.apache.spark.rdd.RDD
+
 import scala.util.control.Breaks._
 import com.huaban.analysis.jieba.JiebaSegmenter
 import com.huaban.analysis.jieba.JiebaSegmenter.SegMode
+import jieba.jieba
 
-class TextRankWordSet extends Serializable{
+object TextRankWordSet extends Serializable{
 
   def transform(document: Iterable[_]): mutable.HashMap[String, mutable.HashSet[String]] ={
     val keyword = mutable.HashMap.empty[String, mutable.HashSet[String]]
@@ -145,9 +148,7 @@ object TextRank {
     return res
   }
 
-
-
-  def unit_test(park: SparkSession): Unit = {
+  def unit_test(spark: SparkSession): Unit = {
     //训练词向量
 
     val text="朝鲜外相今抵新加坡，穿黑西装打紫色领带，将与多国外长会谈。朝鲜外相李勇浩今抵新加坡。朝中社英文版2日的报道称，李勇浩率领朝鲜代表团于当天启程，除了新加坡，他还将访问伊朗。"
@@ -162,9 +163,12 @@ object TextRank {
         val score=pageRank(metric,ranks,line)
         line->score
       }.toMap
-      res.foreach(str=>println("句子"+str._1+"=="+str._2))
+      res.foreach(str=>println("词"+str._1+"=="+str._2))
       //更新第一次循环后的得分
       res.map(str=>ranks.update(str._1,str._2))
     }
+
+    val tr = new TextRankKeyword()
+    println(tr.rank(TextRankWordSet.transform(cutWord(text))).toList.sortBy (-_._2))
   }
 }

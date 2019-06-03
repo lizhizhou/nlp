@@ -177,9 +177,9 @@ object NLP {
     //TestTextData.unittest(spark)
     //TfIdf.unittest(spark)
     // CharConvertor.unittest()
-    jieba.unit_test()
-    ansj.unit_test()
-
+    //jieba.unit_test()
+    //ansj.unit_test()
+    TextRank.unit_test(spark)
 
     sc.stop()
   }
