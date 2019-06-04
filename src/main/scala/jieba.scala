@@ -2,6 +2,7 @@ import com.huaban.analysis.jieba.JiebaSegmenter
 import com.huaban.analysis.jieba.JiebaSegmenter.SegMode
 import org.apache.spark.sql.functions._
 import scala.collection.JavaConversions._
+import scala.io.Source
 
 object jieba
 {
@@ -12,6 +13,11 @@ object jieba
   }
 
   def jieba_udf = udf((s: String) => jieba(s))
+
+  def stop_words() = {
+    val in =  getClass().getResourceAsStream("/stop_words.txt")
+    Source.fromInputStream(in).getLines.toSet
+  }
 
   def unit_test(): Unit =
   {
@@ -24,11 +30,11 @@ object jieba
       "结果婚的和尚未结过婚的",
        "这很亦可赛艇")
     for (sentence <- sentences) {
-      println(
-        jieba(sentence))
+        jieba(sentence).split(" ").filterNot(stop_words()).foreach(println)
     }
   }
   def main(args: Array[String]): Unit = {
     unit_test()
+
   }
 }
