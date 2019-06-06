@@ -9,3 +9,4 @@ build
 *.tar
 *.tar.gz
 projectFilesBackup*
+*.pyc
