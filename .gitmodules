@@ -13,3 +13,6 @@
 [submodule "jieba-analysis"]
 	path = jieba-analysis
 	url = https://github.com/lizhizhou/jieba-analysis.git
+[submodule "dict_build"]
+	path = dict_build
+	url = https://github.com/sing1ee/dict_build.git
