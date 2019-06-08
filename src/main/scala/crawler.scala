@@ -15,7 +15,7 @@ import net.ruippeixotog.scalascraper.model._
 import net.ruippeixotog.scalascraper.dsl.DSL._
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL.Parse._
-
+import org.apache.log4j.Logger
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -27,7 +27,7 @@ import java.nio.charset.StandardCharsets
   * @param filter url的过滤条件, 默认为true
   */
 class crawler(startPage: String, filter: (String => Boolean) = (url: String) => true, maxLink:Int=200) extends Serializable {
-
+  @transient lazy val log = Logger.getLogger(this.getClass)
   /**
     * 获取链接的正则表达式
     */
@@ -162,8 +162,8 @@ class crawler(startPage: String, filter: (String => Boolean) = (url: String) => 
         head => (head._1, head._2.mkString(","))
       }
     }catch{
-      case e:SocketTimeoutException => println(e.getStackTrace)
-      case e2:Exception => println(e2.getStackTrace)
+      case e:SocketTimeoutException => log.error(e.getStackTrace)
+      case e2:Exception => log.error(e2.getStackTrace)
     }finally {
       if(conn != null) conn.disconnect
       crawledPool.add(url)
@@ -196,7 +196,7 @@ class crawler(startPage: String, filter: (String => Boolean) = (url: String) => 
     .filter {
       link => !crawledPool.contains(link) && this.filter(link)
     }.map(link => link.replaceAll("#.*", ""))
-    println("find " + links.size + " links at page " + parentUrl)
+    log.info("find " + links.size + " links at page " + parentUrl)
     links
   }
 
@@ -257,6 +257,7 @@ class crawler(startPage: String, filter: (String => Boolean) = (url: String) => 
     if(html.isEmpty) return ""
     val browser = JsoupBrowser()
     val htmldom = browser.parseString(html)
+    log.trace(html)
     val title = (htmldom >> texts("title")).mkString(" ")
     val content = (htmldom >> texts("p")).mkString(" ")
     //map (_.replaceAll("<br />|&nbsp;+|\t+", ""))

@@ -7,12 +7,10 @@ import com.arangodb.entity.EdgeDefinition
 import com.arangodb.entity.GraphEntity
 import com.arangodb.model.GraphCreateOptions
 import org.apache.spark.sql.SparkSession
-
 import collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 import com.arangodb.velocypack.module.jdk8.VPackJdk8Module
 import com.arangodb.velocypack.module.scala.VPackScalaModule
-
 import scala.util.parsing.json.JSON
 import scala.reflect.ClassTag
 import java.io._

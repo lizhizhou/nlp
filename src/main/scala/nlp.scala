@@ -156,9 +156,9 @@ object NLP {
     ).toDF("id","root")
     linkdf.show(false)
 
-    val web = linkdf.select($"id", $"root", crawler.crawler_site($"root").as("content"))
-    val jiebaweb = web.select($"id", $"root", $"content", jieba.jieba_udf($"content").as("words"))
-    jiebaweb.show(false)
+//    val web = linkdf.select($"id", $"root", crawler.crawler_site($"root").as("content"))
+//    val jiebaweb = web.select($"id", $"root", $"content", jieba.jieba_udf($"content").as("words"))
+//    jiebaweb.show(false)
 
 //    val entity = web.select(cleanxml('content).as('doc))
 //          .select(explode(ssplit('doc)).as('sen))
