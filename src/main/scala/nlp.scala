@@ -42,7 +42,7 @@ object NLP {
     val spark = SparkSession.builder.appName("Simple Application").config(conf).getOrCreate()
     val sc = spark.sparkContext
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
-    import sqlContext.implicits._
+    import spark.implicits._
 
     def hasColumn(df: DataFrame, path: String) = Try(df(path)).isSuccess
     //val userComment = spark.read.parquet("/data/user_follow/")
@@ -156,7 +156,8 @@ object NLP {
     ).toDF("id","root")
     linkdf.show(false)
 
-//    val web = linkdf.select($"id", $"root", crawler.crawler_site($"root").as("content"))
+    val web = linkdf.select($"id", $"root", crawler.crawler_site($"root").as("content"))
+
 //    val jiebaweb = web.select($"id", $"root", $"content", jieba.jieba_udf($"content").as("words"))
 //    jiebaweb.show(false)
 
@@ -164,8 +165,12 @@ object NLP {
 //          .select(explode(ssplit('doc)).as('sen))
 //           .select('sen, tokenize('sen).as('words), ner('sen).as('nerTags), openie('sen).as('openie))
 //    entity.where(array_contains('nerTags, "PERSON")).show(true)
+    val data = Array(1, 2, 3, 4, 5)
+    val distData = sc.parallelize(data)
 
-    //Repl.start(spark,"", ("linkdf", linkdf), ("web",web))
+    import scala.tools.nsc.interpreter.NamedParam;
+    Repl.start("", ("spark", spark), ("distData",distData),
+      ("linkdf", linkdf), ("web", web))
 
     // LSH.unittest(spark)
 
