@@ -1,10 +1,14 @@
 import org.apache.spark.sql.SparkSession
 
-import scala.tools.nsc.Settings;
-import scala.tools.nsc.interpreter.ILoop;
+import scala.tools.nsc.Settings
+import scala.tools.nsc.interpreter.{ILoop, NamedParam};
 
 object Repl {
-  def start(spark: SparkSession, initialCommands:String = "") = {
+  def start(spark: SparkSession, args: NamedParam*) = {
+    val initialCommands =
+      """
+         import
+      """.stripMargin
     val repl = new ILoop {
       override def printWelcome() {
         echo("\n" +
@@ -35,6 +39,7 @@ object Repl {
         intp.beQuietDuring {
           intp.bind("spark", spark)
           intp.interpret(initialCommands)
+          args.toList.foreach(p => intp.bind(p))
         }
       }
     }

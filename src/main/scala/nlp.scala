@@ -67,7 +67,7 @@ object NLP {
 //    val input = textrdd.map { x => (x.hashCode(),x) }.toDF("id", "text")
 //    println(textrdd.foreach { println })
     //val text = "<xml>Stanford University is located in California. It is a great university.</xml>"
-//    val text = "<xml>克林顿说，华盛顿将逐步落实对韩国的经济援助。</xml>"
+    val text = "<xml>克林顿说，华盛顿将逐步落实对韩国的经济援助。</xml>"
 //    val input = Seq(
 //      (text.hashCode(), text)).toDF("id", "text")
 //        input.show()
@@ -180,7 +180,7 @@ object NLP {
     //jieba.unit_test()
     //ansj.unit_test()
     //TextRank.unit_test(spark)
-    Repl.start(spark)
+    Repl.start(spark,("text",text))
     sc.stop()
   }
 }
