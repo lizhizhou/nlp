@@ -4,10 +4,10 @@ import scala.tools.nsc.Settings
 import scala.tools.nsc.interpreter.{ILoop, NamedParam};
 
 object Repl {
-  def start(spark: SparkSession, args: NamedParam*) = {
+  def start(spark: SparkSession, Commands:String, args: NamedParam*) = {
     val initialCommands =
       """
-         import
+         import java.lang.Math
       """.stripMargin
     val repl = new ILoop {
       override def printWelcome() {
@@ -39,6 +39,7 @@ object Repl {
         intp.beQuietDuring {
           intp.bind("spark", spark)
           intp.interpret(initialCommands)
+          intp.interpret(String)
           args.toList.foreach(p => intp.bind(p))
         }
       }
