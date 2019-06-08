@@ -27,7 +27,6 @@ import org.apache.spark.ml.feature._
 import org.apache.spark.ml.linalg._
 import org.apache.spark.sql.types._
 
-
 object NLP {
 
   def main(args: Array[String]) {
@@ -153,14 +152,22 @@ object NLP {
     //  .option("rowTag", "book")
     //  .xml("newbooks.xml")
 
-//    val linkdf = Seq((1,"https://www.ulucu.com/")).toDF("id","root")
-//    val web = linkdf.select($"id", $"root", crawler.crawler_udf($"root").as("content"))
-//    //val jiebaweb = web.select($"id", $"root", $"content", jieba.jieba_udf($"content").as("words"))
-//
-//    val entity = web.select(cleanxml('content).as('doc))
-//          .select(explode(ssplit('doc)).as('sen))
-//           .select('sen, tokenize('sen).as('words), ner('sen).as('nerTags), openie('sen).as('openie))
-//    entity.where(array_contains('nerTags, "PERSON")).show(true)
+    val linkdf = Seq( //(1,"https://www.ulucu.com/")
+          //(2, "https://www.baidu.com/s?wd="+crawler.encode("孙智勇")),
+          (3, "https://www.google.com.hk/search?hl=en&q"+crawler.encode("孙智勇"))
+    ).toDF("id","root").na.drop()
+    linkdf.show(false)
+
+    val web = linkdf.select($"id", $"root", crawler.crawler_udf($"root").as("content"))
+    //val jiebaweb = web.select($"id", $"root", $"content", jieba.jieba_udf($"content").as("words"))
+    //web.show(false)
+
+    val entity = web.select(cleanxml('content).as('doc))
+          .select(explode(ssplit('doc)).as('sen))
+           .select('sen, tokenize('sen).as('words), ner('sen).as('nerTags), openie('sen).as('openie))
+    entity.where(array_contains('nerTags, "PERSON")).show(true)
+
+    Repl.start(spark,"", ("linkdf", linkdf), ("web",web))
 
     // LSH.unittest(spark)
 
@@ -180,7 +187,7 @@ object NLP {
     //jieba.unit_test()
     //ansj.unit_test()
     //TextRank.unit_test(spark)
-    Repl.start(spark,("text",text))
+
     sc.stop()
   }
 }

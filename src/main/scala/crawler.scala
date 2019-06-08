@@ -16,6 +16,9 @@ import net.ruippeixotog.scalascraper.dsl.DSL._
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL.Parse._
 
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
+
 //https://blog.csdn.net/liangyihuai/article/details/54698469
 /**
   *
@@ -279,6 +282,9 @@ object crawler{
     data.map{case (k,v) => v }.mkString(" ")
   }
   val crawler_udf = udf((link: String) => crawler_url(link))
+
+  def encode(path: String): String =
+    URLEncoder.encode(path, StandardCharsets.UTF_8.toString).toLowerCase
 
   def main(args:Array[String]): Unit ={
     new crawler("http://lizhizhou.github.io/", //http://www.example.com/,

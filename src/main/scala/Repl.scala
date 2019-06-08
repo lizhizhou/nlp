@@ -7,7 +7,7 @@ object Repl {
   def start(spark: SparkSession, Commands:String, args: NamedParam*) = {
     val initialCommands =
       """
-         import java.lang.Math
+         import java.lang.Math._
       """.stripMargin
     val repl = new ILoop {
       override def printWelcome() {
@@ -39,7 +39,7 @@ object Repl {
         intp.beQuietDuring {
           intp.bind("spark", spark)
           intp.interpret(initialCommands)
-          intp.interpret(String)
+          intp.interpret(Commands)
           args.toList.foreach(p => intp.bind(p))
         }
       }
