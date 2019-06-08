@@ -26,7 +26,7 @@ import java.nio.charset.StandardCharsets
   * @param outputPath 所爬取小说的存储路径，默认为当前目录下的crawl.txt文件.
   * @param filter url的过滤条件, 默认为true
   */
-class crawler(startPage: String, filter: (String => Boolean) = (url: String) => true) extends Serializable {
+class crawler(startPage: String, filter: (String => Boolean) = (url: String) => true, maxLink:Int=200) extends Serializable {
 
   /**
     * 获取链接的正则表达式
@@ -101,21 +101,23 @@ class crawler(startPage: String, filter: (String => Boolean) = (url: String) => 
       do{//线程池中还有任务在进行
         while(!LinksStack.isEmpty){//link栈不空
         val link = LinksStack.pop()
+          if(crawledPool.size() < maxLink) {
+            val future = new FutureTask[(Int, String, Map[String, String])](
+                new Callable[(Int, String, Map[String, String])]{
+                  @Override
+                  def call() = {
+                    getPageFromRemote(link)
+                  }
+                })
+            threadPool.execute(future)
 
-          val future = new FutureTask[(Int, String, Map[String, String])](
-              new Callable[(Int, String, Map[String, String])]{
-                @Override
-                def call() = {
-                  getPageFromRemote(link)
-                }
-              })
-          threadPool.execute(future)
+            val pageContent = future.get(this.READ_TIME_OUT, TimeUnit.SECONDS)._2
+            val tempLinks = parseCrawlLinks(link, pageContent)
 
-          val pageContent = future.get(this.READ_TIME_OUT, TimeUnit.SECONDS)._2
-          val tempLinks = parseCrawlLinks(link, pageContent)
-          tempLinks.filter(_.length() < maxLinklength)
-            .filter(!crawledPool.contains(_)).foreach(LinksStack.push(_))
-          result += (link -> pageContent)
+            tempLinks.filter(_.length() < maxLinklength)
+              .filter(!crawledPool.contains(_)).foreach(LinksStack.push(_))
+            result += (link -> pageContent)
+          }
         }
         Thread.sleep(200)
       }while(threadPool.getActiveCount != 0)
@@ -255,7 +257,7 @@ class crawler(startPage: String, filter: (String => Boolean) = (url: String) => 
     if(html.isEmpty) return ""
     val browser = JsoupBrowser()
     val htmldom = browser.parseString(html)
-    val title = htmldom >> text("title")
+    val title = (htmldom >> texts("title")).mkString(" ")
     val content = (htmldom >> texts("p")).mkString(" ")
     //map (_.replaceAll("<br />|&nbsp;+|\t+", ""))
     s"${title}\n${content}\n\n"
@@ -281,13 +283,24 @@ object crawler{
       filter = (url:String) => url.contains(link)).crawl()
     data.map{case (k,v) => v }.mkString(" ")
   }
-  val crawler_udf = udf((link: String) => crawler_url(link))
 
   def encode(path: String): String =
     URLEncoder.encode(path, StandardCharsets.UTF_8.toString).toLowerCase
 
+  def crawler_baidu_url(query:String) = {
+    val data = new crawler("http://www.baidu.com/s?wd="+crawler.encode(query),
+      filter = (url:String) => url.contains("http://www.baidu.com")).crawl()
+    data.map{case (k,v) => v }.mkString(" ")
+  }
+
+  val crawler_site = udf((link: String) => crawler_url(link))
+  val crawler_baidu = udf((link: String) => crawler_baidu_url(link))
+
   def main(args:Array[String]): Unit ={
-    new crawler("http://lizhizhou.github.io/", //http://www.example.com/,
-      filter = (url:String) => url.contains("http://lizhizhou.github.io/")).crawl("crawl.txt")
+//    new crawler("http://lizhizhou.github.io/", //http://www.example.com/,
+//      filter = (url:String) => url.contains("http://lizhizhou.github.io/")).crawl("crawl.txt")
+    new crawler("http://www.baidu.com/s?wd="+crawler.encode("孙智勇"),
+            filter = (url:String) =>url.contains("http://www.baidu.com")).crawl("crawl.txt")
+
   }
 }
