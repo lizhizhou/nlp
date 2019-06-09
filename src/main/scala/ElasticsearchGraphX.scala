@@ -6,8 +6,10 @@ import org.apache.spark.sql.Row
 import org.elasticsearch.spark.rdd.Metadata._
 import org.apache.spark.sql.{ DataFrame, SparkSession }
 import org.apache.spark.graphx.{ Edge, VertexId, Graph }
+import org.apache.log4j.Logger
 
 class ElasticsearchGraphX(spark: SparkSession) {
+  @transient lazy val log = Logger.getLogger(this.getClass)
   val sc = spark.sparkContext
   def toES(graph: Graph[String, String], index:String) {
     this.toES(TripleGraphX[String,String](spark, "object", "subject", "relation").toTriple(graph),index)
