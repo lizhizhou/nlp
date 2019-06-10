@@ -13,10 +13,11 @@ import com.arangodb.velocypack.module.jdk8.VPackJdk8Module
 import com.arangodb.velocypack.module.scala.VPackScalaModule
 import scala.util.parsing.json.JSON
 import scala.reflect.ClassTag
+import org.apache.log4j.Logger
 import java.io._
 
 class ArrangoGraphX(spark: SparkSession) extends Serializable {
-
+  @transient lazy val log = Logger.getLogger(this.getClass)
   private def hosts(hosts: String): List[(String, Int)] =
     hosts.split(",").map({ x =>
       val s = x.split(":")
