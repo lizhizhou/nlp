@@ -5,8 +5,10 @@ import org.apache.poi.POIXMLDocument;
 import org.apache.poi.POIXMLTextExtractor;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
+import org.apache.log4j.Logger
 
 class Office(spark: SparkSession) {
+  @transient lazy val log = Logger.getLogger(this.getClass)
   val sc = spark.sparkContext
   def openWord(path: String*) = {
     val pathRDD = sc.parallelize(path)
