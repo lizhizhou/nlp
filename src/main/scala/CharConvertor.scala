@@ -26,7 +26,13 @@ class CharConvertor {
     ) ++ Seq(if (skip == true) "" else r1.last)
     return r2.mkString
   }
-
+  def onlyChinese(s:String) = {
+      val re ="[\u4e00-\u9fa5]+".r
+      val matches = re.findFirstIn(s)
+      matches.mkString("")
+  }
+  def removePunctuation(s:String) = 
+      s.replaceAll("""\p{P}""","")
 }
 
 object CharConvertor {
@@ -202,5 +208,7 @@ object CharConvertor {
     println(convert.convert("jiao-dapei九九九数字小写"))
     println(convert.convert("🄐🄐🄐A🅰"))
     println(convert.convert("0️⃣0️⃣0️⃣0️⃣"))
+    println(convert.onlyChinese("test测试")
+    println(convert.removePunctuation("测试测试！！")
   }
 }
