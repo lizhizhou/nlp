@@ -1,6 +1,8 @@
+import org.apache.log4j.Logger
 // reference https://en.wikipedia.org/wiki/List_of_Unicode_characters
 // reference https://unicode.org/emoji/charts/full-emoji-list.html
 class CharConvertor {
+  @transient lazy val log = Logger.getLogger(this.getClass)
   def convert(input: String): String = {
     //        val charArray = input.toCharArray
     //        charArray.flatMap( c =>
