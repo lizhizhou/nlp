@@ -1,6 +1,8 @@
 FROM tensorflow/tensorflow:1.8.0-py3
 MAINTAINER Zhizhou Li <lizhizhou1983@gmail.com>
 RUN apt-get update
+RUN apt install -y tmux
+RUN apt install -y git
 RUN apt install -y python3-tk
 
 RUN mkdir ~/.pip
@@ -189,7 +191,6 @@ RUN rm -rf usr/*.whl
 RUN apt-get purge -f -y --auto-remove
 
 # Config 
-RUN apt install -y tmux
 RUN echo "network.host: 0.0.0.0" >> /etc/elasticsearch/elasticsearch.yml
 RUN echo "server.host: 0.0.0.0" >> /etc/kibana/kibana.yml
 RUN echo "\nnifi.web.http.port=9090" >> /usr/nifi-1.7.0/conf/nifi.properties
