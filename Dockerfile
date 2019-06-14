@@ -189,6 +189,7 @@ RUN rm -rf usr/*.whl
 RUN apt-get purge -f -y --auto-remove
 
 # Config 
+RUN apt install -y tmux
 RUN echo "network.host: 0.0.0.0" >> /etc/elasticsearch/elasticsearch.yml
 RUN echo "server.host: 0.0.0.0" >> /etc/kibana/kibana.yml
 RUN echo "\nnifi.web.http.port=9090" >> /usr/nifi-1.7.0/conf/nifi.properties
