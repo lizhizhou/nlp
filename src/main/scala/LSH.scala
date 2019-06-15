@@ -44,6 +44,10 @@ object LSH
     val model = mh.fit(vectorizedDf)
     val transform = model.transform(vectorizedDf)
 
+    transform.groupBy("hashValues").agg(collect_list($"discovery_id")
+      .alias("ids")).filter(size($"ids") > 1).select("ids")
+      .withColumn("group",monotonically_increasing_id()).show()
+
     val threshold = 0.5
     val result = model.approxSimilarityJoin(vectorizedDf, vectorizedDf, threshold)
     result.show()
