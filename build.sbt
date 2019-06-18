@@ -15,6 +15,7 @@ resolvers += Resolver.mavenLocal
 libraryDependencies ++= Seq(
   "log4j" % "log4j" % "1.2.17",
    "com.intel.analytics.bigdl" % "bigdl-SPARK_2.1" % "0.4.0",
+   "com.intel.analytics.zoo" % "zoo-core-dist-all" % "0.5.1",
    "databricks" %% "spark-corenlp" % "0.3.2-SNAPSHOT" classifier "assembly",
    "org.elasticsearch" %% "elasticsearch-spark-20" % "6.1.2",
    "neo4j-contrib" % "neo4j-spark-connector" % "2.1.0-M4",
