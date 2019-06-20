@@ -1,5 +1,5 @@
-import org.apache.spark.ml.feature.{MinHashLSH, CountVectorizer, CountVectorizerModel, Tokenizer}
-import org.apache.spark.ml.linalg.{Vectors, Vector}
+import org.apache.spark.ml.feature._
+import org.apache.spark.ml.linalg.{Vector, Vectors}
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.DataTypes
@@ -55,5 +55,20 @@ object LSH
     val key = Vectors.sparse(vocabSize, Seq((cvModel.vocabulary.indexOf("结婚"), 1.0)))
     val k = 40
     model.approxNearestNeighbors(vectorizedDf, key, k).show()
+
+
+    val brp = new BucketedRandomProjectionLSH()
+      .setBucketLength(2.0)
+      .setNumHashTables(3)
+      .setInputCol("features")
+      .setOutputCol("hashes")
+
+    val brpmodel = brp.fit(vectorizedDf)
+
+    // Feature Transformation
+    println("The hashed dataset where hashed values are stored in the column 'hashes':")
+    brpmodel.transform(vectorizedDf).show()
+    brpmodel.approxSimilarityJoin(vectorizedDf, vectorizedDf, threshold).show()
+    brpmodel.approxNearestNeighbors(vectorizedDf, key, k).show()
   }
 }
