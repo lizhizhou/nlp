@@ -34,7 +34,8 @@ libraryDependencies ++= Seq(
    "net.ruippeixotog" %% "scala-scraper" % "2.1.0",
    "io.lemonlabs" %% "scala-uri" % "1.4.5",
    "org.ansj" % "ansj_seg" % "5.1.6",
-   "com.hankcs" % "hanlp" % "portable-1.7.3"
+   "com.hankcs" % "hanlp" % "portable-1.7.3",
+   "org.tensorflow" %% "spark-tensorflow-connector" % "1.13.1"
 )
 
 mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
