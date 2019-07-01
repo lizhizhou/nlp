@@ -210,7 +210,7 @@ object CharConvertor {
     println(convert.convert("jiao-dapei九九九数字小写"))
     println(convert.convert("🄐🄐🄐A🅰"))
     println(convert.convert("0️⃣0️⃣0️⃣0️⃣"))
-    println(convert.onlyChinese("test测试")
-    println(convert.removePunctuation("测试测试！！")
+    println(convert.onlyChinese("test测试"))
+    println(convert.removePunctuation("测试测试！！"))
   }
 }

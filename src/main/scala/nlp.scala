@@ -168,11 +168,11 @@ object NLP {
     val data = Array(1, 2, 3, 4, 5)
     val distData = sc.parallelize(data)
 
-    import scala.tools.nsc.interpreter.NamedParam;
-    Repl.start("", ("spark", spark), ("distData",distData),
-      ("linkdf", linkdf), ("web", web))
+    //import scala.tools.nsc.interpreter.NamedParam;
+    //Repl.start("", ("spark", spark), ("distData",distData),
+    //  ("linkdf", linkdf), ("web", web))
 
-    // LSH.unittest(spark)
+    LSH.unittest(spark)
 
      //Word representation learning//Word representation learning
     //val fastText = FastText.train(new File("train.data"), ModelName.sg)
@@ -190,7 +190,7 @@ object NLP {
     //jieba.unit_test()
     //ansj.unit_test()
     //TextRank.unit_test(spark)
-
+    web.write.format("tfrecords").option("writeLocality", "local").save("/path")
     sc.stop()
   }
 }

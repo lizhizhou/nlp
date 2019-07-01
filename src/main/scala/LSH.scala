@@ -69,6 +69,7 @@ object LSH
     println("The hashed dataset where hashed values are stored in the column 'hashes':")
     brpmodel.transform(vectorizedDf).show()
     brpmodel.approxSimilarityJoin(vectorizedDf, vectorizedDf, threshold).show()
-    brpmodel.approxNearestNeighbors(vectorizedDf, key, k).show()
+    //brpmodel.approxNearestNeighbors(vectorizedDf, key, k).show()
+
   }
 }
