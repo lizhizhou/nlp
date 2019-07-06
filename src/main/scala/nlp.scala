@@ -157,7 +157,7 @@ object NLP {
     linkdf.show(false)
 
     val web = linkdf.select($"id", $"root", crawler.crawler_site($"root").as("content"))
-
+    //spark.sql("SELECT xpath('<a><b>b1</b><b>b2</b><b>b3</b><c>c1</c><c>c2</c></a>','a/b/text()')").show
 //    val jiebaweb = web.select($"id", $"root", $"content", jieba.jieba_udf($"content").as("words"))
 //    jiebaweb.show(false)
 
