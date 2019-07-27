@@ -18,7 +18,7 @@ import java.io._
 
 // limit the partitions of data to the number of arango instances to avoid open too many tcp session and file lock
 
-class ArrangoGraphX(spark: SparkSession) extends Serializable {
+class ArangoGraphX(spark: SparkSession) extends Serializable {
   @transient lazy val log = Logger.getLogger(this.getClass)
   private def hosts(hosts: String): List[(String, Int)] =
     hosts.split(",").map({ x =>
@@ -29,7 +29,7 @@ class ArrangoGraphX(spark: SparkSession) extends Serializable {
         (s(0), s(1).toInt)
     }).toList
 
-  private def getdb(opt: ArrangoGraphX.ArrangoOption): ArangoDB =
+  private def getdb(opt: ArangoGraphX.ArangoOption): ArangoDB =
     {
       val builder = new ArangoDB.Builder()
       builder.registerModules(new VPackJdk8Module, new VPackScalaModule)
@@ -38,22 +38,22 @@ class ArrangoGraphX(spark: SparkSession) extends Serializable {
       opt.password.foreach { builder.password(_) }
       builder.build();
     }
-  private def getconf(conf: SparkConf): ArrangoGraphX.ArrangoOption = {
+  private def getconf(conf: SparkConf): ArangoGraphX.ArangoOption = {
     val propertyHosts = "spark.arangodb.hosts"
     val propertyUser = "spark.arangodb.user"
     val propertyPassword = "spark.arangodb.password"
     val hosts = Some(conf.get(propertyHosts, null))
     val user = Some(conf.get(propertyUser, null))
     val password = Some(conf.get(propertyPassword, null))
-    ArrangoGraphX.ArrangoOption(hosts, user, password)
+    ArangoGraphX.ArangoOption(hosts, user, password)
   }
 
   def toGraphX(database: String, vertex: String, edge: String) = {
     val sc = spark.sparkContext
 
-    val edges = ArangoSpark.load[ArrangoGraphX.link](sc, edge, ReadOptions(database))
+    val edges = ArangoSpark.load[ArangoGraphX.link](sc, edge, ReadOptions(database))
 
-    val vertexs = ArangoSpark.load[ArrangoGraphX.point](sc, vertex, ReadOptions(database))
+    val vertexs = ArangoSpark.load[ArangoGraphX.point](sc, vertex, ReadOptions(database))
 
     // Create an RDD for vertex
     val concept: RDD[(VertexId, String)] = vertexs.map(x => (x.concept.hashCode(), x.concept))
@@ -95,28 +95,28 @@ class ArrangoGraphX(spark: SparkSession) extends Serializable {
     // Add vertex and edge element 
     val g = db.graph(graphdb)
 
-    ArangoSpark.save[ArrangoGraphX.point](graph.vertices.map(x => ArrangoGraphX.point(x._2.hashCode.toString, x._2)),vertex, WriteOptions(database));
-    ArangoSpark.save[ArrangoGraphX.link](graph.triplets.map(x => ArrangoGraphX.link(vertex + '/' + x.srcAttr.hashCode.toString, vertex + '/' + x.dstAttr.hashCode.toString, x.attr)),edge, WriteOptions(database));
+    ArangoSpark.save[ArangoGraphX.point](graph.vertices.map(x => ArangoGraphX.point(x._2.hashCode.toString, x._2)),vertex, WriteOptions(database));
+    ArangoSpark.save[ArangoGraphX.link](graph.triplets.map(x => ArangoGraphX.link(vertex + '/' + x.srcAttr.hashCode.toString, vertex + '/' + x.dstAttr.hashCode.toString, x.attr)),edge, WriteOptions(database));
 
-    //graph.vertices.map(x => ArrangoGraphX.point(x._2.hashCode.toString, x._2)).take(20).foreach { println }
-    //graph.triplets.map(x => ArrangoGraphX.link(x.srcAttr.hashCode().toString, x.dstAttr.hashCode.toString, x.attr)).take(20).foreach { println }
-
-    //    graph.vertices.foreachPartition(iter => {
-    //      val arangoDB = getdb(getconf(conf))
-    //      val db = arangoDB.db(database)
-    //      val g = db.graph(graphdb)
-    //      iter.foreach(x => g.vertexCollection(vertex).insertVertex(ArrangoGraphX.point(x._2.hashCode.toString, x._2), null))
-    //    })
-    //    graph.triplets.foreachPartition(iter => {
-    //      val arangoDB = getdb(getconf(conf))
-    //      val db = arangoDB.db(database)
-    //      val g = db.graph(graphdb)
-    //      iter.foreach(x => g.edgeCollection(edge).insertEdge(ArrangoGraphX.link(vertex + '/' + x.srcAttr.hashCode.toString, vertex + '/' + x.dstAttr.hashCode.toString, x.attr)))
-    //    })
+//    graph.vertices.map(x => ArangoGraphX.point(x._2.hashCode.toString, x._2)).take(20).foreach { println }
+//    graph.triplets.map(x => ArangoGraphX.link(x.srcAttr.hashCode().toString, x.dstAttr.hashCode.toString, x.attr)).take(20).foreach { println }
+//
+//        graph.vertices.foreachPartition(iter => {
+//          val arangoDB = getdb(getconf(conf))
+//          val db = arangoDB.db(database)
+//          val g = db.graph(graphdb)
+//          iter.foreach(x => g.vertexCollection(vertex).insertVertex(ArangoGraphX.point(x._2.hashCode.toString, x._2), null))
+//        })
+//        graph.triplets.foreachPartition(iter => {
+//          val arangoDB = getdb(getconf(conf))
+//          val db = arangoDB.db(database)
+//          val g = db.graph(graphdb)
+//          iter.foreach(x => g.edgeCollection(edge).insertEdge(ArangoGraphX.link(vertex + '/' + x.srcAttr.hashCode.toString, vertex + '/' + x.dstAttr.hashCode.toString, x.attr)))
+//        })
   }
 
   // Use arangoimp --file "data.csv" --type csv --collection "users" to import data
-  def toArrangoImp(graph: Graph[String, String], vertexFile:String, vertexAttr:String, edgeFile: String, edgeAttr: String, vertexName: String): Unit = {
+  def toArangoImp(graph: Graph[String, String], vertexFile:String, vertexAttr:String, edgeFile: String, edgeAttr: String, vertexName: String): Unit = {
     val vertexOut = new PrintWriter(new BufferedWriter(new FileWriter(vertexFile)));
     val edgeOut = new PrintWriter(new BufferedWriter(new FileWriter(edgeFile)));
     vertexOut.println("_key,"+vertexAttr)
@@ -127,24 +127,24 @@ class ArrangoGraphX(spark: SparkSession) extends Serializable {
   }
 }
 
-object ArrangoGraphX {
+object ArangoGraphX {
   case class link(_from: String, _to: String, relation: String) {
     def this() = this("", "", "")
   }
   case class point(_key: String, concept: String) {
     def this() = this("", "")
   }
-  case class ArrangoOption(hosts: Option[String], user: Option[String], password: Option[String]) {
+  case class ArangoOption(hosts: Option[String], user: Option[String], password: Option[String]) {
   }
 
-  def apply(spark: SparkSession) = new ArrangoGraphX(spark)
+  def apply(spark: SparkSession) = new ArangoGraphX(spark)
 
   def unitTest(spark: SparkSession)
   {
     val graph = TestKnowledgeGraph(spark)
-    val arrango = ArrangoGraphX(spark)
-    val ag = arrango.toArrango(graph, "test", "graphdb", "vertex", "edge")
-    arrango.toGraphX("test", "vertex", "edge")
+    val arango = ArangoGraphX(spark)
+    val ag = arango.toArrango(graph, "test", "graphdb", "vertex", "edge")
+    arango.toGraphX("test", "vertex", "edge")
   }
   //    case class Concept(name: String)
   //    case class Triple(obj: String, rel: String, subject: String)

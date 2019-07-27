@@ -59,7 +59,7 @@ object NLP {
     //RDF.unitTest(spark); return
     //ElasticsearchGraphX.unitTest(spark)
     //GrokPattern.unitTest()
-    //ArrangoGraphX.unitTest(spark)
+    //ArangoGraphX.unitTest(spark)
     
 //    val office = Office(spark)
 //    val textrdd = office.openWord(Seq("/home/bigdata/test.docx"):_ *)
@@ -97,7 +97,7 @@ object NLP {
 //    val tf = tg.toTriple(tg.toGraphX(triple))
 //    tf.show(10)
 //    triple.show(10)
-//    val ag = ArrangoGraphX(spark)
+//    val ag = ArangoGraphX(spark)
 //    ag.toArrango(tg.toGraphX(triple), "test", "node2vec", "concept", "link")
 //    tg.toTriple(ag.toGraphX("test", "concept", "link")).show(10)
 
