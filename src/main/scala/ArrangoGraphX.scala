@@ -16,6 +16,8 @@ import scala.reflect.ClassTag
 import org.apache.log4j.Logger
 import java.io._
 
+// limit the partitions of data to the number of arango instances to avoid open too many tcp session and file lock
+
 class ArrangoGraphX(spark: SparkSession) extends Serializable {
   @transient lazy val log = Logger.getLogger(this.getClass)
   private def hosts(hosts: String): List[(String, Int)] =
