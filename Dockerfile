@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:1.8.0-py3
+FROM tensorflow/tensorflow:1.12.0-py3
 MAINTAINER Zhizhou Li <lizhizhou1983@gmail.com>
 RUN apt-get update
 RUN apt install -y tmux
