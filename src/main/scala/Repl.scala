@@ -41,7 +41,7 @@ object Repl {
           intp.interpret(initialCommands)
           intp.interpret(Commands)
           args.toList.foreach(p => {
-            log.info(p)
+            log.trace(p)
             if (p.tpe == "org.apache.spark.sql.Dataset") intp.bind(p.name,"org.apache.spark.sql.DataFrame",p.value)
             else intp.bind(p)
           })
