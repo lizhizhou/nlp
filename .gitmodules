@@ -16,3 +16,6 @@
 [submodule "dict_build"]
 	path = dict_build
 	url = https://github.com/sing1ee/dict_build.git
+[submodule "spark-tsne"]
+	path = spark-tsne
+	url = https://github.com/lizhizhou/spark-tsne.git
