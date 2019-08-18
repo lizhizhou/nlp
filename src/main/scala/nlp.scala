@@ -39,6 +39,7 @@ object NLP {
       .set("es.index.auto.create", "true")
       .set("spark.neo4j.bolt.user", "neo4j")
       .set("spark.neo4j.bolt.password", "lab123")
+      .set("spark.sql.crossJoin.enabled", "true")
     val spark = SparkSession.builder.appName("Simple Application").config(conf).getOrCreate()
     val sc = spark.sparkContext
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
