@@ -11,3 +11,4 @@ build
 projectFilesBackup*
 *.pyc
 *.gz
+.DS_Store
