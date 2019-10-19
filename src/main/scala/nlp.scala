@@ -193,6 +193,7 @@ object NLP {
     //jieba.unit_test()
     //ansj.unit_test()
     //TextRank.unit_test(spark)
+    web.dropDuplicates(Seq("test"))
     web.write.format("tfrecords").option("writeLocality", "local").save("/path")
     sc.stop()
   }
