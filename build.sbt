@@ -14,8 +14,8 @@ resolvers += Resolver.mavenLocal
 
 libraryDependencies ++= Seq(
   "log4j" % "log4j" % "1.2.17",
-   "com.intel.analytics.bigdl" % "bigdl-SPARK_2.1" % "0.4.0",
-   "com.intel.analytics.zoo" % "zoo-core-dist-all" % "0.5.1",
+   "com.intel.analytics.bigdl" % "bigdl-SPARK_2.1" % "0.8.0",
+   "com.intel.analytics.zoo" % "analytics-zoo-bigdl_0.9.1-spark_2.4.3" % "0.6.0-SNAPSHOT",
    "com.johnsnowlabs.nlp" %% "spark-nlp" % "2.1.0",
    "databricks" %% "spark-corenlp" % "0.3.2-SNAPSHOT" classifier "assembly",
    "org.elasticsearch" %% "elasticsearch-spark-20" % "6.1.2",
@@ -36,7 +36,8 @@ libraryDependencies ++= Seq(
    "io.lemonlabs" %% "scala-uri" % "1.4.5",
    "org.ansj" % "ansj_seg" % "5.1.6",
    "com.hankcs" % "hanlp" % "portable-1.7.3",
-   "org.tensorflow" %% "spark-tensorflow-connector" % "1.13.1"
+   "org.tensorflow" %% "spark-tensorflow-connector" % "1.13.1",
+   "io.minio" %% "spark-select" % "2.1"
 )
 
 mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
