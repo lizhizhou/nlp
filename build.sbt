@@ -10,12 +10,12 @@ sparkComponents ++= Seq("streaming", "sql", "graphx", "mllib")
 
 spAppendScalaVersion := true
 
+resolvers += "ossrh repository" at "https://oss.sonatype.org/content/repositories/snapshots/"
 resolvers += Resolver.mavenLocal
 
 libraryDependencies ++= Seq(
   "log4j" % "log4j" % "1.2.17",
-   "com.intel.analytics.bigdl" % "bigdl-SPARK_2.1" % "0.8.0",
-   "com.intel.analytics.zoo" % "analytics-zoo-bigdl_0.9.1-spark_2.4.3" % "0.6.0-SNAPSHOT",
+   "com.intel.analytics.zoo" % "analytics-zoo-bigdl_0.9.1-spark_2.1.1" % "0.6.0",
    "com.johnsnowlabs.nlp" %% "spark-nlp" % "2.1.0",
    "databricks" %% "spark-corenlp" % "0.3.2-SNAPSHOT" classifier "assembly",
    "org.elasticsearch" %% "elasticsearch-spark-20" % "6.1.2",
