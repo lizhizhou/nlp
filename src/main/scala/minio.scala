@@ -19,7 +19,7 @@ object minio {
       )
     )
 
-    val df = spark.read.format("minioSelectJSON").schema(schema).load("s3://test/people.json")
+    val df = spark.read.format("io.minio.spark.select.SelectJSONSource").schema(schema).load("s3://test/people.json")
 
     println(df.show())
   }
