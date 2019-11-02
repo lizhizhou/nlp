@@ -18,14 +18,17 @@ import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import com.intel.analytics.bigdl.utils.{Engine, LoggerFilter, T}
 import com.navercorp.Node2vec
 import com.softwaremill.debug.DebugMacros._
+
 import scala.util.Try
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.ml.feature.Word2Phrase
-//import com.mayabot.mynlp.fasttext._
+import com.mayabot.mynlp.fasttext._
+import jieba.jieba
 import org.apache.spark.sql.functions.{col, udf}
 import org.apache.spark.ml.feature._
 import org.apache.spark.ml.linalg._
 import org.apache.spark.sql.types._
+
 
 object NLP {
 
@@ -153,11 +156,12 @@ object NLP {
     //  .option("rowTag", "book")
     //  .xml("newbooks.xml")
 
-    val linkdf = Seq((1,"https://www.ulucu.com/")
-    ).toDF("id","root")
-    linkdf.show(false)
-
-    val web = linkdf.select($"id", $"root", crawler.crawler_site($"root").as("content"))
+//    val linkdf = Seq((1,"https://www.ulucu.com/")
+//    ).toDF("id","root")
+//    linkdf.show(false)
+//
+//    val web = linkdf.select($"id", $"root", crawler.crawler_site($"root").as("content"))
+//    web.write.format("tfrecords").option("writeLocality", "local").save("/path")
 
     //spark.sql("SELECT xpath('<a><b>b1</b><b>b2</b><b>b3</b><c>c1</c><c>c2</c></a>','a/b/text()')").show
 
@@ -175,25 +179,24 @@ object NLP {
     //Repl.start("", ("spark", spark), ("distData",distData),
     //  ("linkdf", linkdf), ("web", web))
 
-    LSH.unittest(spark)
-
-     //Word representation learning//Word representation learning
-    //val fastText = FastText.train(new File("train.data"), ModelName.sg)
+    // Word representation learning//Word representation learning
+    // val fastText = FastText.train(new File("train.data"), ModelName.sg)
     // Text classification
-    //val fastText = FastText.train(new File("train.data"), ModelName.sup)
+    // val fastText = FastText.train(new File("train.data"), ModelName.sup)
+    // fastText.saveModel("path/data.model")
+    // val fastText = FastText.loadModel("path/data.model", true)
+    val fastText = FastText.loadFasttextBinModel("cc.zh.300.bin")
+    import collection.JavaConverters._
+    val predict = fastText.predict(jieba.jieba("fastText在预测标签时使用了非线性激活函数").split(" ").toIterable.asJava, 2)
 
-    //fastText.saveModel("path/data.model")
-    //val fastText = FastText.loadModel("path/data.model", true)
-
-//    val fastText = FastText.loadFasttextBinModel("path/wiki.bin")
-//    val predict = fastText.predict(Arrays.asList("fastText在预测标签时使用了非线性激活函数".split(" ")), 5)
     //TestTextData.unittest(spark)
     //TfIdf.unittest(spark)
     // CharConvertor.unittest()
     //jieba.unit_test()
     //ansj.unit_test()
     //TextRank.unit_test(spark)
-    web.write.format("tfrecords").option("writeLocality", "local").save("/path")
+    //LSH.unittest(spark)
+
     sc.stop()
   }
 }

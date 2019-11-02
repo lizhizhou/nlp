@@ -15,8 +15,18 @@ case class User(userId: Int, gender: String, age: Int, occupation: Int)
 case class Item(itemId: Int, title: String, genres: String)
 
 object Ml1mWideAndDeep {
+  case class WNDParams(dataset: String = "ml-1m",
+                       modelType: String = "wide_n_deep",
+                       inputDir: String = "./data/ml-1m/",
+                       batchSize: Int = 2048,
+                       maxEpoch: Int = 10,
+                       logDir: Option[String] = None,
+                       memoryType: String = "DRAM")
 
-  def run(params: WNDParams): Unit = {
+  case class Rating(userId: Int, itemId: Int, label: Int)
+
+  def main(): Unit = {
+    val params = WNDParams()
     Logger.getLogger("org").setLevel(Level.ERROR)
     val conf = new SparkConf().setAppName("WideAndDeepExample")
     val sc = NNContext.initNNContext(conf)
