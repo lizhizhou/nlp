@@ -185,9 +185,9 @@ object NLP {
     // val fastText = FastText.train(new File("train.data"), ModelName.sup)
     // fastText.saveModel("path/data.model")
     // val fastText = FastText.loadModel("path/data.model", true)
-    val fastText = FastText.loadFasttextBinModel("cc.zh.300.bin")
-    import collection.JavaConverters._
-    val predict = fastText.predict(jieba.jieba("fastText在预测标签时使用了非线性激活函数").split(" ").toIterable.asJava, 2)
+//    val fastText = FastText.loadFasttextBinModel("cc.zh.300.bin")
+//    import collection.JavaConverters._
+//    val predict = fastText.predict(jieba.jieba("fastText在预测标签时使用了非线性激活函数").split(" ").toIterable.asJava, 2)
 
     //TestTextData.unittest(spark)
     //TfIdf.unittest(spark)
