@@ -1,13 +1,10 @@
 import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 class ownThink(spark: SparkSession, path:String) {
-  val ownThinkCsv = spark.read.csv(path)
+  val ownThinkCsv = spark.read.option("header", "true").csv(path)
   def toTriple() = {
-    ownThinkCsv
+    ownThinkCsv.toDF("object", "relation", "subject")
   }
-//  def getSchema() = StructType(Array(StructField(obj, StringType, nullable = true),
-//    StructField(rel, StringType, nullable = true),
-//    StructField(sub, StringType, nullable = true)))
 }
 
 object ownThink {
