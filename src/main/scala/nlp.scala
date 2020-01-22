@@ -196,7 +196,8 @@ object NLP {
     //ansj.unit_test()
     //TextRank.unit_test(spark)
     //LSH.unittest(spark)
-    ownThink.unitTest(spark)
+    //ownThink.unitTest(spark)
+    Office.unitTest(spark)
     sc.stop()
   }
 }

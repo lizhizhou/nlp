@@ -22,8 +22,9 @@ class Office(spark: SparkSession) {
 
 object Office {
   def apply(spark: SparkSession) = new Office(spark)
-  def unitTest()
+  def unitTest(spark: SparkSession)
   {
-    
+    val office = new Office(spark)
+    office.openWord("test.docx").collect().foreach(println)
   }
 }
