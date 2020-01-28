@@ -28,7 +28,7 @@ object Office {
     office.openWord("test.docx").collect().foreach(println)
     val df = spark.read
         .format("com.crealytics.spark.excel")
-        .option("sheetName", "Daily") // Required
+        .option("sheetName", "Sheet1") // Required
         .option("useHeader", "true") // Required
         .option("treatEmptyValuesAsNulls", "false") // Optional, default: true
         .option("inferSchema", "false") // Optional, default: false
