@@ -29,7 +29,6 @@ import org.apache.spark.ml.feature._
 import org.apache.spark.ml.linalg._
 import org.apache.spark.sql.types._
 
-
 object NLP {
 
   def main(args: Array[String]) {
@@ -48,7 +47,7 @@ object NLP {
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
     import spark.implicits._
 
-    def hasColumn(df: DataFrame, path: String) = Try(df(path)).isSuccess
+
     //val userComment = spark.read.parquet("/data/user_follow/")
 //    val userComment = spark.read.parquet("/tmp/user_follow")
 //    val triplet = userComment.select($"user_id", $"follow_source", $"target_user_id")
