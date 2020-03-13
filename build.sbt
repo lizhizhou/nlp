@@ -37,6 +37,7 @@ libraryDependencies ++= Seq(
    "org.ansj" % "ansj_seg" % "5.1.6",
    "com.hankcs" % "hanlp" % "portable-1.7.3",
    "org.tensorflow" %% "spark-tensorflow-connector" % "1.13.1",
+   "org.apache.iotdb" % "spark-tsfile" % "0.9.1",
    "io.minio" %% "spark-select" % "2.1"
 )
 
