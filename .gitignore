@@ -12,3 +12,5 @@ projectFilesBackup*
 *.pyc
 *.gz
 .DS_Store
+metastore_db
+dict-build
