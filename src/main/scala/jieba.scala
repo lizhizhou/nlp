@@ -4,7 +4,7 @@ import org.apache.spark.sql.functions._
 import scala.collection.JavaConversions._
 import scala.io.Source
 
-object jieba
+object Jieba
 {
   def jieba(s:String) =  {
     val segmenter = new JiebaSegmenter()

@@ -28,7 +28,7 @@ object LSH
       (16, "同居多年未办理结婚登记，是否可以向法院起诉要求离婚")
     ).toDF("discovery_id", "content")
 
-    val dfUsed = note.select($"discovery_id", $"content", jieba.jieba_udf($"content").as("words"))
+    val dfUsed = note.select($"discovery_id", $"content", Jieba.jieba_udf($"content").as("words"))
     // Tokenize the wiki content
     val tokenizer = new Tokenizer().setInputCol("words").setOutputCol("word")
     val wordsDf = tokenizer.transform(dfUsed)

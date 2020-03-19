@@ -6,7 +6,7 @@ import org.apache.spark.rdd.RDD
 import scala.util.control.Breaks._
 import com.huaban.analysis.jieba.JiebaSegmenter
 import com.huaban.analysis.jieba.JiebaSegmenter.SegMode
-import jieba.jieba
+import Jieba.jieba
 
 object TextRankWordSet extends Serializable{
 

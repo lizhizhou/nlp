@@ -23,7 +23,7 @@ import scala.util.Try
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.ml.feature.Word2Phrase
 import com.mayabot.mynlp.fasttext._
-import jieba.jieba
+import Jieba.jieba
 import org.apache.spark.sql.functions.{col, udf}
 import org.apache.spark.ml.feature._
 import org.apache.spark.ml.linalg._
@@ -72,7 +72,7 @@ object NLP {
     val text = "<xml>克林顿说，华盛顿将逐步落实对韩国的经济援助。</xml>"
 //    val input = Seq(
 //      (text.hashCode(), text)).toDF("id", "text")
-//        input.show()
+    //        input.show()
 //
 //    val output = input
 //      .select(cleanxml('text).as('doc))
@@ -155,8 +155,8 @@ object NLP {
 //          .select(explode(ssplit('doc)).as('sen))
 //           .select('sen, tokenize('sen).as('words), ner('sen).as('nerTags), openie('sen).as('openie))
 //    entity.where(array_contains('nerTags, "PERSON")).show(true)
-    val data = Array(1, 2, 3, 4, 5)
-    val distData = sc.parallelize(data)
+//    val data = Array(1, 2, 3, 4, 5)
+//    val distData = sc.parallelize(data)
 
     //import scala.tools.nsc.interpreter.NamedParam;
     //Repl.start("", ("spark", spark), ("distData",distData),
@@ -170,17 +170,18 @@ object NLP {
     // val fastText = FastText.loadModel("path/data.model", true)
 //    val fastText = FastText.loadFasttextBinModel("cc.zh.300.bin")
 //    import collection.JavaConverters._
-//    val predict = fastText.predict(jieba.jieba("fastText在预测标签时使用了非线性激活函数").split(" ").toIterable.asJava, 2)
+//    val predict = fastText.predict(Jieba.jieba("fastText在预测标签时使用了非线性激活函数").split(" ").toIterable.asJava, 2)
 
     //TestTextData.unittest(spark)
     //TfIdf.unittest(spark)
     // CharConvertor.unittest()
-    //jieba.unit_test()
+    //Jieba.unit_test()
     //ansj.unit_test()
     //TextRank.unit_test(spark)
     //LSH.unittest(spark)
     //ownThink.unitTest(spark)
     Office.unitTest(spark)
+    //Image.unitTest(spark)
     sc.stop()
   }
 }
