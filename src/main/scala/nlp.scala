@@ -180,8 +180,8 @@ object NLP {
     //TextRank.unit_test(spark)
     //LSH.unittest(spark)
     //ownThink.unitTest(spark)
-    Office.unitTest(spark)
-    //Image.unitTest(spark)
+    //Office.unitTest(spark)
+    Image.unitTest(spark)
     sc.stop()
   }
 }
