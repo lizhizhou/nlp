@@ -182,6 +182,7 @@ object NLP {
     //ownThink.unitTest(spark)
     //Office.unitTest(spark)
     Image.unitTest(spark)
+    LPA.unitTest(spark)
     sc.stop()
   }
 }
