@@ -144,7 +144,6 @@ object NLP {
 //    linkdf.show(false)
 //
 //    val web = linkdf.select($"id", $"root", crawler.crawler_site($"root").as("content"))
-//    web.write.format("tfrecords").option("writeLocality", "local").save("/path")
 
     //spark.sql("SELECT xpath('<a><b>b1</b><b>b2</b><b>b3</b><c>c1</c><c>c2</c></a>','a/b/text()')").show
 
@@ -171,8 +170,12 @@ object NLP {
 //    val fastText = FastText.loadFasttextBinModel("cc.zh.300.bin")
 //    import collection.JavaConverters._
 //    val predict = fastText.predict(Jieba.jieba("fastText在预测标签时使用了非线性激活函数").split(" ").toIterable.asJava, 2)
+    //    web.
 
-    //TestTextData.unittest(spark)
+    //TestTextData.wordDataFrame.toDF("label", "inputWords")
+    //  .write.format("tfrecords").option("writeLocality", "local").save("tfrecord")
+
+    TestTextData.unittest(spark)
     //TfIdf.unittest(spark)
     // CharConvertor.unittest()
     //Jieba.unit_test()
