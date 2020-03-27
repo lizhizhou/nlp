@@ -172,8 +172,8 @@ object NLP {
 //    val predict = fastText.predict(Jieba.jieba("fastText在预测标签时使用了非线性激活函数").split(" ").toIterable.asJava, 2)
     //    web.
 
-    //TestTextData.wordDataFrame.toDF("label", "inputWords")
-    //  .write.format("tfrecords").option("writeLocality", "local").save("tfrecord")
+//    TestTextData.wordDataFrame.toDF("label", "inputWords")
+//      .write.format("org.tensorflow.spark.datasources.tfrecords").option("writeLocality", "local").save("tfrecord")
 
     TestTextData.unittest(spark)
     //TfIdf.unittest(spark)
