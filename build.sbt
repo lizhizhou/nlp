@@ -43,6 +43,7 @@ libraryDependencies ++= Seq(
 
 mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
   {
+    case "META-INF/services/org.apache.spark.sql.sources.DataSourceRegister" => MergeStrategy.concat
     case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
     case PathList("org", "slf4j", xs @ _*)         => MergeStrategy.first
     case PathList("org", "apache", xs @ _*)         => MergeStrategy.first
