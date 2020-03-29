@@ -175,7 +175,7 @@ object NLP {
 //    TestTextData.wordDataFrame.toDF("label", "inputWords")
 //      .write.format("org.tensorflow.spark.datasources.tfrecords").option("writeLocality", "local").save("tfrecord")
 
-    TestTextData.unittest(spark)
+    //TestTextData.unittest(spark)
     //TfIdf.unittest(spark)
     // CharConvertor.unittest()
     //Jieba.unit_test()
@@ -184,8 +184,8 @@ object NLP {
     //LSH.unittest(spark)
     //ownThink.unitTest(spark)
     //Office.unitTest(spark)
-    Image.unitTest(spark)
-    LPA.unitTest(spark)
+    //Image.unitTest(spark)
+    //LPA.unitTest(spark)
     sc.stop()
   }
 }
