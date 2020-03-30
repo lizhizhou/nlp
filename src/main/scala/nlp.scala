@@ -1,11 +1,10 @@
 import java.io.File
 
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{DataFrame, Row, SaveMode, SparkSession}
 import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
 import org.apache.spark._
 import org.apache.spark.graphx.{Edge, Graph, VertexId}
-import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions._
 import com.databricks.spark.corenlp.functions._
@@ -20,7 +19,6 @@ import com.navercorp.Node2vec
 import com.softwaremill.debug.DebugMacros._
 
 import scala.util.Try
-import org.apache.spark.sql.DataFrame
 import org.apache.spark.ml.feature.Word2Phrase
 import com.mayabot.mynlp.fasttext._
 import Jieba.jieba
@@ -172,8 +170,8 @@ object NLP {
 //    val predict = fastText.predict(Jieba.jieba("fastText在预测标签时使用了非线性激活函数").split(" ").toIterable.asJava, 2)
     //    web.
 
-//    TestTextData.wordDataFrame.toDF("label", "inputWords")
-//      .write.format("org.tensorflow.spark.datasources.tfrecords").option("writeLocality", "local").save("tfrecord")
+    TestTextData.wordDataFrame.toDF("label", "inputWords")
+      .write.mode(SaveMode.Overwrite).format("org.tensorflow.spark.datasources.tfrecords").save("tfrecord")
 
     //TestTextData.unittest(spark)
     //TfIdf.unittest(spark)
