@@ -4,7 +4,7 @@ version := "1.0"
 
 scalaVersion := "2.11.8"
 
-sparkVersion := "2.4.5"
+sparkVersion := "2.1.1" // "2.4.5"
 
 sparkComponents ++= Seq("streaming", "sql", "graphx", "mllib")
 
