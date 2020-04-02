@@ -170,8 +170,8 @@ object NLP {
 //    val predict = fastText.predict(Jieba.jieba("fastText在预测标签时使用了非线性激活函数").split(" ").toIterable.asJava, 2)
     //    web.
 
-    TestTextData.wordDataFrame.toDF("label", "inputWords")
-      .write.mode(SaveMode.Overwrite).format("org.tensorflow.spark.datasources.tfrecords").save("tfrecord")
+//    TestTextData.wordDataFrame.toDF("label", "inputWords")
+//      .write.mode(SaveMode.Overwrite).format("org.tensorflow.spark.datasources.tfrecords").save("tfrecord")
 
     //TestTextData.unittest(spark)
     //TfIdf.unittest(spark)
@@ -184,6 +184,7 @@ object NLP {
     //Office.unitTest(spark)
     //Image.unitTest(spark)
     //LPA.unitTest(spark)
+    JenaGraphX.unitTest(spark)
     sc.stop()
   }
 }
