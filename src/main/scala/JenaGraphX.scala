@@ -26,6 +26,17 @@ object JenaGraphX {
     // write it to standard out
     model.write(System.out)
 
+    val statements = model.listStatements()
+    while (statements.hasNext()) {
+      val r = statements.nextStatement()
+      println(r)
+    }
+
+    val subjects = model.listSubjects()
+    while (subjects.hasNext()) {
+      val r = subjects.nextResource()
+      println(r)
+    }
 
     val baseURI = "http://snee.com/xpropgraph#"
     val sc = spark.sparkContext
