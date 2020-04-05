@@ -28,8 +28,11 @@ object JenaGraphX {
 
     val statements = model.listStatements()
     while (statements.hasNext()) {
-      val r = statements.nextStatement()
-      println(r)
+      val stat = statements.nextStatement()
+      val obj = stat.getResource()
+      val sub = stat.getSubject()
+      //s.get
+      println(sub + "->" + stat.getString + "->" + obj)
     }
 
     val subjects = model.listSubjects()
@@ -37,7 +40,7 @@ object JenaGraphX {
       val r = subjects.nextResource()
       println(r)
     }
-
+    
     val baseURI = "http://snee.com/xpropgraph#"
     val sc = spark.sparkContext
 
