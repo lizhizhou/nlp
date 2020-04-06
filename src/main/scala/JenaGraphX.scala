@@ -28,11 +28,28 @@ object JenaGraphX {
 
     val statements = model.listStatements()
     while (statements.hasNext()) {
-      val stat = statements.nextStatement()
-      val obj = stat.getResource()
-      val sub = stat.getSubject()
-      //s.get
-      println(sub + "->" + stat.getString + "->" + obj)
+      val stmt = statements.nextStatement()
+      val obj = stmt.getResource()
+      val sub = stmt.getSubject()
+      if (obj != null && sub != null)
+      println(sub + "->" + stmt.getString + "->" + obj)
+
+//      import java.sql.SQLException
+//      try { // Make a query
+//        val rset = stmt.executeQuery("SELECT DISTINCT ?type WHERE { ?s a ?type } LIMIT 100")
+//        // Iterate over results
+//        while ( {
+//          rset.next
+//        }) { // Print out type as a string
+//          println(rset.getString("type"))
+//        }
+//        // Clean up
+//        rset.close
+//      } catch {
+//        case e: SQLException =>
+//          System.err.println("SQL Error - " + e.getMessage)
+//      } finally stmt.close
+
     }
 
     val subjects = model.listSubjects()
@@ -40,7 +57,7 @@ object JenaGraphX {
       val r = subjects.nextResource()
       println(r)
     }
-    
+
     val baseURI = "http://snee.com/xpropgraph#"
     val sc = spark.sparkContext
 
