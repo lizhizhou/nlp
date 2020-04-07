@@ -29,7 +29,7 @@ object JenaGraphX {
     val statements = model.listStatements()
     while (statements.hasNext()) {
       val stmt = statements.nextStatement()
-      val obj = stmt.getResource()
+      val obj = stmt.getObject()
       val sub = stmt.getSubject()
       if (obj != null && sub != null)
       println(sub + "->" + stmt.getString + "->" + obj)
