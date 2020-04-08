@@ -1,11 +1,13 @@
-import com.hp.hpl.jena.rdf.model.Model
-import com.hp.hpl.jena.rdf.model.ModelFactory
-import com.hp.hpl.jena.util.FileManager
+
 import java.io.InputStream
 
 import org.apache.spark.graphx.{Edge, Graph, VertexId}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
+
+import org.apache.jena.rdf.model.Model
+import org.apache.jena.rdf.model.ModelFactory
+import org.apache.jena.util.FileManager
 
 class JenaGraphX()
 {
@@ -29,26 +31,27 @@ object JenaGraphX {
     val statements = model.listStatements()
     while (statements.hasNext()) {
       val stmt = statements.nextStatement()
-      val obj = stmt.getObject()
-      val sub = stmt.getSubject()
-      if (obj != null && sub != null)
-      println(sub + "->" + stmt.getString + "->" + obj)
+      println(stmt.getString)
+//      val obj = stmt.getObject()
+//      val sub = stmt.getSubject()
+//      if (obj != null && sub != null)
+//        println(sub + "->" + stmt.getString + "->" + obj)
 
-//      import java.sql.SQLException
-//      try { // Make a query
-//        val rset = stmt.executeQuery("SELECT DISTINCT ?type WHERE { ?s a ?type } LIMIT 100")
-//        // Iterate over results
-//        while ( {
-//          rset.next
-//        }) { // Print out type as a string
-//          println(rset.getString("type"))
-//        }
-//        // Clean up
-//        rset.close
-//      } catch {
-//        case e: SQLException =>
-//          System.err.println("SQL Error - " + e.getMessage)
-//      } finally stmt.close
+      //      import java.sql.SQLException
+      //      try { // Make a query
+      //        val rset = stmt.executeQuery("SELECT DISTINCT ?type WHERE { ?s a ?type } LIMIT 100")
+      //        // Iterate over results
+      //        while ( {
+      //          rset.next
+      //        }) { // Print out type as a string
+      //          println(rset.getString("type"))
+      //        }
+      //        // Clean up
+      //        rset.close
+      //      } catch {
+      //        case e: SQLException =>
+      //          System.err.println("SQL Error - " + e.getMessage)
+      //      } finally stmt.close
 
     }
 
