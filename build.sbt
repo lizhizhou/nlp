@@ -23,6 +23,7 @@ libraryDependencies ++= Seq(
    "com.arangodb" % "arangodb-spark-connector" % "1.0.8-SNAPSHOT",
    "com.arangodb" % "arangodb-java-driver" % "5.0.1",
    "org.apache.jena" % "jena-elephas-io" % "3.12.0",
+   "org.apache.jena" % "jena-rdfconnection" % "3.12.0",
    "com.databricks" %% "spark-xml" % "0.4.1",
    "com.crealytics" %% "spark-excel" % "0.9.14",
    "org.apache.poi" % "poi" % "3.17",
