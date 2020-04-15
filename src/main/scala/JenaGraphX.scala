@@ -1,6 +1,5 @@
 
 import java.io.InputStream
-
 import org.apache.spark.graphx.{Edge, Graph, VertexId}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
@@ -8,6 +7,14 @@ import org.apache.spark.sql.SparkSession
 import org.apache.jena.rdf.model.Model
 import org.apache.jena.rdf.model.ModelFactory
 import org.apache.jena.util.FileManager
+
+import org.apache.jena.query._
+import org.apache.jena.rdfconnection.RDFConnection
+import org.apache.jena.rdfconnection.RDFConnectionFactory
+import org.apache.jena.system.Txn
+
+import java.util.function.Consumer
+import org.apache.jena.query.ResultSet
 
 class JenaGraphX()
 {
@@ -37,22 +44,6 @@ object JenaGraphX {
 
       println(sub.toString + "->" + pred.toString + "->" + obj.toString)
 
-      //      import java.sql.SQLException
-      //      try { // Make a query
-      //        val rset = stmt.executeQuery("SELECT DISTINCT ?type WHERE { ?s a ?type } LIMIT 100")
-      //        // Iterate over results
-      //        while ( {
-      //          rset.next
-      //        }) { // Print out type as a string
-      //          println(rset.getString("type"))
-      //        }
-      //        // Clean up
-      //        rset.close
-      //      } catch {
-      //        case e: SQLException =>
-      //          System.err.println("SQL Error - " + e.getMessage)
-      //      } finally stmt.close
-
     }
 
     val subjects = model.listSubjects()
@@ -60,5 +51,27 @@ object JenaGraphX {
       val r = subjects.nextResource()
       println(r)
     }
+
+    //implicit def funToRunnable(fun: () => Unit) = new Runnable() { def run() = fun() }
+
+    val query = QueryFactory.create("SELECT * {}")
+    val dataset = DatasetFactory.createTxnMem()
+    val conn = RDFConnectionFactory.connect(dataset)
+
+    Txn.executeWrite(conn, new Runnable() {
+      def run() = {
+        println("Load a file")
+        conn.load("vc-db-1.rdf")
+        println("In write transaction")
+
+//        val rs:Consumer[ResultSet] = _
+//        conn.queryResultSet(query,  new Runnable() {
+//          def run(rs:Consumer[ResultSet]) = {
+//            println(rs)
+//            //ResultSetFormatter.out(rs)
+//          }
+//        })
+      }
+    })
   }
 }
