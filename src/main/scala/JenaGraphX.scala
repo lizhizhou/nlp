@@ -1,5 +1,6 @@
 
 import java.io.InputStream
+import scala.collection.JavaConverters._
 import org.apache.spark.graphx.{Edge, Graph, VertexId}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
@@ -15,6 +16,7 @@ import org.apache.jena.system.Txn
 
 import java.util.function.Consumer
 import org.apache.jena.query.ResultSet
+import org.apache.jena.atlas.iterator.Iter
 
 class JenaGraphX()
 {
@@ -58,18 +60,16 @@ object JenaGraphX {
     val conn = RDFConnectionFactory.connect(dataset)
 
     Txn.executeWrite(conn, new Runnable() {
-      def run() = {
+      override def run() = {
         println("Load a file")
         conn.load("vc-db-1.rdf")
         println("In write transaction")
 
-//        val rs:Consumer[ResultSet] = _
-//        conn.queryResultSet(query,  new Runnable() {
-//          def run(rs:Consumer[ResultSet]) = {
-//            println(rs)
-//            //ResultSetFormatter.out(rs)
-//          }
-//        })
+        conn.queryResultSet(query, new Consumer[ResultSet] {
+          override def accept(rs: ResultSet): Unit = {
+            Iter.toList(rs).asScala.foreach(println)
+          }
+        })
       }
     })
   }
