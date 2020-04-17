@@ -43,7 +43,6 @@ object JenaGraphX {
       val obj = stmt.getObject()
 
       println(sub.toString + "->" + pred.toString + "->" + obj.toString)
-
     }
 
     val subjects = model.listSubjects()
