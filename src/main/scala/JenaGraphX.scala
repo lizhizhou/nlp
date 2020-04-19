@@ -20,8 +20,12 @@ import org.apache.jena.atlas.iterator.Iter
 
 class JenaGraphX()
 {
-  def toRDF() = {}
-  def toGraphX() = {}
+  def toRDF(graph: Graph[String, String], index:String) = {
+
+  }
+  def toGraphX(file:String) = {
+    
+  }
 
 }
 
