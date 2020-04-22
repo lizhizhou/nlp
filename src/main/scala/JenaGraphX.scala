@@ -18,13 +18,13 @@ import java.util.function.Consumer
 import org.apache.jena.query.ResultSet
 import org.apache.jena.atlas.iterator.Iter
 
-class JenaGraphX()
+class JenaGraphX(spark: SparkSession)
 {
   def toRDF(graph: Graph[String, String], index:String) = {
 
   }
   def toGraphX(file:String) = {
-    
+    val sc = spark.sparkContext
   }
 
 }
