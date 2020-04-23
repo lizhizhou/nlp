@@ -20,6 +20,27 @@ import org.apache.jena.atlas.iterator.Iter
 
 class JenaGraphX(spark: SparkSession)
 {
+  private def readRDF(file:String)={
+    val model: Model = ModelFactory.createDefaultModel
+    val in: InputStream = FileManager.get.open(file)
+    if (in == null) throw new IllegalArgumentException("File: " + inputFileName + " not found")
+
+    // read the RDF/XML file
+    model.read(in, null)
+    // write it to standard out
+    model.write(System.out)
+
+    val statements = model.listStatements()
+    while (statements.hasNext()) {
+      val stmt = statements.nextStatement()
+      val sub = stmt.getSubject()
+      val pred = stmt.getPredicate()
+      val obj = stmt.getObject()
+
+      println(sub.toString + "->" + pred.toString + "->" + obj.toString)
+    }
+  }
+
   def toRDF(graph: Graph[String, String], index:String) = {
 
   }
