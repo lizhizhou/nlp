@@ -23,7 +23,7 @@ class JenaGraphX(spark: SparkSession)
   private def readRDF(file:String)={
     val model: Model = ModelFactory.createDefaultModel
     val in: InputStream = FileManager.get.open(file)
-    if (in == null) throw new IllegalArgumentException("File: " + inputFileName + " not found")
+    if (in == null) throw new IllegalArgumentException("File: " + file + " not found")
 
     // read the RDF/XML file
     model.read(in, null)
