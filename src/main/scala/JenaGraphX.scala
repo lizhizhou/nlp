@@ -24,7 +24,7 @@ class JenaGraphX()
 
   }
   def toGraphX(file:String) = {
-    
+
   }
 
 }

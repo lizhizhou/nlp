@@ -12,6 +12,7 @@ spAppendScalaVersion := true
 
 resolvers += "ossrh repository" at "https://oss.sonatype.org/content/repositories/snapshots/"
 resolvers += Resolver.mavenLocal
+resolvers += Resolver.bintrayRepo("swoop-inc", "maven")
 
 libraryDependencies ++= Seq(
   "log4j" % "log4j" % "1.2.17",
@@ -39,7 +40,8 @@ libraryDependencies ++= Seq(
    "com.hankcs" % "hanlp" % "portable-1.7.3",
    "org.tensorflow" %% "spark-tensorflow-connector" % "1.15.0",
    "org.apache.iotdb" % "spark-tsfile" % "0.9.1",
-   "io.minio" %% "spark-select" % "2.1"
+   "io.minio" %% "spark-select" % "2.1",
+   "com.swoop" %% "spark-alchemy" % "0.5.5"
 )
 
 mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
