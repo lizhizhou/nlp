@@ -1,20 +1,20 @@
 
 import java.io.InputStream
+
+import scala.collection.mutable.ListBuffer
 import scala.collection.JavaConverters._
 import org.apache.spark.graphx.{Edge, Graph, VertexId}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.SparkSession
-
+import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.jena.rdf.model.Model
 import org.apache.jena.rdf.model.ModelFactory
 import org.apache.jena.util.FileManager
-
 import org.apache.jena.query._
 import org.apache.jena.rdfconnection.RDFConnection
 import org.apache.jena.rdfconnection.RDFConnectionFactory
 import org.apache.jena.system.Txn
-
 import java.util.function.Consumer
+
 import org.apache.jena.query.ResultSet
 import org.apache.jena.atlas.iterator.Iter
 
@@ -30,6 +30,7 @@ class JenaGraphX(spark: SparkSession)
     // write it to standard out
     model.write(System.out)
 
+    var tripleRow = new ListBuffer[Row[String,String,String]]()
     val statements = model.listStatements()
     while (statements.hasNext()) {
       val stmt = statements.nextStatement()
@@ -38,11 +39,16 @@ class JenaGraphX(spark: SparkSession)
       val obj = stmt.getObject()
 
       println(sub.toString + "->" + pred.toString + "->" + obj.toString)
+      tripleRow += Row(sub.toString, pred.toString,obj.toString)
     }
+
+    val tg = TripleGraphX[String,String](spark, "object", "subject", "relation")
+    val tripleDF =  spark.createDataFrame(spark.sparkContext.parallelize(tripleRow), tg.getSchema())
+    tg.toGraphX(tripleDF)
   }
 
   def toRDF(graph: Graph[String, String], index:String) = {
- 
+
   }
   def toGraphX(file:String) = {
     val sc = spark.sparkContext
