@@ -30,7 +30,13 @@ class JenaGraphX(spark: SparkSession)
     // write it to standard out
     model.write(System.out)
 
-    var tripleRow = new ListBuffer[Row[String,String,String]]()
+    val subjects = model.listSubjects()
+    while (subjects.hasNext()) {
+      val r = subjects.nextResource()
+      println(r)
+    }
+
+    var tripleRow = new ListBuffer[Row]()
     val statements = model.listStatements()
     while (statements.hasNext()) {
       val stmt = statements.nextStatement()
@@ -58,39 +64,22 @@ class JenaGraphX(spark: SparkSession)
 }
 
 object JenaGraphX {
+  def apply(spark: SparkSession) = new JenaGraphX(spark)
+
   def unitTest(spark: SparkSession) {
-    val model: Model = ModelFactory.createDefaultModel
     // use the FileManager to find the input file
     val inputFileName = "vc-db-1.rdf"
-    val in: InputStream = FileManager.get.open(inputFileName)
-    if (in == null) throw new IllegalArgumentException("File: " + inputFileName + " not found")
-
-    // read the RDF/XML file
-    model.read(in, null)
-    // write it to standard out
-    model.write(System.out)
-
-    val statements = model.listStatements()
-    while (statements.hasNext()) {
-      val stmt = statements.nextStatement()
-      val sub = stmt.getSubject()
-      val pred = stmt.getPredicate()
-      val obj = stmt.getObject()
-
-      println(sub.toString + "->" + pred.toString + "->" + obj.toString)
-    }
-
-    val subjects = model.listSubjects()
-    while (subjects.hasNext()) {
-      val r = subjects.nextResource()
-      println(r)
-    }
+    val jena = JenaGraphX(spark)
+    val graph = jena.readRDF(inputFileName)
+    graph.triplets.map(
+      triplet => triplet.srcAttr + " " + triplet.attr + " " + triplet.dstAttr
+    ).collect.foreach(println(_))
 
     //implicit def funToRunnable(fun: () => Unit) = new Runnable() { def run() = fun() }
 
     val query = QueryFactory.create("SELECT * {}")
-    val dataset = DatasetFactory.createTxnMem()
-    val conn = RDFConnectionFactory.connect(dataset)
+    val dataSet = DatasetFactory.createTxnMem()
+    val conn = RDFConnectionFactory.connect(dataSet)
 
     Txn.executeWrite(conn, new Runnable() {
       override def run() = {
