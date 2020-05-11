@@ -1,4 +1,3 @@
-
 import java.io.InputStream
 
 import scala.collection.mutable.ListBuffer
@@ -20,16 +19,26 @@ import org.apache.jena.atlas.iterator.Iter
 
 class JenaGraphX(spark: SparkSession)
 {
-  private def readRDF(file:String)={
+  def readRDF(file:String) =
+  {
     val model: Model = ModelFactory.createDefaultModel
     val in: InputStream = FileManager.get.open(file)
     if (in == null) throw new IllegalArgumentException("File: " + file + " not found")
-
     // read the RDF/XML file
     model.read(in, null)
     // write it to standard out
     model.write(System.out)
+    model
+  }
 
+  def toRDF(graph: Graph[String, String], index:String) = {
+    TripleGraphX[String,String](spark, "object", "subject", "relation").toTriple(graph)
+  }
+
+  def toGraphX(file:String) = {
+    val sc = spark.sparkContext
+
+    val model = readRDF(file)
     val subjects = model.listSubjects()
     while (subjects.hasNext()) {
       val r = subjects.nextResource()
@@ -53,14 +62,6 @@ class JenaGraphX(spark: SparkSession)
     tg.toGraphX(tripleDF)
   }
 
-  def toRDF(graph: Graph[String, String], index:String) = {
-
-  }
-  def toGraphX(file:String) = {
-    val sc = spark.sparkContext
-
-  }
-
 }
 
 object JenaGraphX {
@@ -70,7 +71,7 @@ object JenaGraphX {
     // use the FileManager to find the input file
     val inputFileName = "vc-db-1.rdf"
     val jena = JenaGraphX(spark)
-    val graph = jena.readRDF(inputFileName)
+    val graph = jena.toGraphX(inputFileName)
     graph.triplets.map(
       triplet => triplet.srcAttr + " " + triplet.attr + " " + triplet.dstAttr
     ).collect.foreach(println(_))
