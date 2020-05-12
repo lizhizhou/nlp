@@ -67,18 +67,8 @@ class JenaGraphX(spark: SparkSession)
 object JenaGraphX {
   def apply(spark: SparkSession) = new JenaGraphX(spark)
 
-  def unitTest(spark: SparkSession) {
-    // use the FileManager to find the input file
-    val inputFileName = "vc-db-1.rdf"
-    val jena = JenaGraphX(spark)
-    val graph = jena.toGraphX(inputFileName)
-    graph.triplets.map(
-      triplet => triplet.srcAttr + " " + triplet.attr + " " + triplet.dstAttr
-    ).collect.foreach(println(_))
-
-    //implicit def funToRunnable(fun: () => Unit) = new Runnable() { def run() = fun() }
-
-    val query = QueryFactory.create("SELECT * {}")
+  def sparQL(ql:String) = {
+    val query = QueryFactory.create(ql)
     val dataSet = DatasetFactory.createTxnMem()
     val conn = RDFConnectionFactory.connect(dataSet)
 
@@ -95,5 +85,19 @@ object JenaGraphX {
         })
       }
     })
+  }
+
+  def unitTest(spark: SparkSession) {
+    // use the FileManager to find the input file
+    val inputFileName = "vc-db-1.rdf"
+    val jena = JenaGraphX(spark)
+    val graph = jena.toGraphX(inputFileName)
+    graph.triplets.map(
+      triplet => triplet.srcAttr + " " + triplet.attr + " " + triplet.dstAttr
+    ).collect.foreach(println(_))
+
+    //implicit def funToRunnable(fun: () => Unit) = new Runnable() { def run() = fun() }
+    sparQL("SELECT * {}")
+
   }
 }
