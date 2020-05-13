@@ -67,7 +67,7 @@ class JenaGraphX(spark: SparkSession)
 object JenaGraphX {
   def apply(spark: SparkSession) = new JenaGraphX(spark)
 
-  def sparQL(ql:String) = {
+  def sparQL(file:String, ql:String) = {
     val query = QueryFactory.create(ql)
     val dataSet = DatasetFactory.createTxnMem()
     val conn = RDFConnectionFactory.connect(dataSet)
@@ -75,7 +75,7 @@ object JenaGraphX {
     Txn.executeWrite(conn, new Runnable() {
       override def run() = {
         println("Load a file")
-        conn.load("vc-db-1.rdf")
+        conn.load(file)
         println("In write transaction")
 
         conn.queryResultSet(query, new Consumer[ResultSet] {
@@ -97,7 +97,7 @@ object JenaGraphX {
     ).collect.foreach(println(_))
 
     //implicit def funToRunnable(fun: () => Unit) = new Runnable() { def run() = fun() }
-    sparQL("SELECT * {}")
+    sparQL("vc-db-1.rdf","SELECT * {}")
 
   }
 }
