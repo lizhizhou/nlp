@@ -1,4 +1,4 @@
-import java.io.InputStream
+import java.io.{FileOutputStream, OutputStream, InputStream}
 
 import scala.collection.mutable.ListBuffer
 import scala.collection.JavaConverters._
@@ -28,7 +28,17 @@ class JenaGraphX(spark: SparkSession)
     model.read(in, null)
     // write it to standard out
     model.write(System.out)
+    writeRDF(model, "test.rdf")
     model
+  }
+
+  def writeRDF(model:Model, file:String): Unit =
+  {
+
+    val model: Model = ModelFactory.createDefaultModel
+    val out: OutputStream  =  new FileOutputStream(file)
+    model.write(out)
+    out.close()
   }
 
   def toRDF(graph: Graph[String, String], index:String) = {
