@@ -12,6 +12,7 @@ import org.apache.jena.query._
 import org.apache.jena.rdfconnection.RDFConnection
 import org.apache.jena.rdfconnection.RDFConnectionFactory
 import org.apache.jena.system.Txn
+import org.apache.jena.vocabulary.VCARD
 import java.util.function.Consumer
 
 import org.apache.jena.query.ResultSet
@@ -19,7 +20,7 @@ import org.apache.jena.atlas.iterator.Iter
 
 class JenaGraphX(spark: SparkSession)
 {
-  def readRDF(file:String) =
+  private def readRDF(file:String) =
   {
     val model: Model = ModelFactory.createDefaultModel
     val in: InputStream = FileManager.get.open(file)
@@ -28,7 +29,7 @@ class JenaGraphX(spark: SparkSession)
     model.read(in, null)
     // write it to standard out
     model.write(System.out)
-    writeRDF(model, "test.rdf")
+   // writeRDF(model, "test.rdf")
     model
   }
 
@@ -108,6 +109,19 @@ object JenaGraphX {
 
     //implicit def funToRunnable(fun: () => Unit) = new Runnable() { def run() = fun() }
     sparQL("vc-db-1.rdf","SELECT * {}")
+
+    val personURI = "http://somewhere/JohnSmith"
+    val fullName = "John Smith"
+
+    // create an empty Model
+    val model = ModelFactory.createDefaultModel
+
+    // create the resource
+    val johnSmith = model.createResource(personURI)
+
+    // add the property
+    johnSmith.addProperty(VCARD.FN, fullName)
+    jena.writeRDF(model,"test.rdf")
 
   }
 }
