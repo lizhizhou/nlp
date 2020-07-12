@@ -41,7 +41,8 @@ libraryDependencies ++= Seq(
    "org.tensorflow" %% "spark-tensorflow-connector" % "1.15.0",
    "org.apache.iotdb" % "spark-tsfile" % "0.9.1",
    "io.minio" %% "spark-select" % "2.1",
-   "com.swoop" %% "spark-alchemy" % "0.5.5"
+   "com.swoop" %% "spark-alchemy" % "0.5.5",
+   "ml.dmlc" % "xgboost4j-spark" % "0.90"
 )
 
 mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>

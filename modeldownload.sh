@@ -6,4 +6,5 @@ wget -O stopwords.txt https://raw.githubusercontent.com/goto456/stopwords/master
 wget https://jena.apache.org/tutorials/sparql_data/vc-db-1.rdf
 wget http://www.zzs5.com/uploadfile/2016/1011/20161011035857541.txt
 wget http://lizhizhou.github.io/javascript.jpeg
+wget https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data
 dos2unix 20161011035857541.txt
