@@ -44,8 +44,8 @@ object Xgboost
     val nativeModelPath = "/tmp/nativeModel"
     xgbClassificationModel.nativeBooster.saveModel(nativeModelPath)
 
-    //val results = xgbClassificationModel.transform(testSet)
-    //results.show()
+    val results = xgbClassificationModel.transform(xgbInput)
+    results.show()
   }
 
 }
